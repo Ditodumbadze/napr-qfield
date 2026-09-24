@@ -49,6 +49,11 @@ jobs:
       - name: 🩹 Apply NAPR patch
         run: |
           git apply --verbose napr-src/napr-qfield-4.3.3.patch
+          # Bundle the default Georgia project (qgz + gpkg) if it is in the repository
+          if [ -d napr-src/georgia-project ]; then
+            mkdir -p resources/sample_projects/georgia
+            cp -rv napr-src/georgia-project/. resources/sample_projects/georgia/
+          fi
           rm -rf napr-src
           git status --short
 
