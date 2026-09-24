@@ -136,6 +136,19 @@ index 4d7711e..4318375 100644
      <string name="lib_name" translatable="false">qfield</string>
      <string name="grant_permission">All files access</string>
      <string name="grant_all_files_permission"><![CDATA[QField needs all files access permission to be able to open local projects and datasets as well as supporting custom projection grids, fonts, and base maps. While not required, <i>allowing access is highly recommended</i>.<br/><br/>On the next screen, please select <b>QField</b> and select the <b>Allow access to all files</b> option.]]></string>
+diff --git a/platform/ios/Info.plist.in b/platform/ios/Info.plist.in
+index 960877c..e17fb93 100644
+--- a/platform/ios/Info.plist.in
++++ b/platform/ios/Info.plist.in
+@@ -43,6 +43,8 @@
+     <!-- Unique bundle name across AppStore -->
+     <key>CFBundleName</key>
+     <string>${MACOSX_BUNDLE_BUNDLE_NAME}</string>
++    <key>CFBundleDisplayName</key>
++    <string>Georgia QField</string>
+ 
+     <key>CFBundlePackageType</key>
+     <string>APPL</string>
 diff --git a/src/app/qml/QfAbout.qml b/src/app/qml/QfAbout.qml
 index d9619b2..8679692 100644
 --- a/src/app/qml/QfAbout.qml
