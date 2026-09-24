@@ -1,17 +1,117 @@
+diff --git a/images/images.qrc b/images/images.qrc
+index b8ec42e..4a2080d 100644
+--- a/images/images.qrc
++++ b/images/images.qrc
+@@ -138,6 +138,12 @@
+         <file>themes/qfield/nodpi/ic_temporal_green_24dp.svg</file>
+         <file>themes/qfield/nodpi/ic_snapping_white_24dp.svg</file>
+         <file>themes/qfield/nodpi/ic_topology_white_24dp.svg</file>
++        <file>themes/qfield/nodpi/ic_napr_topology_check_white_24dp.svg</file>
++        <file>themes/qfield/nodpi/ic_napr_shapes_white_24dp.svg</file>
++        <file>themes/qfield/nodpi/ic_napr_shape_rect_white_24dp.svg</file>
++        <file>themes/qfield/nodpi/ic_napr_shape_rect3_white_24dp.svg</file>
++        <file>themes/qfield/nodpi/ic_napr_shape_circle_white_24dp.svg</file>
++        <file>themes/qfield/nodpi/ic_napr_shape_polygon_white_24dp.svg</file>
+         <file>themes/qfield/nodpi/ic_freehand_white_24dp.svg</file>
+         <file>themes/qfield/nodpi/ic_clear_black_18dp.svg</file>
+         <file>themes/qfield/nodpi/ic_location_canvas_lock_white_24dp.svg</file>
+diff --git a/images/themes/qfield/nodpi/ic_napr_shape_circle_white_24dp.svg b/images/themes/qfield/nodpi/ic_napr_shape_circle_white_24dp.svg
+new file mode 100644
+index 0000000..4ead079
+--- /dev/null
++++ b/images/themes/qfield/nodpi/ic_napr_shape_circle_white_24dp.svg
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<svg width="24" height="24" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
++ <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
++  <circle cx="12" cy="12" r="8.5"/>
++  <path d="m12 12 7.4-4.2"/>
++ </g>
++ <g fill="#fff"><circle cx="12" cy="12" r="2"/><circle cx="19.4" cy="7.8" r="2"/></g>
++</svg>
+diff --git a/images/themes/qfield/nodpi/ic_napr_shape_polygon_white_24dp.svg b/images/themes/qfield/nodpi/ic_napr_shape_polygon_white_24dp.svg
+new file mode 100644
+index 0000000..26db6fc
+--- /dev/null
++++ b/images/themes/qfield/nodpi/ic_napr_shape_polygon_white_24dp.svg
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<svg width="24" height="24" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
++ <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
++  <path d="m12 3.5 7.4 4.25v8.5l-7.4 4.25-7.4-4.25v-8.5z"/>
++  <path d="m12 12v-8.5"/>
++ </g>
++ <g fill="#fff"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="3.5" r="2"/></g>
++</svg>
+diff --git a/images/themes/qfield/nodpi/ic_napr_shape_rect3_white_24dp.svg b/images/themes/qfield/nodpi/ic_napr_shape_rect3_white_24dp.svg
+new file mode 100644
+index 0000000..b8fb888
+--- /dev/null
++++ b/images/themes/qfield/nodpi/ic_napr_shape_rect3_white_24dp.svg
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<svg width="24" height="24" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
++ <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
++  <path d="m4.5 9.5 9-5 5.5 9.5-9 5z"/>
++ </g>
++ <g fill="#fff"><circle cx="4.5" cy="9.5" r="2"/><circle cx="13.5" cy="4.5" r="2"/><circle cx="19" cy="14" r="2"/></g>
++</svg>
+diff --git a/images/themes/qfield/nodpi/ic_napr_shape_rect_white_24dp.svg b/images/themes/qfield/nodpi/ic_napr_shape_rect_white_24dp.svg
+new file mode 100644
+index 0000000..7377351
+--- /dev/null
++++ b/images/themes/qfield/nodpi/ic_napr_shape_rect_white_24dp.svg
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<svg width="24" height="24" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
++ <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
++  <rect x="4" y="6" width="16" height="12" rx="0.5"/>
++ </g>
++ <g fill="#fff"><circle cx="4" cy="6" r="2"/><circle cx="20" cy="18" r="2"/></g>
++</svg>
+diff --git a/images/themes/qfield/nodpi/ic_napr_shapes_white_24dp.svg b/images/themes/qfield/nodpi/ic_napr_shapes_white_24dp.svg
+new file mode 100644
+index 0000000..7f58d31
+--- /dev/null
++++ b/images/themes/qfield/nodpi/ic_napr_shapes_white_24dp.svg
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<svg width="24" height="24" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
++ <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
++  <rect x="3" y="3" width="11" height="11" rx="1.5"/>
++  <circle cx="15.5" cy="15.5" r="5.5"/>
++ </g>
++</svg>
+diff --git a/images/themes/qfield/nodpi/ic_napr_topology_check_white_24dp.svg b/images/themes/qfield/nodpi/ic_napr_topology_check_white_24dp.svg
+new file mode 100644
+index 0000000..e53577b
+--- /dev/null
++++ b/images/themes/qfield/nodpi/ic_napr_topology_check_white_24dp.svg
+@@ -0,0 +1,10 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<svg width="24" height="24" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
++ <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
++  <path d="m3 4.5 8-1.5 1 8.5-8.5 1z"/>
++  <path d="m11 3 9 1.5-0.4 5.2"/>
++  <path d="m3.5 12.5 0.5 8h7"/>
++  <circle cx="17.5" cy="16.5" r="5"/>
++  <path d="m15.2 16.6 1.7 1.7 3.1-3.3"/>
++ </g>
++</svg>
 diff --git a/platform/android/res/values/strings.xml b/platform/android/res/values/strings.xml
-index 4d7711e..c5fd346 100644
+index 4d7711e..4318375 100644
 --- a/platform/android/res/values/strings.xml
 +++ b/platform/android/res/values/strings.xml
 @@ -1,6 +1,6 @@
  <?xml version='1.0' encoding='utf-8'?>
  <resources>
 -    <string name="app_name" translatable="false">QField</string>
-+    <string name="app_name" translatable="false">NAPR QField</string>
++    <string name="app_name" translatable="false">Georgia QField</string>
      <string name="lib_name" translatable="false">qfield</string>
      <string name="grant_permission">All files access</string>
      <string name="grant_all_files_permission"><![CDATA[QField needs all files access permission to be able to open local projects and datasets as well as supporting custom projection grids, fonts, and base maps. While not required, <i>allowing access is highly recommended</i>.<br/><br/>On the next screen, please select <b>QField</b> and select the <b>Allow access to all files</b> option.]]></string>
 diff --git a/src/app/qml/QfAbout.qml b/src/app/qml/QfAbout.qml
-index d9619b2..57389e4 100644
+index d9619b2..8679692 100644
 --- a/src/app/qml/QfAbout.qml
 +++ b/src/app/qml/QfAbout.qml
 @@ -131,6 +131,19 @@ Item {
@@ -19,7 +119,7 @@ index d9619b2..57389e4 100644
              onLinkActivated: link => Qt.openUrlExternally(link)
            }
 +
-+          // NAPR: modification credit (as in NAPR 1.9.6)
++          // Georgia QField: modification credit
 +          Label {
 +            Layout.fillWidth: true
 +            Layout.alignment: Qt.AlignCenter
@@ -29,20 +129,20 @@ index d9619b2..57389e4 100644
 +            color: QfTheme.light
 +            textFormat: Text.RichText
 +            wrapMode: Text.WordWrap
-+            text: '<span style="color:#4fc3f7">' + qsTr("Modified by") + '</span><br>Luka Nukradze<br><small style="color:#aaaaaa">' + qsTr("GIS Specialist · Field Data Collection") + '</small>'
++            text: '<span style="color:#4fc3f7">' + qsTr("Modified by") + '</span><br>' + qsTr("დიტო დუმბაძე") + '<br><small style="color:#aaaaaa">' + qsTr("GIS Specialist · Field Data Collection") + '</small>'
 +          }
          }
        }
      }
 diff --git a/src/app/qml/QfWelcomeScreen.qml b/src/app/qml/QfWelcomeScreen.qml
-index f41b4e8..1e18334 100644
+index f41b4e8..240df55 100644
 --- a/src/app/qml/QfWelcomeScreen.qml
 +++ b/src/app/qml/QfWelcomeScreen.qml
 @@ -492,6 +492,23 @@ Page {
          wrapMode: Text.WordWrap
        }
  
-+      // NAPR: author credit (as in NAPR 1.9.6)
++      // Georgia QField: author credit
 +      Text {
 +        id: authorText
 +        visible: !feedbackView.visible
@@ -51,7 +151,7 @@ index f41b4e8..1e18334 100644
 +        Layout.bottomMargin: 6
 +        Layout.fillWidth: true
 +        Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-+        text: qsTr("ავტორი: Luka Nukradze") + "<br><small>" + qsTr("GIS Specialist · Field Data Collection") + "</small>"
++        text: qsTr("ავტორი: დიტო დუმბაძე") + "<br><small>" + qsTr("GIS Specialist · Field Data Collection") + "</small>"
 +        textFormat: Text.StyledText
 +        font: QfTheme.defaultFont
 +        color: QfTheme.mainColor
@@ -62,8 +162,17 @@ index f41b4e8..1e18334 100644
        Rectangle {
          Layout.leftMargin: 6
          Layout.rightMargin: 6
+@@ -1034,7 +1051,7 @@ Page {
+       } else {
+         var firstRun = !settings.valueBool("/QField/FirstRunDone", false);
+         if (firstRun) {
+-          welcomeText.text = table.count > 0 ? qsTr("First time using this application? Try the sample projects listed below.") : "";
++          welcomeText.text = "";
+           settings.setValue("/QField/FirstRunDone", true);
+           settings.setValue("/QField/showMapCanvasGuide", true);
+         } else {
 diff --git a/src/app/qml/QgisMobileapp.qml b/src/app/qml/QgisMobileapp.qml
-index 8b351c1..f187b19 100644
+index 8b351c1..afef034 100644
 --- a/src/app/qml/QgisMobileapp.qml
 +++ b/src/app/qml/QgisMobileapp.qml
 @@ -2277,6 +2277,18 @@ ApplicationWindow {
@@ -71,12 +180,12 @@ index 8b351c1..f187b19 100644
        anchors.topMargin: QfTheme.toolButtonSize + 4
        spacing: 4
 +
-+      // NAPR: topology checker toggle (top-right, below search — same spot as NAPR 1.9.6)
++      // Georgia QField: topology checker toggle (top-right, below search)
 +      QfToolButton {
 +        id: topologyCheckerButton
 +        round: true
 +        visible: !screenLocker.enabled && stateMachine.state !== "measure"
-+        iconSource: QfTheme.getThemeVectorIcon("ic_topology_white_24dp")
++        iconSource: QfTheme.getThemeVectorIcon("ic_napr_topology_check_white_24dp")
 +        iconColor: topologyCheckerDialog.isOpen ? QfTheme.mainColor : QfTheme.toolButtonColor
 +        bgcolor: QfTheme.toolButtonBackgroundColor
 +
@@ -94,7 +203,7 @@ index 8b351c1..f187b19 100644
 +        id: shapeButton
 +        round: true
 +        visible: stateMachine.state === "digitize" && dashBoard.activeLayer && dashBoard.activeLayer.isValid && dashBoard.activeLayer.geometryType() === Qgis.GeometryType.Polygon
-+        iconSource: QfTheme.getThemeVectorIcon("ic_geometry_polygon_24dp")
++        iconSource: QfTheme.getThemeVectorIcon("ic_napr_shapes_white_24dp")
 +        iconColor: shapeDigitizingDialog.isOpen ? QfTheme.mainColor : QfTheme.toolButtonColor
 +        bgcolor: QfTheme.toolButtonBackgroundColor
 +
@@ -202,7 +311,7 @@ index 531930f..a753b5d 100644
      qmlRegisterType<QfDeltaListModel>( "org.qfield.core", 1, 0, "QfDeltaListModel" );
 diff --git a/src/core/shapedigitizingmodel.cpp b/src/core/shapedigitizingmodel.cpp
 new file mode 100644
-index 0000000..c17ef40
+index 0000000..d61aff9
 --- /dev/null
 +++ b/src/core/shapedigitizingmodel.cpp
 @@ -0,0 +1,411 @@
@@ -614,7 +723,7 @@ index 0000000..c17ef40
 +  }
 +
 +  clear();
-+  emit committed( true, QStringLiteral( "ფიგურა დაემატა ✓" ) );
++  emit committed( true, QStringLiteral( "ფიგურა დაემატა" ) );
 +  return QString();
 +}
 diff --git a/src/core/shapedigitizingmodel.h b/src/core/shapedigitizingmodel.h
@@ -757,7 +866,7 @@ index 0000000..969d5aa
 +#endif // SHAPEDIGITIZINGMODEL_H
 diff --git a/src/core/topologycheckermodel.cpp b/src/core/topologycheckermodel.cpp
 new file mode 100644
-index 0000000..14302a8
+index 0000000..55921fc
 --- /dev/null
 +++ b/src/core/topologycheckermodel.cpp
 @@ -0,0 +1,822 @@
@@ -837,14 +946,14 @@ index 0000000..14302a8
 +{
 +  switch ( type )
 +  {
-+    case MustContain:                 return QStringLiteral( "must contain" );
-+    case MustNotHaveDuplicates:       return QStringLiteral( "must not have duplicates" );
-+    case MustNotHaveGaps:             return QStringLiteral( "must not have gaps" );
-+    case MustNotHaveInvalidGeometries:return QStringLiteral( "must not have invalid geometries" );
-+    case MustNotHaveMultiPart:        return QStringLiteral( "must not have multi-part geometries" );
-+    case MustNotOverlap:              return QStringLiteral( "must not overlap" );
-+    case MustNotOverlapWith:          return QStringLiteral( "must not overlap with" );
-+    case MustBeInsideOrDisjoint:      return QStringLiteral( "must be inside or disjoint" );
++    case MustContain:                 return QStringLiteral( "უნდა შეიცავდეს" );
++    case MustNotHaveDuplicates:       return QStringLiteral( "დუბლიკატების გარეშე" );
++    case MustNotHaveGaps:             return QStringLiteral( "ხარვეზების (gap) გარეშე" );
++    case MustNotHaveInvalidGeometries:return QStringLiteral( "არავალიდური გეომეტრიის გარეშე" );
++    case MustNotHaveMultiPart:        return QStringLiteral( "მრავალნაწილიანის გარეშე" );
++    case MustNotOverlap:              return QStringLiteral( "გადაფარვის გარეშე" );
++    case MustNotOverlapWith:          return QStringLiteral( "არ გადაეფაროს ფენას" );
++    case MustBeInsideOrDisjoint:      return QStringLiteral( "სრულად შიგნით ან გარეთ" );
 +  }
 +  return QString();
 +}
@@ -1451,12 +1560,12 @@ index 0000000..14302a8
 +    const QString found = n == 0
 +      ? tr( "ხარვეზი არ აღმოჩენილა" )
 +      : tr( "%1 ხარვეზი" ).arg( n );
-+    mStatusText = tr( "%1\n⚠ ფენა ვერ მოიძებნა: %2" ).arg( found, QStringList( missing.values() ).join( QStringLiteral( ", " ) ) );
++    mStatusText = tr( "%1\nფენა ვერ მოიძებნა: %2" ).arg( found, QStringList( missing.values() ).join( QStringLiteral( ", " ) ) );
 +  }
 +  else
 +  {
 +    mStatusText = n == 0
-+      ? tr( "ხარვეზი არ აღმოჩენილა ✓" )
++      ? tr( "ხარვეზი არ აღმოჩენილა" )
 +      : tr( "%1 ხარვეზი აღმოჩენილა" ).arg( n );
 +  }
 +
@@ -1797,6 +1906,83 @@ index 0000000..cc68a2a
 +};
 +
 +#endif // TOPOLOGYCHECKERMODEL_H
+diff --git a/src/gui/qfrecentprojectlistmodel.cpp b/src/gui/qfrecentprojectlistmodel.cpp
+index 5eadac4..49f624c 100644
+--- a/src/gui/qfrecentprojectlistmodel.cpp
++++ b/src/gui/qfrecentprojectlistmodel.cpp
+@@ -19,6 +19,8 @@
+ #include "qfplatformutilities.h"
+ #include "qfrecentprojectlistmodel.h"
+ 
++#include <algorithm>
++
+ #include <QDir>
+ #include <QFile>
+ #include <QSettings>
+@@ -49,56 +51,13 @@ void QfRecentProjectListModel::reloadModel()
+ 
+   mRecentProjects = recentProjects( true );
+ 
+-  const bool sampleProjectsAdded = settings.value( QStringLiteral( "QField/recentProjectsAdded" ), false ).toBool();
+-  if ( !sampleProjectsAdded )
+-  {
+-    const QString sampleProjectsDirectory = QfPlatformUtilities::instance()->systemLocalDataLocation( QLatin1String( "sample_projects" ) );
+-    const QString sampleProjectsJson = QStringLiteral( "%1/sample_projects.json" ).arg( sampleProjectsDirectory );
+-    if ( QFileInfo::exists( sampleProjectsJson ) )
+-    {
+-      bool sampleProjectsJsonIsValid = true;
+-      QFile sampleProjectsFile( sampleProjectsJson );
+-      QJsonDocument doc;
+-      if ( sampleProjectsFile.open( QIODevice::ReadOnly ) )
+-      {
+-        QJsonParseError error;
+-        doc = QJsonDocument::fromJson( sampleProjectsFile.readAll(), &error );
+-        if ( doc.isNull() || !doc.isArray() )
+-        {
+-          sampleProjectsJsonIsValid = false;
+-        }
+-      }
+-      else
+-      {
+-        sampleProjectsJsonIsValid = false;
+-      }
+-
+-      if ( sampleProjectsJsonIsValid )
+-      {
+-        const QJsonArray values = doc.array();
+-        for ( const QJsonValueConstRef &value : values )
+-        {
+-          if ( !value.isObject() )
+-          {
+-            continue;
+-          }
+-
+-          const QJsonObject valueObject = value.toObject();
+-          mRecentProjects.append( RecentProject( LinkProject,
+-                                                 valueObject.value( QStringLiteral( "title" ) ).toString(),
+-                                                 valueObject.value( QStringLiteral( "link" ) ).toString(),
+-                                                 QStringLiteral( "%1/%2" ).arg( sampleProjectsDirectory, valueObject.value( QStringLiteral( "thumbnail" ) ).toString() ) ) );
+-
+-          settings.beginGroup( QStringLiteral( "/qgis/recentProjects/%1" ).arg( mRecentProjects.count() ) );
+-          settings.setValue( QStringLiteral( "title" ), mRecentProjects.last().title );
+-          settings.setValue( QStringLiteral( "path" ), mRecentProjects.last().path );
+-          settings.setValue( QStringLiteral( "thumbnail" ), mRecentProjects.last().thumbnail );
+-          settings.endGroup();
+-        }
+-      }
+-    }
+-    settings.setValue( QStringLiteral( "QField/recentProjectsAdded" ), true );
+-  }
++  // Georgia QField: never offer the upstream QField sample projects. Skip adding
++  // them on first run and drop any that an earlier build already stored.
++  mRecentProjects.erase( std::remove_if( mRecentProjects.begin(), mRecentProjects.end(), []( const RecentProject &project ) {
++                           return project.path.contains( QStringLiteral( "qfield.org/sample-projects/" ), Qt::CaseInsensitive );
++                         } ),
++                         mRecentProjects.end() );
++  settings.setValue( QStringLiteral( "QField/recentProjectsAdded" ), true );
+ 
+   endResetModel();
+ }
 diff --git a/src/gui/qml/CMakeLists.txt b/src/gui/qml/CMakeLists.txt
 index 05cbb4b..91eece1 100644
 --- a/src/gui/qml/CMakeLists.txt
@@ -1812,29 +1998,25 @@ index 05cbb4b..91eece1 100644
      QfEgenioussDeviceChooser.qml
 diff --git a/src/gui/qml/ShapeDigitizingDialog.qml b/src/gui/qml/ShapeDigitizingDialog.qml
 new file mode 100644
-index 0000000..65e2f15
+index 0000000..a0bb823
 --- /dev/null
 +++ b/src/gui/qml/ShapeDigitizingDialog.qml
-@@ -0,0 +1,373 @@
+@@ -0,0 +1,561 @@
 +import QtQuick
 +import QtQuick.Controls
++import QtQuick.Controls.impl
 +import QtQuick.Layouts
-+
 +import org.qfield.core
 +import org.qfield.gui
 +
 +/**
-+ * QGIS-style shape digitizing overlay for QField.
++ * Shape digitizing overlay (rectangle / circle / regular polygon).
 + *
-+ * Two input modes (toggled in the header):
-+ *  - Pen mode (default): tap the map directly with the pen/finger to place each
-+ *    point exactly where you touch; the live preview follows the pen. Best for
-+ *    small/precise objects. Map panning is paused while pen mode is on.
-+ *  - Centre mode: the map stays pannable; line up the fixed centre crosshair and
-+ *    tap "წერტილი" to capture the map centre.
++ * Two input modes:
++ *  - Pen: tap the map directly to place each point; the preview follows the pen.
++ *  - Centre: pan the map to line up the fixed crosshair and press "Add point".
 + *
-+ * The captured points build a rectangle / circle / regular polygon, which is
-+ * added as a new feature to the current editable polygon layer.
++ * The finished shape is added as a new feature to the current polygon layer.
 + */
 +Item {
 +  id: root
@@ -1842,13 +2024,18 @@ index 0000000..65e2f15
 +  property var mapSettingsRef: null
 +  property var currentLayer: null
 +  property bool isOpen: false
-+  // Pen mode: tap directly on the map (pen/finger) to place each point exactly
-+  // where you touch. Off = use the fixed centre crosshair + "წერტილი" button.
 +  property bool penMode: true
 +
-+  signal toast( string message )
++  signal toast(string message)
 +
 +  visible: isOpen
++
++  readonly property color accentColor: QfTheme.mainColor
++  readonly property color previewColor: "#FF6D00"
++
++  function tint(c, a) {
++    return Qt.rgba(c.r, c.g, c.b, a);
++  }
 +
 +  ShapeDigitizingModel {
 +    id: shapeModel
@@ -1857,9 +2044,9 @@ index 0000000..65e2f15
 +  }
 +
 +  onIsOpenChanged: {
-+    if ( isOpen ) {
-+      shapeModel.clear()
-+      previewCanvas.requestPaint()
++    if (isOpen) {
++      shapeModel.clear();
++      previewCanvas.requestPaint();
 +    }
 +  }
 +
@@ -1871,318 +2058,505 @@ index 0000000..65e2f15
 +    z: 4
 +
 +    onPaint: {
-+      var ctx = getContext( "2d" )
-+      ctx.reset()
++      var ctx = getContext("2d");
++      ctx.reset();
 +
-+      // Shape outline (captured points + provisional crosshair point)
-+      var outline = shapeModel.previewOutlineScreen()
-+      if ( outline.length > 1 ) {
-+        ctx.beginPath()
-+        ctx.moveTo( outline[0].x, outline[0].y )
-+        for ( var i = 1; i < outline.length; i++ )
-+          ctx.lineTo( outline[i].x, outline[i].y )
-+        ctx.closePath()
-+        ctx.fillStyle = "rgba(255, 102, 0, 0.18)"
-+        ctx.fill()
-+        ctx.lineWidth = 3
-+        ctx.strokeStyle = "#FF6600"
-+        ctx.stroke()
++      var outline = shapeModel.previewOutlineScreen();
++      if (outline.length > 1) {
++        ctx.beginPath();
++        ctx.moveTo(outline[0].x, outline[0].y);
++        for (var i = 1; i < outline.length; i++)
++          ctx.lineTo(outline[i].x, outline[i].y);
++        ctx.closePath();
++        ctx.fillStyle = "rgba(255, 109, 0, 0.16)";
++        ctx.fill();
++        ctx.lineWidth = 2.5;
++        ctx.strokeStyle = root.previewColor;
++        ctx.stroke();
 +      }
 +
-+      // Captured construction vertices
-+      var pts = shapeModel.capturedPointsScreen()
-+      for ( var j = 0; j < pts.length; j++ ) {
-+        ctx.beginPath()
-+        ctx.arc( pts[j].x, pts[j].y, 7, 0, 2 * Math.PI )
-+        ctx.fillStyle = "#1565C0"
-+        ctx.fill()
-+        ctx.lineWidth = 2
-+        ctx.strokeStyle = "white"
-+        ctx.stroke()
++      var pts = shapeModel.capturedPointsScreen();
++      for (var j = 0; j < pts.length; j++) {
++        ctx.beginPath();
++        ctx.arc(pts[j].x, pts[j].y, 6, 0, 2 * Math.PI);
++        ctx.fillStyle = "#ffffff";
++        ctx.fill();
++        ctx.lineWidth = 3;
++        ctx.strokeStyle = root.previewColor;
++        ctx.stroke();
 +      }
 +    }
 +  }
 +
 +  Connections {
 +    target: shapeModel
-+    function onPointsChanged() { previewCanvas.requestPaint() }
-+    function onModeChanged() { previewCanvas.requestPaint() }
-+    function onNumSidesChanged() { previewCanvas.requestPaint() }
++    function onPointsChanged() {
++      previewCanvas.requestPaint();
++    }
++    function onModeChanged() {
++      previewCanvas.requestPaint();
++    }
++    function onNumSidesChanged() {
++      previewCanvas.requestPaint();
++    }
 +  }
 +
 +  Connections {
 +    target: root.mapSettingsRef
 +    ignoreUnknownSignals: true
-+    function onExtentChanged() { previewCanvas.requestPaint() }
-+    function onVisibleExtentChanged() { previewCanvas.requestPaint() }
-+    function onRotationChanged() { previewCanvas.requestPaint() }
++    function onExtentChanged() {
++      previewCanvas.requestPaint();
++    }
++    function onVisibleExtentChanged() {
++      previewCanvas.requestPaint();
++    }
++    function onRotationChanged() {
++      previewCanvas.requestPaint();
++    }
 +  }
 +
-+  // ---- Pen / finger tap-to-place surface (active in pen mode) ----
-+  // Tapping places a point exactly where you touch; moving updates the live
-+  // preview so the shape follows the pen. Panning is paused while pen mode is on.
++  // ---- Pen / finger tap-to-place surface (pen mode) ----
 +  MouseArea {
 +    id: penSurface
 +    anchors.fill: parent
 +    enabled: root.isOpen && root.penMode
 +    visible: enabled
 +    hoverEnabled: true
-+    z: 5  // above the preview canvas (4), below the control card (10)
-+    onPositionChanged: mouse => shapeModel.setProvisionalScreenPoint( mouse.x, mouse.y )
-+    onPressed: mouse => shapeModel.setProvisionalScreenPoint( mouse.x, mouse.y )
-+    onClicked: mouse => shapeModel.capturePointAtScreen( mouse.x, mouse.y )
++    z: 5
++    onPositionChanged: mouse => shapeModel.setProvisionalScreenPoint(mouse.x, mouse.y)
++    onPressed: mouse => shapeModel.setProvisionalScreenPoint(mouse.x, mouse.y)
++    onClicked: mouse => shapeModel.capturePointAtScreen(mouse.x, mouse.y)
 +    onExited: shapeModel.clearProvisional()
 +  }
 +
-+  // Cursor that follows the pen/finger in pen mode.
-+  // Turns purple when the point is snapping to existing geometry.
++  // Cursor following the pen (turns into the accent colour while snapping)
 +  Rectangle {
 +    visible: root.isOpen && root.penMode && penSurface.containsMouse
-+    property color markColor: shapeModel.provisionalSnapped ? "#9b59b6" : "#FF1744"
++    property color markColor: shapeModel.provisionalSnapped ? root.accentColor : root.previewColor
 +    x: penSurface.mouseX - width / 2
 +    y: penSurface.mouseY - height / 2
-+    width: shapeModel.provisionalSnapped ? 30 : 24
-+    height: width; radius: width / 2
++    width: shapeModel.provisionalSnapped ? 28 : 22
++    height: width
++    radius: width / 2
 +    color: "transparent"
-+    border.color: markColor; border.width: shapeModel.provisionalSnapped ? 3 : 2
++    border.color: markColor
++    border.width: 2
 +    z: 7
-+    Rectangle { anchors.centerIn: parent; width: 5; height: 5; radius: 2.5; color: parent.markColor }
-+  }
-+
-+  // ---- Fixed centre crosshair (capture point in centre mode) ----
-+  Item {
-+    id: crosshair
-+    anchors.centerIn: parent
-+    width: 34; height: 34
-+    visible: root.isOpen && !root.penMode
-+    z: 6
-+
-+    Rectangle { anchors.centerIn: parent; width: 2; height: 34; color: "#FF1744" }
-+    Rectangle { anchors.centerIn: parent; width: 34; height: 2; color: "#FF1744" }
 +    Rectangle {
 +      anchors.centerIn: parent
-+      width: 12; height: 12; radius: 6
-+      color: "transparent"
-+      border.color: "#FF1744"; border.width: 2
++      width: 4
++      height: 4
++      radius: 2
++      color: parent.markColor
 +    }
 +  }
 +
-+  // ---- Control card (bottom, floating) ----
++  // ---- Fixed centre crosshair (centre mode) ----
++  Item {
++    anchors.centerIn: parent
++    width: 36
++    height: 36
++    visible: root.isOpen && !root.penMode
++    z: 6
++
++    Rectangle {
++      anchors.centerIn: parent
++      width: 2
++      height: parent.height
++      color: root.previewColor
++    }
++    Rectangle {
++      anchors.centerIn: parent
++      width: parent.width
++      height: 2
++      color: root.previewColor
++    }
++    Rectangle {
++      anchors.centerIn: parent
++      width: 12
++      height: 12
++      radius: 6
++      color: "transparent"
++      border.color: root.previewColor
++      border.width: 2
++    }
++  }
++
++  // ---- Floating control card ----
++  QfDropShadow {
++    anchors.fill: panel
++    visible: panel.visible
++    verticalOffset: 3
++    radius: 14
++    color: "#55000000"
++    source: panel
++    z: 9
++  }
++
 +  Rectangle {
 +    id: panel
 +    anchors.bottom: parent.bottom
 +    anchors.horizontalCenter: parent.horizontalCenter
-+    anchors.bottomMargin: 20
-+    width: Math.min( parent.width - 20, 540 )
-+    height: panelCol.implicitHeight + 20
-+    radius: 12
-+    color: "white"
++    anchors.bottomMargin: mainWindow.sceneBottomMargin + 12
++    width: Math.min(parent.width - 24, 460)
++    height: content.implicitHeight + 28
++    radius: 18
++    color: QfTheme.mainBackgroundColor
++    border.color: QfTheme.controlBorderColor
++    border.width: 1
 +    z: 10
 +
-+    // Absorb touches so dragging on the card never pans the map.
-+    MouseArea { anchors.fill: parent; onClicked: {} }
++    // Absorb touches so interacting with the card never pans or digitizes.
++    MouseArea {
++      anchors.fill: parent
++      onClicked: {}
++    }
 +
 +    ColumnLayout {
-+      id: panelCol
-+      anchors.fill: parent
-+      anchors.margins: 10
-+      spacing: 8
++      id: content
++      anchors.left: parent.left
++      anchors.right: parent.right
++      anchors.top: parent.top
++      anchors.margins: 14
++      spacing: 12
 +
-+      // Header: title + pen/centre toggle + close
++      // Header
 +      RowLayout {
 +        Layout.fillWidth: true
 +        spacing: 8
++
++        IconImage {
++          source: QfTheme.getThemeVectorIcon("ic_napr_shapes_white_24dp")
++          sourceSize: Qt.size(22, 22)
++          color: root.accentColor
++        }
 +
 +        Label {
-+          text: qsTr( "ფიგურის ხაზვა" )
-+          font.pixelSize: 16; font.bold: true; color: "#212121"
-+          Layout.fillWidth: true
++          text: qsTr("ფიგურის ხაზვა")
++          font: QfTheme.strongFont
++          color: QfTheme.mainTextColor
 +          elide: Text.ElideRight
++          Layout.fillWidth: true
 +        }
 +
-+        // Pen ⇄ centre toggle
-+        Rectangle {
-+          width: penToggleLabel.implicitWidth + 26; height: 38; radius: 19
-+          color: root.penMode ? QfTheme.mainColor : "#ECEFF1"
-+          border.color: root.penMode ? QfTheme.mainColor : "#B0BEC5"; border.width: 1
-+          Label {
-+            id: penToggleLabel
-+            anchors.centerIn: parent
-+            text: root.penMode ? qsTr( "✏️ კალამი" ) : qsTr( "🎯 ცენტრი" )
-+            font.pixelSize: 13; font.bold: true
-+            color: root.penMode ? "white" : "#37474F"
-+          }
-+          MouseArea {
-+            anchors.fill: parent
-+            onClicked: { root.penMode = !root.penMode; shapeModel.clearProvisional() }
-+          }
-+        }
-+
-+        // Close (clearly visible)
-+        Rectangle {
-+          width: 40; height: 40; radius: 20
-+          color: closeArea.pressed ? "#B71C1C" : "#E53935"
-+          Label { anchors.centerIn: parent; text: "✕"; font.pixelSize: 20; font.bold: true; color: "white" }
-+          MouseArea { id: closeArea; anchors.fill: parent; onClicked: root.isOpen = false }
++        QfToolButton {
++          width: 40
++          height: 40
++          round: true
++          bgcolor: "transparent"
++          iconSource: QfTheme.getThemeVectorIcon("ic_close_white_24dp")
++          iconColor: QfTheme.mainTextColor
++          onClicked: root.isOpen = false
 +        }
 +      }
 +
-+      // Mode chips
-+      Flow {
-+        Layout.fillWidth: true
-+        spacing: 6
-+        Repeater {
-+          model: shapeModel.modeNames()
-+          Rectangle {
-+            height: 34; radius: 17
-+            width: chipLabel.implicitWidth + 24
-+            color: shapeModel.mode === index ? QfTheme.mainColor : "#F0F0F0"
-+            border.color: shapeModel.mode === index ? QfTheme.mainColor : "#CCCCCC"
-+            border.width: 1
-+            Label {
-+              id: chipLabel
-+              anchors.centerIn: parent
-+              text: modelData
-+              font.pixelSize: 12
-+              font.bold: shapeModel.mode === index
-+              color: shapeModel.mode === index ? "white" : "#424242"
-+            }
-+            MouseArea { anchors.fill: parent; onClicked: shapeModel.mode = index }
-+          }
-+        }
-+      }
-+
-+      // Snapping toggle (uses the project's snapping configuration)
++      // Shape type tiles
 +      RowLayout {
 +        Layout.fillWidth: true
 +        spacing: 8
-+        Rectangle {
-+          width: snapLabel.implicitWidth + 28; height: 32; radius: 16
-+          color: shapeModel.snapEnabled ? "#9b59b6" : "#ECEFF1"
-+          border.color: shapeModel.snapEnabled ? "#9b59b6" : "#B0BEC5"; border.width: 1
-+          Label {
-+            id: snapLabel
-+            anchors.centerIn: parent
-+            text: shapeModel.snapEnabled ? qsTr( "🧲 მიკვრა: ჩართ." ) : qsTr( "🧲 მიკვრა: გამორთ." )
-+            font.pixelSize: 12; font.bold: true
-+            color: shapeModel.snapEnabled ? "white" : "#37474F"
++
++        Repeater {
++          model: [
++            {
++              "icon": "ic_napr_shape_rect_white_24dp",
++              "label": qsTr("მართკუთხ.")
++            },
++            {
++              "icon": "ic_napr_shape_rect3_white_24dp",
++              "label": qsTr("3 წერტილით")
++            },
++            {
++              "icon": "ic_napr_shape_circle_white_24dp",
++              "label": qsTr("წრე")
++            },
++            {
++              "icon": "ic_napr_shape_polygon_white_24dp",
++              "label": qsTr("პოლიგონი")
++            }
++          ]
++
++          Rectangle {
++            readonly property bool selected: shapeModel.mode === index
++            Layout.fillWidth: true
++            Layout.preferredWidth: 1
++            height: 66
++            radius: 12
++            color: selected ? root.tint(root.accentColor, 0.14) : QfTheme.groupBoxBackgroundColor
++            border.color: selected ? root.accentColor : "transparent"
++            border.width: 1.5
++
++            Column {
++              anchors.centerIn: parent
++              spacing: 4
++
++              IconImage {
++                anchors.horizontalCenter: parent.horizontalCenter
++                source: QfTheme.getThemeVectorIcon(modelData.icon)
++                sourceSize: Qt.size(26, 26)
++                color: selected ? root.accentColor : QfTheme.mainTextColor
++              }
++
++              Label {
++                anchors.horizontalCenter: parent.horizontalCenter
++                text: modelData.label
++                font: QfTheme.tinyFont
++                color: selected ? root.accentColor : QfTheme.secondaryTextColor
++              }
++            }
++
++            MouseArea {
++              anchors.fill: parent
++              onClicked: shapeModel.mode = index
++            }
 +          }
-+          MouseArea { anchors.fill: parent; onClicked: shapeModel.snapEnabled = !shapeModel.snapEnabled }
 +        }
-+        Item { Layout.fillWidth: true }
 +      }
 +
-+      // Sides control (regular polygon only)
++      // Input mode + snapping
++      RowLayout {
++        Layout.fillWidth: true
++        spacing: 8
++
++        // Segmented control: pen / centre
++        Rectangle {
++          Layout.preferredHeight: 40
++          Layout.preferredWidth: segRow.implicitWidth + 8
++          radius: 20
++          color: QfTheme.groupBoxBackgroundColor
++
++          Row {
++            id: segRow
++            anchors.centerIn: parent
++            spacing: 0
++
++            Repeater {
++              model: [
++                {
++                  "pen": true,
++                  "icon": "ic_create_white_24dp",
++                  "label": qsTr("კალამი")
++                },
++                {
++                  "pen": false,
++                  "icon": "ic_coordinate_locator_white_24dp",
++                  "label": qsTr("ცენტრი")
++                }
++              ]
++
++              Rectangle {
++                readonly property bool active: root.penMode === modelData.pen
++                width: segContent.implicitWidth + 24
++                height: 32
++                radius: 16
++                color: active ? root.accentColor : "transparent"
++
++                Row {
++                  id: segContent
++                  anchors.centerIn: parent
++                  spacing: 6
++
++                  IconImage {
++                    anchors.verticalCenter: parent.verticalCenter
++                    source: QfTheme.getThemeVectorIcon(modelData.icon)
++                    sourceSize: Qt.size(18, 18)
++                    color: active ? "white" : QfTheme.mainTextColor
++                  }
++
++                  Label {
++                    anchors.verticalCenter: parent.verticalCenter
++                    text: modelData.label
++                    font: QfTheme.tipFont
++                    color: active ? "white" : QfTheme.mainTextColor
++                  }
++                }
++
++                MouseArea {
++                  anchors.fill: parent
++                  onClicked: {
++                    root.penMode = modelData.pen;
++                    shapeModel.clearProvisional();
++                  }
++                }
++              }
++            }
++          }
++        }
++
++        Item {
++          Layout.fillWidth: true
++        }
++
++        // Snapping toggle (uses the project's snapping configuration)
++        Rectangle {
++          Layout.preferredHeight: 40
++          Layout.preferredWidth: snapRow.implicitWidth + 24
++          radius: 20
++          color: shapeModel.snapEnabled ? root.tint(root.accentColor, 0.14) : QfTheme.groupBoxBackgroundColor
++          border.color: shapeModel.snapEnabled ? root.accentColor : "transparent"
++          border.width: 1
++
++          Row {
++            id: snapRow
++            anchors.centerIn: parent
++            spacing: 6
++
++            IconImage {
++              anchors.verticalCenter: parent.verticalCenter
++              source: QfTheme.getThemeVectorIcon("ic_snapping_white_24dp")
++              sourceSize: Qt.size(18, 18)
++              color: shapeModel.snapEnabled ? root.accentColor : QfTheme.secondaryTextColor
++            }
++
++            Label {
++              anchors.verticalCenter: parent.verticalCenter
++              text: qsTr("მიკვრა")
++              font: QfTheme.tipFont
++              color: shapeModel.snapEnabled ? root.accentColor : QfTheme.secondaryTextColor
++            }
++          }
++
++          MouseArea {
++            anchors.fill: parent
++            onClicked: shapeModel.snapEnabled = !shapeModel.snapEnabled
++          }
++        }
++      }
++
++      // Number of sides (regular polygon only)
 +      RowLayout {
 +        Layout.fillWidth: true
 +        visible: shapeModel.mode === ShapeDigitizingModel.RegularPolygon
-+        spacing: 8
-+        Label { text: qsTr( "გვერდები:" ); font.pixelSize: 13; color: "#424242" }
-+        Rectangle {
-+          width: 34; height: 34; radius: 6; color: minusArea.pressed ? "#E0E0E0" : "#EEEEEE"
-+          Label { anchors.centerIn: parent; text: "−"; font.pixelSize: 20; color: "#424242" }
-+          MouseArea { id: minusArea; anchors.fill: parent; onClicked: shapeModel.numSides = shapeModel.numSides - 1 }
++        spacing: 4
++
++        Label {
++          text: qsTr("გვერდების რაოდენობა")
++          font: QfTheme.tipFont
++          color: QfTheme.mainTextColor
++          Layout.fillWidth: true
 +        }
++
++        QfToolButton {
++          width: 36
++          height: 36
++          round: true
++          bgcolor: QfTheme.groupBoxBackgroundColor
++          iconSource: QfTheme.getThemeVectorIcon("ic_remove_white_24dp")
++          iconColor: QfTheme.mainTextColor
++          enabled: shapeModel.numSides > 3
++          opacity: enabled ? 1 : 0.4
++          onClicked: shapeModel.numSides = shapeModel.numSides - 1
++        }
++
 +        Label {
 +          text: shapeModel.numSides
-+          font.pixelSize: 16; font.bold: true; color: "#212121"
++          font: QfTheme.strongFont
++          color: QfTheme.mainTextColor
 +          horizontalAlignment: Text.AlignHCenter
-+          Layout.preferredWidth: 40
++          Layout.preferredWidth: 36
 +        }
-+        Rectangle {
-+          width: 34; height: 34; radius: 6; color: plusArea.pressed ? "#E0E0E0" : "#EEEEEE"
-+          Label { anchors.centerIn: parent; text: "+"; font.pixelSize: 18; color: "#424242" }
-+          MouseArea { id: plusArea; anchors.fill: parent; onClicked: shapeModel.numSides = shapeModel.numSides + 1 }
++
++        QfToolButton {
++          width: 36
++          height: 36
++          round: true
++          bgcolor: QfTheme.groupBoxBackgroundColor
++          iconSource: QfTheme.getThemeVectorIcon("ic_add_white_24dp")
++          iconColor: QfTheme.mainTextColor
++          enabled: shapeModel.numSides < 100
++          opacity: enabled ? 1 : 0.4
++          onClicked: shapeModel.numSides = shapeModel.numSides + 1
 +        }
-+        Item { Layout.fillWidth: true }
 +      }
 +
-+      // Status line
-+      Label {
++      Rectangle {
 +        Layout.fillWidth: true
-+        text: qsTr( "წერტილები: %1 / %2" ).arg( shapeModel.pointCount ).arg( shapeModel.requiredPoints )
-+              + "   ·   " + ( root.currentLayer ? root.currentLayer.name : qsTr( "ფენა არ არის" ) )
-+        font.pixelSize: 12
-+        color: "#757575"
-+        elide: Text.ElideRight
++        height: 1
++        color: QfTheme.controlBorderColor
++      }
++
++      // Progress + hint
++      RowLayout {
++        Layout.fillWidth: true
++        spacing: 10
++
++        Row {
++          spacing: 5
++          Repeater {
++            model: shapeModel.requiredPoints
++            Rectangle {
++              width: 10
++              height: 10
++              radius: 5
++              color: index < shapeModel.pointCount ? root.accentColor : "transparent"
++              border.color: index < shapeModel.pointCount ? root.accentColor : QfTheme.controlBorderColor
++              border.width: 1.5
++            }
++          }
++        }
++
++        Label {
++          Layout.fillWidth: true
++          text: shapeModel.canCommit ? qsTr("ფიგურა მზადაა — შეინახეთ") : root.penMode ? qsTr("შეეხეთ რუკას წერტილის დასასმელად") : qsTr("დაამთხვიეთ ჯვარედინი და დაამატეთ წერტილი")
++          font: QfTheme.tipFont
++          color: QfTheme.secondaryTextColor
++          elide: Text.ElideRight
++        }
++      }
++
++      // Centre mode: capture the point under the crosshair
++      QfButton {
++        Layout.fillWidth: true
++        visible: !root.penMode && !shapeModel.canCommit
++        text: qsTr("წერტილის დამატება")
++        icon.source: QfTheme.getThemeVectorIcon("ic_add_white_24dp")
++        bgcolor: "transparent"
++        color: root.accentColor
++        // Capture at the crosshair (screen centre) so snapping applies here too.
++        onClicked: shapeModel.capturePointAtScreen(root.width / 2, root.height / 2)
 +      }
 +
 +      // Actions
 +      RowLayout {
 +        Layout.fillWidth: true
-+        spacing: 6
++        spacing: 8
 +
-+        // Capture at centre crosshair (centre mode only)
-+        Rectangle {
-+          visible: !root.penMode
++        QfToolButton {
++          width: 44
++          height: 44
++          round: true
++          bgcolor: QfTheme.groupBoxBackgroundColor
++          iconSource: QfTheme.getThemeVectorIcon("ic_undo_black_24dp")
++          iconColor: QfTheme.mainTextColor
++          enabled: shapeModel.pointCount > 0
++          opacity: enabled ? 1 : 0.4
++          onClicked: shapeModel.undoPoint()
++        }
++
++        QfToolButton {
++          width: 44
++          height: 44
++          round: true
++          bgcolor: QfTheme.groupBoxBackgroundColor
++          iconSource: QfTheme.getThemeVectorIcon("ic_delete_forever_white_24dp")
++          iconColor: QfTheme.errorColor
++          enabled: shapeModel.pointCount > 0
++          opacity: enabled ? 1 : 0.4
++          onClicked: shapeModel.clear()
++        }
++
++        Item {
 +          Layout.fillWidth: true
-+          height: 44; radius: 8
-+          color: captureArea.pressed ? Qt.darker( QfTheme.mainColor, 1.2 ) : QfTheme.mainColor
-+          Label {
-+            anchors.centerIn: parent
-+            text: qsTr( "＋ წერტილი (ცენტრი)" )
-+            font.pixelSize: 14; font.bold: true; color: "white"
-+          }
-+          MouseArea {
-+            id: captureArea
-+            anchors.fill: parent
-+            // Capture at the crosshair (screen centre) so snapping applies here too.
-+            onClicked: shapeModel.capturePointAtScreen( root.width / 2, root.height / 2 )
-+          }
 +        }
 +
-+        // Pen-mode hint (tap the map instead)
-+        Rectangle {
-+          visible: root.penMode
-+          Layout.fillWidth: true
-+          height: 44; radius: 8
-+          color: "#E3F2FD"
-+          Label {
-+            anchors.centerIn: parent
-+            text: qsTr( "✏️ შეახე კალამი რუკას წერტილისთვის" )
-+            font.pixelSize: 13; color: "#1565C0"
-+            elide: Text.ElideRight
-+          }
-+        }
-+
-+        // Undo last point
-+        Rectangle {
-+          Layout.preferredWidth: 48
-+          height: 44; radius: 8
-+          color: undoArea.pressed ? "#E0E0E0" : "#EEEEEE"
-+          Label { anchors.centerIn: parent; text: "↶"; font.pixelSize: 20; color: "#424242" }
-+          MouseArea { id: undoArea; anchors.fill: parent; onClicked: shapeModel.undoPoint() }
-+        }
-+
-+        // Clear
-+        Rectangle {
-+          Layout.preferredWidth: 48
-+          height: 44; radius: 8
-+          color: clearArea.pressed ? "#FFCDD2" : "#FFEBEE"
-+          Label { anchors.centerIn: parent; text: "🗑"; font.pixelSize: 16 }
-+          MouseArea { id: clearArea; anchors.fill: parent; onClicked: shapeModel.clear() }
-+        }
-+
-+        // Commit (save feature)
-+        Rectangle {
-+          Layout.preferredWidth: 120
-+          height: 44; radius: 8
++        QfButton {
++          text: qsTr("შენახვა")
++          icon.source: QfTheme.getThemeVectorIcon("ic_check_white_24dp")
++          bgcolor: root.accentColor
++          color: "white"
 +          enabled: shapeModel.canCommit
-+          opacity: enabled ? 1.0 : 0.4
-+          color: saveArea.pressed ? "#2E7D32" : "#43A047"
-+          Label {
-+            anchors.centerIn: parent
-+            text: qsTr( "შენახვა" )
-+            font.pixelSize: 15; font.bold: true; color: "white"
-+          }
-+          MouseArea {
-+            id: saveArea
-+            anchors.fill: parent
-+            enabled: shapeModel.canCommit
-+            onClicked: {
-+              var err = shapeModel.commit()
-+              root.toast( err === "" ? qsTr( "ფიგურა დაემატა ✓" ) : err )
-+            }
++          onClicked: {
++            var err = shapeModel.commit();
++            root.toast(err === "" ? qsTr("ფიგურა დაემატა") : err);
 +          }
 +        }
 +      }
@@ -2191,17 +2565,24 @@ index 0000000..65e2f15
 +}
 diff --git a/src/gui/qml/TopologyCheckerDialog.qml b/src/gui/qml/TopologyCheckerDialog.qml
 new file mode 100644
-index 0000000..207e4a3
+index 0000000..d5ed827
 --- /dev/null
 +++ b/src/gui/qml/TopologyCheckerDialog.qml
-@@ -0,0 +1,574 @@
+@@ -0,0 +1,611 @@
 +import QtQuick
 +import QtQuick.Controls
++import QtQuick.Controls.impl
 +import QtQuick.Layouts
-+
 +import org.qfield.core
 +import org.qfield.gui
 +
++/**
++ * Topology checker side panel.
++ *
++ * Runs the configured rules against the features in the current map extent,
++ * lists the errors grouped by rule, zooms to an error when tapped and blinks a
++ * marker on it. A settings view lets the user edit the rule list.
++ */
 +Item {
 +  id: root
 +
@@ -2209,51 +2590,61 @@ index 0000000..207e4a3
 +  property bool isOpen: false
 +  property bool showSettings: false
 +
++  // Panel takes 30% of the screen width, but never less than what is needed to
++  // stay readable, and always leaves the left toolbar visible.
++  readonly property real panelWidth: Math.min(width - 64, Math.max(width * 0.3, 300))
++
 +  visible: isOpen
 +
-+  // Available vector layer names for the rule editor combos. Refreshed each
-+  // time the settings panel is opened so it reflects the current project.
 +  property var layerNames: []
 +
 +  function refreshLayers() {
-+    layerNames = topologyModel.vectorLayerNames()
++    layerNames = topologyModel.vectorLayerNames();
++  }
++
++  function tint(c, a) {
++    return Qt.rgba(c.r, c.g, c.b, a);
 +  }
 +
 +  onShowSettingsChanged: {
-+    if ( showSettings )
-+      refreshLayers()
++    if (showSettings)
++      refreshLayers();
 +  }
 +
-+  // ---- Blinking point marker (drawn exactly on the error after zoom) ----
-+  // zoomToError() centres the map on the error's "imaginary point" and emits
-+  // highlightPointRequested(x, y) in this item's screen coordinates. We blink a
-+  // dot with an expanding ring there — no rectangle (like the QGIS checker).
++  TopologyCheckerModel {
++    id: topologyModel
++    mapSettings: root.mapSettingsRef
++  }
++
++  // ---- Blinking marker drawn exactly on the error after zooming ----
 +  Item {
 +    id: errorMarker
 +    visible: false
-+    z: 5  // below the panel (z:10) so it never draws over it
++    z: 5
 +    property real px: 0
 +    property real py: 0
 +
-+    // Expanding pulse ring
 +    Rectangle {
 +      id: markerRing
-+      width: 16; height: 16; radius: width / 2
++      width: 16
++      height: 16
++      radius: width / 2
 +      x: errorMarker.px - width / 2
 +      y: errorMarker.py - height / 2
 +      color: "transparent"
-+      border.color: "#FF1744"
++      border.color: QfTheme.errorColor
 +      border.width: 3
 +      opacity: 0
 +    }
 +
-+    // Solid centre dot
 +    Rectangle {
 +      id: markerDot
-+      width: 18; height: 18; radius: 9
++      width: 18
++      height: 18
++      radius: 9
 +      x: errorMarker.px - width / 2
 +      y: errorMarker.py - height / 2
-+      color: "#FF1744"
++      color: QfTheme.errorColor
 +      border.color: "white"
 +      border.width: 2
 +      opacity: 0
@@ -2263,509 +2654,529 @@ index 0000000..207e4a3
 +      id: markerAnim
 +      loops: 3
 +      ParallelAnimation {
-+        NumberAnimation { target: markerDot; property: "opacity"; from: 0.25; to: 1.0; duration: 250 }
-+        NumberAnimation { target: markerRing; property: "width"; from: 16; to: 64; duration: 650 }
-+        NumberAnimation { target: markerRing; property: "opacity"; from: 0.9; to: 0.0; duration: 650 }
++        NumberAnimation {
++          target: markerDot
++          property: "opacity"
++          from: 0.25
++          to: 1.0
++          duration: 250
++        }
++        NumberAnimation {
++          target: markerRing
++          property: "width"
++          from: 16
++          to: 64
++          duration: 650
++        }
++        NumberAnimation {
++          target: markerRing
++          property: "opacity"
++          from: 0.9
++          to: 0.0
++          duration: 650
++        }
 +      }
-+      NumberAnimation { target: markerDot; property: "opacity"; to: 0.3; duration: 200 }
++      NumberAnimation {
++        target: markerDot
++        property: "opacity"
++        to: 0.3
++        duration: 200
++      }
 +      onStopped: {
-+        markerRing.width = 16
-+        errorMarker.visible = false
++        markerRing.width = 16;
++        errorMarker.visible = false;
 +      }
 +    }
 +  }
 +
 +  Connections {
 +    target: topologyModel
-+    function onHighlightPointRequested( px, py ) {
-+      errorMarker.px = px
-+      errorMarker.py = py
-+      markerRing.width = 16
-+      errorMarker.visible = true
-+      markerAnim.restart()
++    function onHighlightPointRequested(px, py) {
++      errorMarker.px = px;
++      errorMarker.py = py;
++      markerRing.width = 16;
++      errorMarker.visible = true;
++      markerAnim.restart();
 +    }
 +  }
 +
 +  // ---- Side panel ----
 +  Rectangle {
 +    id: panel
-+    width: Math.min( parent.width * 0.7, 440 )
++    width: root.panelWidth
 +    height: parent.height
 +    anchors.right: parent.right
-+    color: "white"
++    color: QfTheme.mainBackgroundColor
 +    z: 10
 +
++    // Soft shadow on the left edge
 +    Rectangle {
-+      width: 4
++      width: 8
 +      height: parent.height
-+      anchors.left: parent.left
-+      anchors.leftMargin: -4
++      anchors.right: parent.left
 +      gradient: Gradient {
 +        orientation: Gradient.Horizontal
-+        GradientStop { position: 0.0; color: "transparent" }
-+        GradientStop { position: 1.0; color: "#33000000" }
++        GradientStop {
++          position: 0.0
++          color: "transparent"
++        }
++        GradientStop {
++          position: 1.0
++          color: "#33000000"
++        }
 +      }
++    }
++
++    // Absorb touches so the map underneath does not react.
++    MouseArea {
++      anchors.fill: parent
++      onClicked: {}
 +    }
 +
 +    ColumnLayout {
 +      anchors.fill: parent
++      anchors.topMargin: mainWindow.sceneTopMargin
++      anchors.bottomMargin: mainWindow.sceneBottomMargin
 +      spacing: 0
 +
 +      // ---- Header ----
++      RowLayout {
++        Layout.fillWidth: true
++        Layout.preferredHeight: 56
++        Layout.leftMargin: 8
++        Layout.rightMargin: 6
++        spacing: 4
++
++        QfToolButton {
++          visible: root.showSettings
++          width: 40
++          height: 40
++          round: true
++          bgcolor: "transparent"
++          iconSource: QfTheme.getThemeVectorIcon("ic_arrow_left_white_24dp")
++          iconColor: QfTheme.mainTextColor
++          onClicked: root.showSettings = false
++        }
++
++        IconImage {
++          visible: !root.showSettings
++          Layout.leftMargin: 8
++          Layout.rightMargin: 4
++          source: QfTheme.getThemeVectorIcon("ic_napr_topology_check_white_24dp")
++          sourceSize: Qt.size(24, 24)
++          color: QfTheme.mainColor
++        }
++
++        Label {
++          text: root.showSettings ? qsTr("წესები") : qsTr("ტოპოლოგია")
++          font: QfTheme.strongTitleFont
++          color: QfTheme.mainTextColor
++          elide: Text.ElideRight
++          Layout.fillWidth: true
++        }
++
++        QfToolButton {
++          visible: !root.showSettings
++          width: 40
++          height: 40
++          round: true
++          bgcolor: "transparent"
++          iconSource: QfTheme.getThemeVectorIcon("ic_settings_white_24dp")
++          iconColor: QfTheme.mainTextColor
++          onClicked: root.showSettings = true
++        }
++
++        QfToolButton {
++          width: 40
++          height: 40
++          round: true
++          bgcolor: "transparent"
++          iconSource: QfTheme.getThemeVectorIcon("ic_close_white_24dp")
++          iconColor: QfTheme.mainTextColor
++          onClicked: root.isOpen = false
++        }
++      }
++
 +      Rectangle {
 +        Layout.fillWidth: true
-+        height: 52
-+        color: QfTheme.mainColor
-+
-+        RowLayout {
-+          anchors.fill: parent
-+          anchors.leftMargin: 16
-+          anchors.rightMargin: 6
-+          spacing: 4
-+
-+          Label {
-+            text: root.showSettings ? qsTr( "წესების პარამეტრები" ) : qsTr( "ტოპოლოგია" )
-+            font.pixelSize: 18
-+            font.bold: true
-+            color: "white"
-+            Layout.fillWidth: true
-+            elide: Text.ElideRight
-+          }
-+
-+          // Settings / back toggle
-+          Rectangle {
-+            width: 36; height: 36; radius: 18
-+            color: settingsBtnArea.pressed ? Qt.rgba( 0, 0, 0, 0.28 ) : Qt.rgba( 0, 0, 0, 0.15 )
-+            Layout.alignment: Qt.AlignVCenter
-+            Label {
-+              anchors.centerIn: parent
-+              text: root.showSettings ? "‹" : "⚙"
-+              font.pixelSize: root.showSettings ? 24 : 18
-+              font.bold: true; color: "white"
-+            }
-+            MouseArea {
-+              id: settingsBtnArea
-+              anchors.fill: parent
-+              onClicked: root.showSettings = !root.showSettings
-+            }
-+          }
-+
-+          // Close (clearly visible red button)
-+          Rectangle {
-+            width: 40; height: 40; radius: 20
-+            color: closeBtnArea.pressed ? "#B71C1C" : "#E53935"
-+            border.color: "white"; border.width: 1
-+            Layout.alignment: Qt.AlignVCenter
-+            Label {
-+              anchors.centerIn: parent
-+              text: "✕"; font.pixelSize: 20; font.bold: true; color: "white"
-+            }
-+            MouseArea {
-+              id: closeBtnArea
-+              anchors.fill: parent
-+              onClicked: root.isOpen = false
-+            }
-+          }
-+        }
++        height: 1
++        color: QfTheme.controlBorderColor
 +      }
 +
 +      // =================================================================
 +      //  RESULTS VIEW
 +      // =================================================================
-+      Item {
++      ColumnLayout {
 +        Layout.fillWidth: true
 +        Layout.fillHeight: true
 +        visible: !root.showSettings
++        spacing: 0
 +
-+        ColumnLayout {
-+          anchors.fill: parent
-+          spacing: 0
++        QfButton {
++          Layout.fillWidth: true
++          Layout.leftMargin: 12
++          Layout.rightMargin: 12
++          Layout.topMargin: 12
++          text: qsTr("შემოწმება")
++          icon.source: QfTheme.getThemeVectorIcon("ic_napr_topology_check_white_24dp")
++          bgcolor: QfTheme.mainColor
++          color: "white"
++          onClicked: topologyModel.runChecksForCurrentExtent()
++        }
 +
-+          // ---- Check button ----
-+          Rectangle {
-+            Layout.fillWidth: true
-+            height: 60
-+            color: "#F5F5F5"
++        Label {
++          Layout.fillWidth: true
++          Layout.leftMargin: 16
++          Layout.rightMargin: 16
++          Layout.topMargin: 4
++          text: qsTr("მოწმდება რუკის მიმდინარე ხედი")
++          font: QfTheme.tinyFont
++          color: QfTheme.secondaryTextColor
++          horizontalAlignment: Text.AlignHCenter
++          wrapMode: Text.WordWrap
++        }
 +
-+            Rectangle {
-+              id: checkBtn
-+              anchors.centerIn: parent
-+              width: parent.width - 32; height: 42; radius: 6
-+              color: checkBtnArea.pressed ? Qt.darker( QfTheme.mainColor, 1.2 ) : QfTheme.mainColor
++        // Status banner
++        Rectangle {
++          Layout.fillWidth: true
++          Layout.leftMargin: 12
++          Layout.rightMargin: 12
++          Layout.topMargin: 10
++          Layout.preferredHeight: statusLabel.implicitHeight + 16
++          visible: topologyModel.statusText !== ""
++          radius: 10
++          color: root.tint(topologyModel.hasErrors ? QfTheme.errorColor : QfTheme.goodColor, 0.12)
 +
-+              Label {
-+                anchors.centerIn: parent
-+                text: qsTr( "შემოწმება" )
-+                font.pixelSize: 15; font.bold: true; color: "white"
++          Label {
++            id: statusLabel
++            anchors.fill: parent
++            anchors.margins: 8
++            text: topologyModel.statusText
++            font: QfTheme.tipFont
++            color: topologyModel.hasErrors ? QfTheme.errorColor : QfTheme.goodColor
++            wrapMode: Text.WordWrap
++            verticalAlignment: Text.AlignVCenter
++          }
++        }
++
++        // Error list grouped by rule
++        ListView {
++          id: errorList
++          Layout.fillWidth: true
++          Layout.fillHeight: true
++          Layout.topMargin: 10
++          model: topologyModel
++          clip: true
++          visible: topologyModel.count > 0
++          ScrollBar.vertical: QfScrollBar {}
++
++          section.property: "sectionText"
++          section.delegate: Rectangle {
++            width: errorList.width
++            height: 38
++            color: QfTheme.groupBoxBackgroundColor
++
++            RowLayout {
++              anchors.fill: parent
++              anchors.leftMargin: 14
++              anchors.rightMargin: 10
++              spacing: 8
++
++              Rectangle {
++                width: 8
++                height: 8
++                radius: 4
++                color: QfTheme.errorColor
 +              }
 +
-+              MouseArea {
-+                id: checkBtnArea
-+                anchors.fill: parent
-+                onClicked: topologyModel.runChecksForCurrentExtent()
++              Label {
++                text: section
++                font: QfTheme.strongTipFont
++                color: QfTheme.mainTextColor
++                elide: Text.ElideRight
++                Layout.fillWidth: true
 +              }
 +            }
 +          }
 +
-+          // ---- Status ----
++          delegate: Rectangle {
++            width: errorList.width
++            height: 48
++            color: delegateArea.pressed ? root.tint(QfTheme.mainColor, 0.12) : "transparent"
++
++            RowLayout {
++              anchors.fill: parent
++              anchors.leftMargin: 30
++              anchors.rightMargin: 10
++              spacing: 8
++
++              Label {
++                text: qsTr("შეცდომა #%1").arg(model.displayIndex)
++                font: QfTheme.defaultFont
++                color: QfTheme.mainTextColor
++                Layout.fillWidth: true
++              }
++
++              IconImage {
++                source: QfTheme.getThemeVectorIcon("ic_chevron_right_white_24dp")
++                sourceSize: Qt.size(20, 20)
++                color: model.hasGeometry ? QfTheme.mainColor : QfTheme.mainTextDisabledColor
++              }
++            }
++
++            Rectangle {
++              width: parent.width - 30
++              height: 1
++              color: QfTheme.controlBorderColor
++              anchors.bottom: parent.bottom
++              anchors.right: parent.right
++            }
++
++            MouseArea {
++              id: delegateArea
++              anchors.fill: parent
++              onClicked: {
++                if (model.hasGeometry)
++                  topologyModel.zoomToError(index);
++              }
++            }
++          }
++        }
++
++        // Empty state before the first check
++        ColumnLayout {
++          Layout.fillWidth: true
++          Layout.fillHeight: true
++          visible: !topologyModel.checked
++          spacing: 10
++
++          Item {
++            Layout.fillHeight: true
++          }
++          IconImage {
++            Layout.alignment: Qt.AlignHCenter
++            source: QfTheme.getThemeVectorIcon("ic_napr_topology_check_white_24dp")
++            sourceSize: Qt.size(56, 56)
++            color: QfTheme.mainTextDisabledColor
++          }
 +          Label {
 +            Layout.fillWidth: true
-+            Layout.leftMargin: 16; Layout.rightMargin: 16
-+            Layout.topMargin: 6; Layout.bottomMargin: 2
-+            text: topologyModel.statusText
-+            font.pixelSize: 13
-+            color: topologyModel.hasErrors ? "#E53935" : "#43A047"
++            Layout.leftMargin: 16
++            Layout.rightMargin: 16
++            text: qsTr("დააჭირეთ „შემოწმება“-ს ხარვეზების მოსაძებნად")
++            font: QfTheme.tipFont
++            color: QfTheme.secondaryTextColor
++            horizontalAlignment: Text.AlignHCenter
 +            wrapMode: Text.WordWrap
-+            visible: topologyModel.statusText !== ""
 +          }
-+
-+          Rectangle {
-+            Layout.fillWidth: true; height: 1; color: "#E0E0E0"
-+            visible: topologyModel.count > 0
-+          }
-+
-+          // ---- Error list (grouped by sectionText) ----
-+          ListView {
-+            id: errorList
-+            Layout.fillWidth: true
++          Item {
 +            Layout.fillHeight: true
-+            model: topologyModel
-+            clip: true
-+            visible: topologyModel.count > 0
++          }
++        }
 +
-+            section.property: "sectionText"
-+            section.delegate: Rectangle {
-+              width: errorList.width
-+              height: 36
-+              color: "#EEEEEE"
++        // No errors found
++        ColumnLayout {
++          Layout.fillWidth: true
++          Layout.fillHeight: true
++          visible: topologyModel.checked && topologyModel.count === 0
++          spacing: 10
 +
-+              RowLayout {
-+                anchors.fill: parent
-+                anchors.leftMargin: 12
-+                anchors.rightMargin: 10
-+                spacing: 8
++          Item {
++            Layout.fillHeight: true
++          }
++          Rectangle {
++            Layout.alignment: Qt.AlignHCenter
++            width: 64
++            height: 64
++            radius: 32
++            color: root.tint(QfTheme.goodColor, 0.14)
++            IconImage {
++              anchors.centerIn: parent
++              source: QfTheme.getThemeVectorIcon("ic_check_white_24dp")
++              sourceSize: Qt.size(36, 36)
++              color: QfTheme.goodColor
++            }
++          }
++          Label {
++            Layout.fillWidth: true
++            text: qsTr("ხარვეზი არ აღმოჩენილა")
++            font: QfTheme.strongFont
++            color: QfTheme.goodColor
++            horizontalAlignment: Text.AlignHCenter
++          }
++          Item {
++            Layout.fillHeight: true
++          }
++        }
++      }
 +
-+                Rectangle {
-+                  width: 10; height: 10; radius: 5
-+                  color: "#E53935"
-+                  Layout.alignment: Qt.AlignVCenter
-+                }
++      // =================================================================
++      //  SETTINGS VIEW (rule editor)
++      // =================================================================
++      ColumnLayout {
++        Layout.fillWidth: true
++        Layout.fillHeight: true
++        visible: root.showSettings
++        spacing: 0
++
++        ListView {
++          id: rulesList
++          Layout.fillWidth: true
++          Layout.fillHeight: true
++          clip: true
++          model: topologyModel.rules
++          ScrollBar.vertical: QfScrollBar {}
++
++          header: Label {
++            width: rulesList.width
++            leftPadding: 16
++            topPadding: 12
++            bottomPadding: 6
++            text: qsTr("აქტიური წესები")
++            font: QfTheme.strongTipFont
++            color: QfTheme.secondaryTextColor
++          }
++
++          delegate: Rectangle {
++            width: rulesList.width
++            height: 60
++            color: "transparent"
++
++            RowLayout {
++              anchors.fill: parent
++              anchors.leftMargin: 4
++              anchors.rightMargin: 6
++              spacing: 4
++
++              QfSwitch {
++                checked: model.ruleEnabled
++                Layout.preferredWidth: 60
++                onToggled: topologyModel.rules.setRuleEnabled(index, checked)
++              }
++
++              ColumnLayout {
++                Layout.fillWidth: true
++                spacing: 2
 +
 +                Label {
-+                  text: section
-+                  font.pixelSize: 13
-+                  font.bold: true
-+                  color: "#424242"
++                  text: model.ruleTypeName
++                  font: QfTheme.defaultFont
++                  color: model.ruleEnabled ? QfTheme.mainTextColor : QfTheme.mainTextDisabledColor
++                  Layout.fillWidth: true
++                  elide: Text.ElideRight
++                }
++                Label {
++                  text: model.needsLayer2 ? (model.layer1 + "  →  " + model.layer2) : model.layer1
++                  font: QfTheme.tinyFont
++                  color: QfTheme.secondaryTextColor
 +                  Layout.fillWidth: true
 +                  elide: Text.ElideRight
 +                }
 +              }
 +
-+              Rectangle {
-+                width: parent.width; height: 1
-+                color: "#BDBDBD"
-+                anchors.bottom: parent.bottom
++              QfToolButton {
++                width: 40
++                height: 40
++                round: true
++                bgcolor: "transparent"
++                iconSource: QfTheme.getThemeVectorIcon("ic_delete_forever_white_24dp")
++                iconColor: QfTheme.errorColor
++                onClicked: topologyModel.rules.removeRule(index)
 +              }
 +            }
 +
-+            delegate: Rectangle {
-+              width: errorList.width
-+              height: 46
-+              color: delegateArea.pressed ? "#FFF3E0" : "white"
-+
-+              RowLayout {
-+                anchors.fill: parent
-+                anchors.leftMargin: 28
-+                anchors.rightMargin: 10
-+                spacing: 8
-+
-+                Label {
-+                  text: qsTr( "ხ. #%1" ).arg( model.displayIndex )
-+                  font.pixelSize: 14
-+                  color: "#616161"
-+                  Layout.fillWidth: true
-+                }
-+
-+                Label {
-+                  text: "›"
-+                  font.pixelSize: 22
-+                  color: model.hasGeometry ? "#FF6600" : "#BDBDBD"
-+                  Layout.alignment: Qt.AlignVCenter
-+                }
-+              }
-+
-+              Rectangle {
-+                width: parent.width - 28; height: 1
-+                color: "#F0F0F0"
-+                anchors.bottom: parent.bottom
-+                anchors.right: parent.right
-+              }
-+
-+              MouseArea {
-+                id: delegateArea
-+                anchors.fill: parent
-+                onClicked: {
-+                  if ( model.hasGeometry )
-+                    topologyModel.zoomToError( index )
-+                }
-+              }
++            Rectangle {
++              width: parent.width - 16
++              height: 1
++              color: QfTheme.controlBorderColor
++              anchors.bottom: parent.bottom
++              anchors.horizontalCenter: parent.horizontalCenter
 +            }
 +          }
 +
-+          // ---- Empty state before check ----
-+          Item {
-+            Layout.fillWidth: true
-+            Layout.fillHeight: true
-+            visible: !topologyModel.checked
-+
-+            Column {
-+              anchors.centerIn: parent
-+              spacing: 14
-+
-+              Label {
-+                anchors.horizontalCenter: parent.horizontalCenter
-+                text: "☑"; font.pixelSize: 52; color: "#BDBDBD"
-+              }
-+
-+              Label {
-+                anchors.horizontalCenter: parent.horizontalCenter
-+                text: qsTr( "დააჭირეთ შემოწმება ღილაკს" )
-+                font.pixelSize: 14; color: "#9E9E9E"
-+              }
-+            }
-+          }
-+
-+          // ---- No errors state ----
-+          Item {
-+            Layout.fillWidth: true
-+            Layout.fillHeight: true
-+            visible: topologyModel.checked && topologyModel.count === 0
-+
-+            Column {
-+              anchors.centerIn: parent
-+              spacing: 12
-+
-+              Label {
-+                anchors.horizontalCenter: parent.horizontalCenter
-+                text: "✓"; font.pixelSize: 52; color: "#43A047"
-+              }
-+
-+              Label {
-+                anchors.horizontalCenter: parent.horizontalCenter
-+                text: qsTr( "ხარვეზი არ აღმოჩენილა" )
-+                font.pixelSize: 15; color: "#43A047"
-+              }
-+            }
++          Label {
++            anchors.centerIn: parent
++            visible: topologyModel.rules.count === 0
++            text: qsTr("წესები არ არის.\nდაამატეთ ქვემოთ.")
++            horizontalAlignment: Text.AlignHCenter
++            font: QfTheme.tipFont
++            color: QfTheme.secondaryTextColor
 +          }
 +        }
-+      }
 +
-+      // =================================================================
-+      //  SETTINGS VIEW (rule editor, QGIS-style)
-+      // =================================================================
-+      Item {
-+        Layout.fillWidth: true
-+        Layout.fillHeight: true
-+        visible: root.showSettings
++        Rectangle {
++          Layout.fillWidth: true
++          height: 1
++          color: QfTheme.controlBorderColor
++        }
 +
++        // Add-rule editor
 +        ColumnLayout {
-+          anchors.fill: parent
-+          spacing: 0
++          Layout.fillWidth: true
++          Layout.margins: 12
++          spacing: 6
 +
-+          // ---- Current rules list ----
-+          ListView {
-+            id: rulesList
-+            Layout.fillWidth: true
-+            Layout.fillHeight: true
-+            clip: true
-+            model: topologyModel.rules
-+
-+            header: Rectangle {
-+              width: rulesList.width
-+              height: 32
-+              color: "#EEEEEE"
-+              Label {
-+                anchors.verticalCenter: parent.verticalCenter
-+                anchors.left: parent.left
-+                anchors.leftMargin: 12
-+                text: qsTr( "მიმდინარე წესები" )
-+                font.pixelSize: 13; font.bold: true; color: "#424242"
-+              }
-+            }
-+
-+            delegate: Rectangle {
-+              width: rulesList.width
-+              height: 56
-+              color: "white"
-+
-+              RowLayout {
-+                anchors.fill: parent
-+                anchors.leftMargin: 10
-+                anchors.rightMargin: 6
-+                spacing: 8
-+
-+                // Enable toggle
-+                Switch {
-+                  checked: model.ruleEnabled
-+                  Layout.alignment: Qt.AlignVCenter
-+                  onToggled: topologyModel.rules.setRuleEnabled( index, checked )
-+                }
-+
-+                ColumnLayout {
-+                  Layout.fillWidth: true
-+                  spacing: 1
-+
-+                  Label {
-+                    text: model.ruleTypeName
-+                    font.pixelSize: 13
-+                    font.bold: true
-+                    color: model.ruleEnabled ? "#212121" : "#9E9E9E"
-+                    Layout.fillWidth: true
-+                    elide: Text.ElideRight
-+                  }
-+                  Label {
-+                    text: model.needsLayer2
-+                          ? ( model.layer1 + "  →  " + model.layer2 )
-+                          : model.layer1
-+                    font.pixelSize: 12
-+                    color: "#757575"
-+                    Layout.fillWidth: true
-+                    elide: Text.ElideRight
-+                  }
-+                }
-+
-+                // Delete
-+                Rectangle {
-+                  width: 34; height: 34; radius: 17
-+                  color: delArea.pressed ? "#FFCDD2" : "#FFEBEE"
-+                  Layout.alignment: Qt.AlignVCenter
-+                  Label {
-+                    anchors.centerIn: parent
-+                    text: "🗑"; font.pixelSize: 15
-+                  }
-+                  MouseArea {
-+                    id: delArea
-+                    anchors.fill: parent
-+                    onClicked: topologyModel.rules.removeRule( index )
-+                  }
-+                }
-+              }
-+
-+              Rectangle {
-+                width: parent.width; height: 1
-+                color: "#F0F0F0"
-+                anchors.bottom: parent.bottom
-+              }
-+            }
-+
-+            // Empty
-+            Label {
-+              anchors.centerIn: parent
-+              visible: topologyModel.rules.count === 0
-+              text: qsTr( "წესები არ არის.\nდაამატეთ ქვემოთ." )
-+              horizontalAlignment: Text.AlignHCenter
-+              font.pixelSize: 13; color: "#9E9E9E"
-+            }
++          Label {
++            text: qsTr("ახალი წესი")
++            font: QfTheme.strongTipFont
++            color: QfTheme.secondaryTextColor
 +          }
 +
-+          Rectangle { Layout.fillWidth: true; height: 1; color: "#E0E0E0" }
-+
-+          // ---- Add-rule editor ----
-+          Rectangle {
++          QfComboBox {
++            id: ruleTypeCombo
 +            Layout.fillWidth: true
-+            Layout.preferredHeight: addCol.implicitHeight + 20
-+            color: "#FAFAFA"
++            font: QfTheme.defaultFont
++            model: topologyModel.rules.ruleTypeNames()
++            currentIndex: 5 // "must not overlap"
++          }
 +
-+            ColumnLayout {
-+              id: addCol
-+              anchors.fill: parent
-+              anchors.margins: 10
-+              spacing: 6
++          QfComboBox {
++            id: layer1Combo
++            Layout.fillWidth: true
++            font: QfTheme.defaultFont
++            model: root.layerNames
++            displayText: currentIndex < 0 ? qsTr("ფენა #1") : currentText
++          }
 +
-+              Label {
-+                text: qsTr( "ახალი წესი" )
-+                font.pixelSize: 13; font.bold: true; color: "#424242"
++          QfComboBox {
++            id: layer2Combo
++            Layout.fillWidth: true
++            font: QfTheme.defaultFont
++            model: root.layerNames
++            displayText: currentIndex < 0 ? qsTr("ფენა #2") : currentText
++            enabled: topologyModel.rules.ruleTypeNeedsLayer2(ruleTypeCombo.currentIndex)
++            opacity: enabled ? 1.0 : 0.4
++          }
++
++          RowLayout {
++            Layout.fillWidth: true
++            spacing: 4
++
++            QfButton {
++              Layout.fillWidth: true
++              text: qsTr("დამატება")
++              icon.source: QfTheme.getThemeVectorIcon("ic_add_white_24dp")
++              bgcolor: QfTheme.mainColor
++              color: "white"
++              onClicked: {
++                if (layer1Combo.currentIndex < 0)
++                  return;
++                var needs2 = topologyModel.rules.ruleTypeNeedsLayer2(ruleTypeCombo.currentIndex);
++                if (needs2 && layer2Combo.currentIndex < 0)
++                  return;
++                topologyModel.rules.addRule(ruleTypeCombo.currentIndex, layer1Combo.currentText, needs2 ? layer2Combo.currentText : "");
 +              }
++            }
 +
-+              ComboBox {
-+                id: ruleTypeCombo
-+                Layout.fillWidth: true
-+                model: topologyModel.rules.ruleTypeNames()
-+                currentIndex: 5  // "must not overlap"
-+              }
-+
-+              ComboBox {
-+                id: layer1Combo
-+                Layout.fillWidth: true
-+                model: root.layerNames
-+                displayText: currentIndex < 0 ? qsTr( "ფენა #1" ) : currentText
-+              }
-+
-+              ComboBox {
-+                id: layer2Combo
-+                Layout.fillWidth: true
-+                model: root.layerNames
-+                displayText: currentIndex < 0 ? qsTr( "ფენა #2" ) : currentText
-+                enabled: topologyModel.rules.ruleTypeNeedsLayer2( ruleTypeCombo.currentIndex )
-+                opacity: enabled ? 1.0 : 0.4
-+              }
-+
-+              RowLayout {
-+                Layout.fillWidth: true
-+                spacing: 8
-+
-+                Rectangle {
-+                  Layout.fillWidth: true
-+                  height: 40; radius: 6
-+                  color: addArea.pressed ? Qt.darker( QfTheme.mainColor, 1.2 ) : QfTheme.mainColor
-+                  Label {
-+                    anchors.centerIn: parent
-+                    text: qsTr( "დამატება" )
-+                    font.pixelSize: 14; font.bold: true; color: "white"
-+                  }
-+                  MouseArea {
-+                    id: addArea
-+                    anchors.fill: parent
-+                    onClicked: {
-+                      if ( layer1Combo.currentIndex < 0 )
-+                        return
-+                      var needs2 = topologyModel.rules.ruleTypeNeedsLayer2( ruleTypeCombo.currentIndex )
-+                      if ( needs2 && layer2Combo.currentIndex < 0 )
-+                        return
-+                      topologyModel.rules.addRule(
-+                        ruleTypeCombo.currentIndex,
-+                        layer1Combo.currentText,
-+                        needs2 ? layer2Combo.currentText : "" )
-+                    }
-+                  }
-+                }
-+
-+                Rectangle {
-+                  Layout.preferredWidth: 100
-+                  height: 40; radius: 6
-+                  color: resetArea.pressed ? "#E0E0E0" : "#EEEEEE"
-+                  border.color: "#BDBDBD"; border.width: 1
-+                  Label {
-+                    anchors.centerIn: parent
-+                    text: qsTr( "ნაგულისხმევი" )
-+                    font.pixelSize: 12; color: "#424242"
-+                  }
-+                  MouseArea {
-+                    id: resetArea
-+                    anchors.fill: parent
-+                    onClicked: topologyModel.rules.resetToDefaults()
-+                  }
-+                }
-+              }
++            QfButton {
++              text: qsTr("ნაგულისხმევი")
++              bgcolor: "transparent"
++              color: QfTheme.mainColor
++              onClicked: topologyModel.rules.resetToDefaults()
 +            }
 +          }
 +        }
 +      }
 +    }
-+  }
-+
-+  TopologyCheckerModel {
-+    id: topologyModel
-+    mapSettings: root.mapSettingsRef
 +  }
 +}
