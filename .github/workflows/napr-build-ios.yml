@@ -187,9 +187,16 @@ jobs:
 
       - name: 📦 Package unsigned IPA (for Sideloadly)
         run: |
-          APP=$(find /Users/runner/builddir -type d -name "*.app" -path "*Release-iphoneos*" | head -n 1)
-          echo "App bundle: $APP"
+          # QField puts the app in builddir/output/bin (no Release-iphoneos subfolder)
+          echo "App bundles found:"
+          find /Users/runner/builddir -maxdepth 6 -type d -name "*.app" -not -path "*/vcpkg*" -prune -print || true
+          APP=$(find /Users/runner/builddir/output/bin -maxdepth 2 -type d -name "*.app" -prune | head -n 1)
+          if [ -z "$APP" ]; then
+            APP=$(find /Users/runner/builddir -type d -name "*.app" -not -path "*/vcpkg*" -prune | head -n 1)
+          fi
+          echo "Using app bundle: $APP"
           test -n "$APP"
+          test -f "$APP/Info.plist"
           mkdir -p /tmp/ipa/Payload
           cp -R "$APP" /tmp/ipa/Payload/
           cd /tmp/ipa && zip -qry /tmp/Georgia-QField-unsigned.ipa Payload
