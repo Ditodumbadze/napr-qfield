@@ -198,10 +198,10 @@ index f41b4e8..240df55 100644
            settings.setValue("/QField/showMapCanvasGuide", true);
          } else {
 diff --git a/src/app/qml/QgisMobileapp.qml b/src/app/qml/QgisMobileapp.qml
-index 8b351c1..ff234de 100644
+index 8b351c1..8b60469 100644
 --- a/src/app/qml/QgisMobileapp.qml
 +++ b/src/app/qml/QgisMobileapp.qml
-@@ -2277,6 +2277,30 @@ ApplicationWindow {
+@@ -2277,6 +2277,31 @@ ApplicationWindow {
        anchors.top: locatorItem.top
        anchors.topMargin: QfTheme.toolButtonSize + 4
        spacing: 4
@@ -224,7 +224,8 @@ index 8b351c1..ff234de 100644
 +        round: true
 +        visible: !screenLocker.enabled && stateMachine.state !== "measure"
 +        iconSource: QfTheme.getThemeVectorIcon("ic_napr_villages_white_24dp")
-+        iconColor: villageSelectorDialog.isOpen ? QfTheme.mainColor : QfTheme.toolButtonColor
++        // Orange while the village layers are served from the offline copy
++        iconColor: villageSelectorDialog.isOpen ? QfTheme.mainColor : villageSelectorDialog.offlineActive ? QfTheme.warningColor : QfTheme.toolButtonColor
 +        bgcolor: QfTheme.toolButtonBackgroundColor
 +
 +        onClicked: villageSelectorDialog.isOpen = !villageSelectorDialog.isOpen
@@ -232,7 +233,7 @@ index 8b351c1..ff234de 100644
      }
  
      Column {
-@@ -2865,6 +2889,21 @@ ApplicationWindow {
+@@ -2865,6 +2890,21 @@ ApplicationWindow {
          }
        }
  
@@ -254,7 +255,7 @@ index 8b351c1..ff234de 100644
        QfToolButton {
          id: elevationProfileButton
          round: true
-@@ -5578,6 +5617,71 @@ ApplicationWindow {
+@@ -5578,6 +5618,71 @@ ApplicationWindow {
      }
    }
  
@@ -2012,26 +2013,79 @@ index 0000000..cc68a2a
 +#endif // TOPOLOGYCHECKERMODEL_H
 diff --git a/src/core/villageselectormodel.cpp b/src/core/villageselectormodel.cpp
 new file mode 100644
-index 0000000..5c6d556
+index 0000000..23ded43
 --- /dev/null
 +++ b/src/core/villageselectormodel.cpp
-@@ -0,0 +1,459 @@
+@@ -0,0 +1,861 @@
 +#include "villageselectormodel.h"
 +
 +#include <QFile>
 +#include <QJsonArray>
 +#include <QJsonDocument>
 +#include <QJsonObject>
++#include <QDateTime>
++#include <QDir>
++#include <QFileInfo>
++#include <QFutureWatcher>
++#include <QRegularExpression>
 +#include <QSettings>
++#include <QStandardPaths>
++#include <QtConcurrent>
 +#include <algorithm>
 +#include <qgsdataprovider.h>
 +#include <qgsdatasourceuri.h>
 +#include <qgsexpressioncontextutils.h>
++#include <qgsfeedback.h>
 +#include <qgsmaplayer.h>
++#include <qgspathresolver.h>
 +#include <qgsproject.h>
++#include <qgsvectorfilewriter.h>
 +#include <qgsvectorlayer.h>
 +
 +static const QString SETTINGS_KEY = QStringLiteral( "georgiaqfield/villages/selected" );
++static const QString OFFLINE_ACTIVE_KEY = QStringLiteral( "georgiaqfield/offline/active" );
++static const QString OFFLINE_FILE_KEY = QStringLiteral( "georgiaqfield/offline/file" );
++static const QString OFFLINE_LAYERS_KEY = QStringLiteral( "georgiaqfield/offline/layers" );
++static const QString OFFLINE_DATE_KEY = QStringLiteral( "georgiaqfield/offline/date" );
++static const QString OFFLINE_VILLAGES_KEY = QStringLiteral( "georgiaqfield/offline/villages" );
++
++namespace
++{
++  bool usesZoneVariables( const QString &source )
++  {
++    return source.contains( QLatin1String( "@myzone" ), Qt::CaseInsensitive ) || source.contains( QLatin1String( "@orzone" ), Qt::CaseInsensitive );
++  }
++
++  //! Identifies a WFS layer independently of its filter.
++  QString wfsKey( const QString &source )
++  {
++    const QgsDataSourceUri uri( source );
++    return uri.param( QStringLiteral( "url" ) ) + QLatin1Char( '|' ) + uri.param( QStringLiteral( "typename" ) );
++  }
++
++  //! wfsKey → original source (with the @myzone / @orzone filter), filled while projects are read.
++  QHash<QString, QString> &originalSourcesByKey()
++  {
++    static QHash<QString, QString> sOriginals;
++    return sOriginals;
++  }
++
++  bool sPreprocessedOnRead = false;
++
++  /**
++   * LR_PARCELS is the only NAPR WFS layer that does not say whether to restrict
++   * requests to the view. In QField (QGIS 4 WFS provider) it then accumulates
++   * duplicate features after each search/zoom, while the layers on the same
++   * server that request by view extent do not. Requesting by view extent, like
++   * the other layers, avoids the duplicates and the slow full download. Layers
++   * that set the option explicitly are left alone.
++   */
++  void restrictToViewIfUnset( QgsDataSourceUri &uri )
++  {
++    if ( !uri.hasParam( QStringLiteral( "restrictToRequestBBOX" ) ) )
++      uri.setParam( QStringLiteral( "restrictToRequestBBOX" ), QStringLiteral( "1" ) );
++  }
++} // namespace
 +
 +VillageSelectorModel::VillageSelectorModel( QObject *parent )
 +  : QAbstractListModel( parent )
@@ -2042,6 +2096,40 @@ index 0000000..5c6d556
 +
 +  // A different project may reuse layer ids; forget the stored original sources.
 +  connect( QgsProject::instance(), &QgsProject::cleared, this, [this] { mOriginalSources.clear(); } );
++
++  // Rewrite the @myzone / @orzone WFS filters while the project is being READ,
++  // before any layer talks to the server. Otherwise the provider sends the raw
++  // var() / regexp_replace() functions to the server, which rejects them (and
++  // QField logs "Retrying request ..." errors) until the selection is applied.
++  static bool sPreprocessorRegistered = false;
++  if ( !sPreprocessorRegistered )
++  {
++    sPreprocessorRegistered = true;
++    QgsPathResolver::setPathPreprocessor( []( const QString &source ) -> QString {
++      if ( !usesZoneVariables( source ) || !source.contains( QLatin1String( "typename=" ), Qt::CaseInsensitive ) )
++        return source;
++
++      QSettings settings;
++      QStringList codes = settings.value( SETTINGS_KEY ).toStringList();
++      codes.sort();
++      // Offline copy in use: the layer is switched to it right after the project
++      // is read, so don't ask the (unreachable) server for real data meanwhile.
++      if ( settings.value( OFFLINE_ACTIVE_KEY, false ).toBool() )
++        codes.clear();
++      if ( codes.isEmpty() )
++        codes << QStringLiteral( "00.00" ); // nothing selected yet: a filter that matches nothing
++
++      originalSourcesByKey().insert( wfsKey( source ), source );
++      sPreprocessedOnRead = true;
++
++      QgsDataSourceUri uri( source );
++      const QString filter = buildFilter( uri.param( QStringLiteral( "filter" ) ), codes );
++      uri.removeParam( QStringLiteral( "filter" ) );
++      uri.setParam( QStringLiteral( "filter" ), filter );
++      restrictToViewIfUnset( uri );
++      return uri.uri( false );
++    } );
++  }
 +}
 +
 +void VillageSelectorModel::loadData()
@@ -2360,10 +2448,16 @@ index 0000000..5c6d556
 +  const QMap<QString, QgsMapLayer *> layers = QgsProject::instance()->mapLayers();
 +  for ( QgsMapLayer *layer : layers )
 +  {
-+    if ( !qobject_cast<QgsVectorLayer *>( layer ) || layer->providerType().compare( QLatin1String( "WFS" ), Qt::CaseInsensitive ) != 0 )
++    if ( !qobject_cast<QgsVectorLayer *>( layer ) )
 +      continue;
++    if ( layer->providerType().compare( QLatin1String( "WFS" ), Qt::CaseInsensitive ) != 0 )
++    {
++      if ( mOriginalSources.contains( layer->id() ) ) // currently switched to the offline copy
++        ++count;
++      continue;
++    }
 +    const QString source = layer->source();
-+    if ( mOriginalSources.contains( layer->id() ) || source.contains( QLatin1String( "@myzone" ), Qt::CaseInsensitive ) || source.contains( QLatin1String( "@orzone" ), Qt::CaseInsensitive ) )
++    if ( mOriginalSources.contains( layer->id() ) || usesZoneVariables( source ) || originalSourcesByKey().contains( wfsKey( source ) ) )
 +      ++count;
 +  }
 +  return count;
@@ -2376,7 +2470,7 @@ index 0000000..5c6d556
 +  // simple OGC filter, whatever the number of selected villages.
 +  enum class Kind
 +  {
-+    InventoryCodes, // "USAIDCODE" / "PNEWCODE" LIKE '8812%'
++    InventoryCodes, // "USAIDCODE" LIKE '<8812%>' / "PNEWCODE" LIKE '8812%'
 +    CadastralCode,  // "CADCODE" LIKE '88.12%'
 +    ZoneSector,     // "ZONE" = '88' AND "SECTOR" = '12'
 +    Generic,        // anything else: substitute the variables with a literal
@@ -2398,7 +2492,9 @@ index 0000000..5c6d556
 +    switch ( kind )
 +    {
 +      case Kind::InventoryCodes:
-+        parts << QStringLiteral( "( \"USAIDCODE\" LIKE '%1%2%' OR \"PNEWCODE\" LIKE '%1%2%' )" ).arg( zone, sector );
++        // USAIDCODE is matched with the angle brackets kept ('<8812%>'), exactly as the
++        // original replace(@myzone, '.', '') produced; PNEWCODE without them.
++        parts << QStringLiteral( "( \"USAIDCODE\" LIKE '<%1%2%>' OR \"PNEWCODE\" LIKE '%1%2%' )" ).arg( zone, sector );
 +        break;
 +      case Kind::CadastralCode:
 +        parts << QStringLiteral( "\"CADCODE\" LIKE '%1.%2%'" ).arg( zone, sector );
@@ -2437,32 +2533,30 @@ index 0000000..5c6d556
 +  for ( QgsMapLayer *layer : layers )
 +  {
 +    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( layer );
-+    if ( !vl || vl->providerType().compare( QLatin1String( "WFS" ), Qt::CaseInsensitive ) != 0 )
++    if ( !vl )
 +      continue;
 +
-+    QString original = mOriginalSources.value( vl->id() );
++    const QString original = originalSourceFor( vl );
 +    if ( original.isEmpty() )
-+    {
-+      const QString source = vl->source();
-+      if ( !source.contains( QLatin1String( "@myzone" ), Qt::CaseInsensitive ) && !source.contains( QLatin1String( "@orzone" ), Qt::CaseInsensitive ) )
-+        continue;
-+      original = source;
-+      mOriginalSources.insert( vl->id(), original );
-+    }
++      continue;
 +
 +    QgsDataSourceUri uri( original );
 +    const QString filter = buildFilter( uri.param( QStringLiteral( "filter" ) ), codes );
 +    uri.removeParam( QStringLiteral( "filter" ) );
 +    uri.setParam( QStringLiteral( "filter" ), filter );
++    restrictToViewIfUnset( uri );
 +
 +    QgsDataProvider::ProviderOptions options;
 +    options.transformContext = project->transformContext();
-+    vl->setDataSource( uri.uri( false ), vl->name(), vl->providerType(), options, false );
++    vl->setDataSource( uri.uri( false ), vl->name(), QStringLiteral( "WFS" ), options, false );
++    vl->setReadOnly( false );
 +    vl->triggerRepaint();
 +    ++updated;
 +  }
 +
 +  saveSelection();
++  if ( offlineActive() )
++    clearOfflineState(); // back on the live server
 +
 +  if ( updated == 0 )
 +    return tr( "პროექტში ვერ მოიძებნა ფენა, რომელიც @myzone / @orzone ფილტრს იყენებს" );
@@ -2471,16 +2565,325 @@ index 0000000..5c6d556
 +
 +bool VillageSelectorModel::applySaved()
 +{
++  const bool preprocessed = sPreprocessedOnRead;
++  sPreprocessedOnRead = false;
++
++  if ( offlineActive() && switchToOffline() )
++    return true;
++
 +  if ( mSelected.isEmpty() || targetLayerCount() == 0 )
 +    return false;
++
++  if ( preprocessed )
++  {
++    // The filters were already rewritten while reading the project; only keep
++    // the legacy variables in sync, no need to reload the layers again.
++    const QStringList codes = sortedSelection();
++    QgsProject *project = QgsProject::instance();
++    QgsExpressionContextUtils::setProjectVariable( project, QStringLiteral( "myzone" ), QStringLiteral( "<%1%>" ).arg( codes.at( 0 ) ) );
++    QgsExpressionContextUtils::setProjectVariable( project, QStringLiteral( "orzone" ), QStringLiteral( "<%1%>" ).arg( codes.size() > 1 ? codes.at( 1 ) : codes.at( 0 ) ) );
++    QgsExpressionContextUtils::setProjectVariable( project, QStringLiteral( "villages" ), codes.join( QLatin1Char( ',' ) ) );
++    return true;
++  }
++
 +  return apply().isEmpty();
++}
++
++// ---------------------------------------------------------------------------
++//  Offline copy
++// ---------------------------------------------------------------------------
++
++QString VillageSelectorModel::originalSourceFor( QgsVectorLayer *layer )
++{
++  QString original = mOriginalSources.value( layer->id() );
++  if ( !original.isEmpty() )
++    return original;
++
++  if ( layer->providerType().compare( QLatin1String( "WFS" ), Qt::CaseInsensitive ) != 0 )
++    return QString();
++
++  const QString source = layer->source();
++  if ( usesZoneVariables( source ) )
++    original = source;
++  else
++    original = originalSourcesByKey().value( wfsKey( source ) );
++  if ( !original.isEmpty() )
++    mOriginalSources.insert( layer->id(), original );
++  return original;
++}
++
++bool VillageSelectorModel::offlineActive() const
++{
++  return QSettings().value( OFFLINE_ACTIVE_KEY, false ).toBool();
++}
++
++QString VillageSelectorModel::offlineInfo() const
++{
++  QSettings settings;
++  if ( !settings.value( OFFLINE_ACTIVE_KEY, false ).toBool() )
++    return QString();
++  const QDateTime date = settings.value( OFFLINE_DATE_KEY ).toDateTime();
++  const int villages = static_cast<int>( settings.value( OFFLINE_VILLAGES_KEY ).toStringList().size() );
++  return tr( "შენახულია %1 · %2 სოფელი" ).arg( date.toString( QStringLiteral( "dd.MM.yyyy HH:mm" ) ) ).arg( villages );
++}
++
++void VillageSelectorModel::setBusy( bool busy )
++{
++  if ( mBusy == busy )
++    return;
++  mBusy = busy;
++  emit busyChanged();
++}
++
++void VillageSelectorModel::setProgressText( const QString &text )
++{
++  if ( mProgressText == text )
++    return;
++  mProgressText = text;
++  emit progressChanged();
++}
++
++void VillageSelectorModel::clearOfflineState()
++{
++  QSettings settings;
++  settings.setValue( OFFLINE_ACTIVE_KEY, false );
++  emit offlineChanged();
++}
++
++QString VillageSelectorModel::saveOffline()
++{
++  if ( mBusy )
++    return tr( "შენახვა უკვე მიმდინარეობს" );
++  if ( offlineActive() )
++    return tr( "ჯერ დაბრუნდით ლაივ რეჟიმში" );
++  const QStringList codes = sortedSelection();
++  if ( codes.isEmpty() )
++    return tr( "ჯერ აირჩიეთ და ჩატვირთეთ სოფლები" );
++
++  struct Job
++  {
++      QString layerId;
++      QString name;
++      QString original;
++      QString source;
++      QString table;
++  };
++  QVector<Job> jobs;
++
++  QgsProject *project = QgsProject::instance();
++  const QMap<QString, QgsMapLayer *> layers = project->mapLayers();
++  for ( QgsMapLayer *layer : layers )
++  {
++    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( layer );
++    if ( !vl )
++      continue;
++    const QString original = originalSourceFor( vl );
++    if ( original.isEmpty() )
++      continue;
++
++    QgsDataSourceUri uri( original );
++    const QString filter = buildFilter( uri.param( QStringLiteral( "filter" ) ), codes );
++    uri.removeParam( QStringLiteral( "filter" ) );
++    uri.setParam( QStringLiteral( "filter" ), filter );
++
++    QString table = uri.param( QStringLiteral( "typename" ) ).section( QLatin1Char( ':' ), -1 ).toLower();
++    table.replace( QRegularExpression( QStringLiteral( "[^a-z0-9_]" ) ), QStringLiteral( "_" ) );
++    table = QStringLiteral( "l%1_%2" ).arg( jobs.size() ).arg( table );
++
++    jobs.append( { vl->id(), vl->name(), original, uri.uri( false ), table } );
++  }
++
++  if ( jobs.isEmpty() )
++    return tr( "პროექტში ვერ მოიძებნა სოფლების მიხედვით ფილტრირებული ფენა" );
++
++  const QString dir = QStandardPaths::writableLocation( QStandardPaths::AppDataLocation ) + QStringLiteral( "/georgia_offline" );
++  QDir().mkpath( dir );
++  const QString path = QStringLiteral( "%1/offline_%2.gpkg" ).arg( dir, QDateTime::currentDateTime().toString( QStringLiteral( "yyyyMMdd_HHmmss" ) ) );
++
++  delete mFeedback;
++  mFeedback = new QgsFeedback();
++  QgsFeedback *feedback = mFeedback;
++  const QgsCoordinateTransformContext transformContext = project->transformContext();
++
++  setBusy( true );
++  setProgressText( tr( "მზადება..." ) );
++
++  auto *watcher = new QFutureWatcher<QStringList>( this );
++  connect( watcher, &QFutureWatcher<QStringList>::finished, this, [this, watcher, jobs, path, codes, feedback] {
++    const QStringList results = watcher->result(); // one entry per job: empty = OK, otherwise the error
++    watcher->deleteLater();
++
++    const bool canceled = feedback->isCanceled();
++    QStringList failed;
++    int succeeded = 0;
++    for ( int i = 0; i < results.size(); ++i )
++    {
++      if ( results.at( i ).isEmpty() )
++        ++succeeded;
++      else
++        failed << results.at( i );
++    }
++
++    if ( canceled || succeeded == 0 )
++    {
++      QFile::remove( path );
++      setBusy( false );
++      setProgressText( QString() );
++      emit offlineFinished( false, canceled ? tr( "შენახვა გაუქმდა" ) : tr( "ვერ შეინახა: %1" ).arg( failed.join( QStringLiteral( "; " ) ) ) );
++      return;
++    }
++
++    // Switch the downloaded layers to the local copy (read-only).
++    QgsProject *project = QgsProject::instance();
++    QgsDataProvider::ProviderOptions options;
++    options.transformContext = project->transformContext();
++    QVariantMap tables;
++    for ( int i = 0; i < jobs.size() && i < results.size(); ++i )
++    {
++      if ( !results.at( i ).isEmpty() )
++        continue;
++      const Job &job = jobs.at( i );
++      tables.insert( wfsKey( job.original ), job.table );
++      if ( QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( project->mapLayer( job.layerId ) ) )
++      {
++        mOriginalSources.insert( vl->id(), job.original );
++        vl->setDataSource( QStringLiteral( "%1|layername=%2" ).arg( path, job.table ), vl->name(), QStringLiteral( "ogr" ), options, false );
++        vl->setReadOnly( true );
++        vl->triggerRepaint();
++      }
++    }
++
++    QSettings settings;
++    const QString previous = settings.value( OFFLINE_FILE_KEY ).toString();
++    settings.setValue( OFFLINE_FILE_KEY, path );
++    settings.setValue( OFFLINE_LAYERS_KEY, tables );
++    settings.setValue( OFFLINE_DATE_KEY, QDateTime::currentDateTime() );
++    settings.setValue( OFFLINE_VILLAGES_KEY, codes );
++    settings.setValue( OFFLINE_ACTIVE_KEY, true );
++    if ( !previous.isEmpty() && previous != path )
++      QFile::remove( previous );
++
++    setBusy( false );
++    setProgressText( QString() );
++    emit offlineChanged();
++    emit offlineFinished( true, failed.isEmpty() ? tr( "ოფლაინ შენახულია: %1 ფენა" ).arg( succeeded ) : tr( "შენახულია %1 ფენა, ვერ შეინახა: %2" ).arg( succeeded ).arg( failed.join( QStringLiteral( "; " ) ) ) );
++  } );
++
++  // The download runs on a worker thread with its own layer objects, so the
++  // map stays usable while the villages are being saved.
++  watcher->setFuture( QtConcurrent::run( [this, jobs, path, feedback, transformContext]() -> QStringList {
++    QStringList results;
++    bool fileCreated = false;
++    for ( int i = 0; i < jobs.size(); ++i )
++    {
++      if ( feedback->isCanceled() )
++      {
++        results << tr( "გაუქმდა" );
++        continue;
++      }
++      const Job &job = jobs.at( i );
++      const QString progress = tr( "ინახება: %1 (%2/%3)" ).arg( job.name ).arg( i + 1 ).arg( jobs.size() );
++      QMetaObject::invokeMethod( this, [this, progress] { setProgressText( progress ); }, Qt::QueuedConnection );
++
++      QgsVectorLayer::LayerOptions layerOptions( transformContext );
++      layerOptions.loadDefaultStyle = false;
++      QgsVectorLayer layer( job.source, job.name, QStringLiteral( "WFS" ), layerOptions );
++      if ( !layer.isValid() )
++      {
++        results << tr( "%1: სერვერთან კავშირი ვერ დამყარდა" ).arg( job.name );
++        continue;
++      }
++
++      QgsVectorFileWriter::SaveVectorOptions saveOptions;
++      saveOptions.driverName = QStringLiteral( "GPKG" );
++      saveOptions.layerName = job.table;
++      saveOptions.fileEncoding = QStringLiteral( "UTF-8" );
++      saveOptions.actionOnExistingFile = fileCreated ? QgsVectorFileWriter::CreateOrOverwriteLayer : QgsVectorFileWriter::CreateOrOverwriteFile;
++      saveOptions.feedback = feedback;
++
++      QString error;
++      const QgsVectorFileWriter::WriterError result = QgsVectorFileWriter::writeAsVectorFormatV3( &layer, path, transformContext, saveOptions, &error );
++      if ( result != QgsVectorFileWriter::NoError )
++      {
++        results << QStringLiteral( "%1: %2" ).arg( job.name, error );
++        continue;
++      }
++      fileCreated = true;
++      results << QString();
++    }
++    return results;
++  } ) );
++
++  return QString();
++}
++
++void VillageSelectorModel::cancelOffline()
++{
++  if ( mFeedback )
++    mFeedback->cancel();
++}
++
++QString VillageSelectorModel::goLive()
++{
++  if ( mBusy )
++    return tr( "დაელოდეთ შენახვის დასრულებას" );
++  // apply() rebuilds every village layer from its original WFS source with the
++  // current selection and clears the offline flag.
++  return apply();
++}
++
++bool VillageSelectorModel::switchToOffline()
++{
++  QSettings settings;
++  const QString path = settings.value( OFFLINE_FILE_KEY ).toString();
++  const QVariantMap tables = settings.value( OFFLINE_LAYERS_KEY ).toMap();
++  if ( path.isEmpty() || !QFileInfo::exists( path ) || tables.isEmpty() )
++  {
++    clearOfflineState();
++    return false;
++  }
++
++  QgsProject *project = QgsProject::instance();
++  QgsDataProvider::ProviderOptions options;
++  options.transformContext = project->transformContext();
++
++  int switched = 0;
++  const QMap<QString, QgsMapLayer *> layers = project->mapLayers();
++  for ( QgsMapLayer *layer : layers )
++  {
++    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( layer );
++    if ( !vl )
++      continue;
++    const QString original = originalSourceFor( vl );
++    if ( original.isEmpty() )
++      continue;
++    const QString table = tables.value( wfsKey( original ) ).toString();
++    if ( table.isEmpty() )
++      continue;
++    vl->setDataSource( QStringLiteral( "%1|layername=%2" ).arg( path, table ), vl->name(), QStringLiteral( "ogr" ), options, false );
++    vl->setReadOnly( true );
++    vl->triggerRepaint();
++    ++switched;
++  }
++
++  if ( switched > 0 )
++  {
++    const QStringList codes = settings.value( OFFLINE_VILLAGES_KEY ).toStringList();
++    if ( !codes.isEmpty() )
++    {
++      QgsExpressionContextUtils::setProjectVariable( project, QStringLiteral( "myzone" ), QStringLiteral( "<%1%>" ).arg( codes.at( 0 ) ) );
++      QgsExpressionContextUtils::setProjectVariable( project, QStringLiteral( "orzone" ), QStringLiteral( "<%1%>" ).arg( codes.size() > 1 ? codes.at( 1 ) : codes.at( 0 ) ) );
++      QgsExpressionContextUtils::setProjectVariable( project, QStringLiteral( "villages" ), codes.join( QLatin1Char( ',' ) ) );
++    }
++  }
++  return switched > 0;
 +}
 diff --git a/src/core/villageselectormodel.h b/src/core/villageselectormodel.h
 new file mode 100644
-index 0000000..3dce26b
+index 0000000..f528fef
 --- /dev/null
 +++ b/src/core/villageselectormodel.h
-@@ -0,0 +1,132 @@
+@@ -0,0 +1,169 @@
 +#ifndef VILLAGESELECTORMODEL_H
 +#define VILLAGESELECTORMODEL_H
 +
@@ -2490,6 +2893,9 @@ index 0000000..3dce26b
 +#include <QString>
 +#include <QStringList>
 +#include <QVector>
++
++class QgsFeedback;
++class QgsVectorLayer;
 +
 +/**
 + * Georgia QField: municipality → village picker for the NAPR cadastral WFS layers.
@@ -2515,6 +2921,10 @@ index 0000000..3dce26b
 +    Q_PROPERTY( int selectedCount READ selectedCount NOTIFY selectionChanged )
 +    Q_PROPERTY( QString selectedSummary READ selectedSummary NOTIFY selectionChanged )
 +    Q_PROPERTY( int villageCount READ villageCount CONSTANT )
++    Q_PROPERTY( bool offlineActive READ offlineActive NOTIFY offlineChanged )
++    Q_PROPERTY( QString offlineInfo READ offlineInfo NOTIFY offlineChanged )
++    Q_PROPERTY( bool busy READ busy NOTIFY busyChanged )
++    Q_PROPERTY( QString progressText READ progressText NOTIFY progressChanged )
 +
 +  public:
 +    enum RowType
@@ -2565,9 +2975,29 @@ index 0000000..3dce26b
 +    //! Re-applies the remembered selection (called after a project is opened).
 +    Q_INVOKABLE bool applySaved();
 +
++    bool offlineActive() const;
++    QString offlineInfo() const;
++    bool busy() const { return mBusy; }
++    QString progressText() const { return mProgressText; }
++
++    /**
++     * Downloads every village-filtered WFS layer (for the current selection) into a
++     * local GeoPackage in the background, then switches those layers to it
++     * (read-only) so they keep working without internet. Returns an empty string
++     * when the download started, otherwise an error. offlineFinished() reports the end.
++     */
++    Q_INVOKABLE QString saveOffline();
++    Q_INVOKABLE void cancelOffline();
++    //! Switches the offline layers back to the live WFS server.
++    Q_INVOKABLE QString goLive();
++
 +  signals:
 +    void searchTextChanged();
 +    void selectionChanged();
++    void offlineChanged();
++    void busyChanged();
++    void progressChanged();
++    void offlineFinished( bool success, const QString &message );
 +
 +  private:
 +    struct Village
@@ -2610,6 +3040,16 @@ index 0000000..3dce26b
 +
 +    //! layer id → original WFS source (with the @myzone / @orzone filter)
 +    QHash<QString, QString> mOriginalSources;
++
++    QString originalSourceFor( QgsVectorLayer *layer );
++    bool switchToOffline();
++    void clearOfflineState();
++    void setBusy( bool busy );
++    void setProgressText( const QString &text );
++
++    bool mBusy = false;
++    QString mProgressText;
++    QgsFeedback *mFeedback = nullptr;
 +};
 +
 +#endif // VILLAGESELECTORMODEL_H
@@ -3900,10 +4340,10 @@ index 0000000..d5ed827
 +}
 diff --git a/src/gui/qml/VillageSelectorDialog.qml b/src/gui/qml/VillageSelectorDialog.qml
 new file mode 100644
-index 0000000..15054e0
+index 0000000..369dd52
 --- /dev/null
 +++ b/src/gui/qml/VillageSelectorDialog.qml
-@@ -0,0 +1,373 @@
+@@ -0,0 +1,483 @@
 +import QtQuick
 +import QtQuick.Controls
 +import QtQuick.Controls.impl
@@ -3934,13 +4374,21 @@ index 0000000..15054e0
 +  }
 +
 +  //! Re-applies the remembered selection; call after a project has been opened.
++  //! True while the village layers are served from the offline copy.
++  readonly property bool offlineActive: villageModel.offlineActive
++
 +  function applySaved() {
-+    if (villageModel.applySaved())
-+      root.toast(qsTr("ჩაიტვირთა არჩეული სოფლები (%1)").arg(villageModel.selectedCount));
++    if (villageModel.applySaved()) {
++      if (villageModel.offlineActive)
++        root.toast(qsTr("ოფლაინ რეჟიმი · %1").arg(villageModel.offlineInfo));
++      else
++        root.toast(qsTr("ჩაიტვირთა არჩეული სოფლები (%1)").arg(villageModel.selectedCount));
++    }
 +  }
 +
 +  VillageSelectorModel {
 +    id: villageModel
++    onOfflineFinished: (success, message) => root.toast(message)
 +  }
 +
 +  onIsOpenChanged: {
@@ -4255,15 +4703,78 @@ index 0000000..15054e0
 +        color: QfTheme.controlBorderColor
 +      }
 +
-+      // ---- Load ----
++      // ---- Offline status ----
++      Rectangle {
++        Layout.fillWidth: true
++        Layout.leftMargin: 12
++        Layout.rightMargin: 12
++        Layout.topMargin: 10
++        Layout.preferredHeight: offlineRow.implicitHeight + 16
++        visible: villageModel.offlineActive || villageModel.busy
++        radius: 10
++        color: villageModel.busy ? root.tint(QfTheme.mainColor, 0.10) : root.tint(QfTheme.warningColor, 0.14)
++
++        RowLayout {
++          id: offlineRow
++          anchors.fill: parent
++          anchors.margins: 8
++          spacing: 8
++
++          BusyIndicator {
++            visible: villageModel.busy
++            running: visible
++            Layout.preferredWidth: 28
++            Layout.preferredHeight: 28
++          }
++
++          IconImage {
++            visible: !villageModel.busy
++            source: QfTheme.getThemeVectorIcon("ic_cloud_off_24dp")
++            sourceSize: Qt.size(22, 22)
++            color: QfTheme.warningColor
++          }
++
++          ColumnLayout {
++            Layout.fillWidth: true
++            spacing: 0
++            Label {
++              Layout.fillWidth: true
++              text: villageModel.busy ? qsTr("ოფლაინ შენახვა...") : qsTr("ოფლაინ რეჟიმი")
++              font: QfTheme.strongTipFont
++              color: QfTheme.mainTextColor
++              elide: Text.ElideRight
++            }
++            Label {
++              Layout.fillWidth: true
++              text: villageModel.busy ? villageModel.progressText : villageModel.offlineInfo
++              font: QfTheme.tinyFont
++              color: QfTheme.secondaryTextColor
++              elide: Text.ElideRight
++            }
++          }
++
++          QfButton {
++            visible: villageModel.busy
++            text: qsTr("გაუქმება")
++            bgcolor: "transparent"
++            borderColor: "transparent"
++            color: QfTheme.errorColor
++            onClicked: villageModel.cancelOffline()
++          }
++        }
++      }
++
++      // ---- Actions ----
 +      QfButton {
 +        Layout.fillWidth: true
-+        Layout.margins: 12
++        Layout.leftMargin: 12
++        Layout.rightMargin: 12
++        Layout.topMargin: 10
 +        text: villageModel.selectedCount > 0 ? qsTr("ჩატვირთვა (%1)").arg(villageModel.selectedCount) : qsTr("ჩატვირთვა")
 +        icon.source: QfTheme.getThemeVectorIcon("ic_download_white_24dp")
 +        bgcolor: QfTheme.mainColor
 +        color: "white"
-+        enabled: villageModel.selectedCount > 0
++        enabled: villageModel.selectedCount > 0 && !villageModel.busy
 +        onClicked: {
 +          var err = villageModel.apply();
 +          if (err === "") {
@@ -4271,6 +4782,45 @@ index 0000000..15054e0
 +            root.isOpen = false;
 +          } else {
 +            root.toast(err);
++          }
++        }
++      }
++
++      RowLayout {
++        Layout.fillWidth: true
++        Layout.leftMargin: 12
++        Layout.rightMargin: 12
++        Layout.bottomMargin: 12
++        spacing: 8
++
++        // Save the loaded villages for use without internet
++        QfButton {
++          Layout.fillWidth: true
++          visible: !villageModel.offlineActive
++          text: qsTr("ოფლაინ შენახვა")
++          icon.source: QfTheme.getThemeVectorIcon("ic_cloud_download_24dp")
++          bgcolor: "transparent"
++          color: QfTheme.mainColor
++          enabled: villageModel.selectedCount > 0 && !villageModel.busy
++          onClicked: {
++            var err = villageModel.saveOffline();
++            if (err !== "")
++              root.toast(err);
++          }
++        }
++
++        // Back to the live server
++        QfButton {
++          Layout.fillWidth: true
++          visible: villageModel.offlineActive
++          text: qsTr("ლაივში დაბრუნება")
++          icon.source: QfTheme.getThemeVectorIcon("ic_cloud_synchronize_24dp")
++          bgcolor: "transparent"
++          color: QfTheme.mainColor
++          enabled: !villageModel.busy
++          onClicked: {
++            var err = villageModel.goLive();
++            root.toast(err === "" ? qsTr("ლაივ რეჟიმი — მონაცემები სერვერიდან") : err);
 +          }
 +        }
 +      }
