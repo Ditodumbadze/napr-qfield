@@ -1,0 +1,2771 @@
+diff --git a/platform/android/res/values/strings.xml b/platform/android/res/values/strings.xml
+index 4d7711e..c5fd346 100644
+--- a/platform/android/res/values/strings.xml
++++ b/platform/android/res/values/strings.xml
+@@ -1,6 +1,6 @@
+ <?xml version='1.0' encoding='utf-8'?>
+ <resources>
+-    <string name="app_name" translatable="false">QField</string>
++    <string name="app_name" translatable="false">NAPR QField</string>
+     <string name="lib_name" translatable="false">qfield</string>
+     <string name="grant_permission">All files access</string>
+     <string name="grant_all_files_permission"><![CDATA[QField needs all files access permission to be able to open local projects and datasets as well as supporting custom projection grids, fonts, and base maps. While not required, <i>allowing access is highly recommended</i>.<br/><br/>On the next screen, please select <b>QField</b> and select the <b>Allow access to all files</b> option.]]></string>
+diff --git a/src/app/qml/QfAbout.qml b/src/app/qml/QfAbout.qml
+index d9619b2..57389e4 100644
+--- a/src/app/qml/QfAbout.qml
++++ b/src/app/qml/QfAbout.qml
+@@ -131,6 +131,19 @@ Item {
+             text: qsTr("Developed by") + '<br><a href="https://opengis.ch">OPENGIS.ch</a>'
+             onLinkActivated: link => Qt.openUrlExternally(link)
+           }
++
++          // NAPR: modification credit (as in NAPR 1.9.6)
++          Label {
++            Layout.fillWidth: true
++            Layout.alignment: Qt.AlignCenter
++            Layout.topMargin: 10
++            horizontalAlignment: Text.AlignHCenter
++            font: QfTheme.strongFont
++            color: QfTheme.light
++            textFormat: Text.RichText
++            wrapMode: Text.WordWrap
++            text: '<span style="color:#4fc3f7">' + qsTr("Modified by") + '</span><br>Luka Nukradze<br><small style="color:#aaaaaa">' + qsTr("GIS Specialist · Field Data Collection") + '</small>'
++          }
+         }
+       }
+     }
+diff --git a/src/app/qml/QfWelcomeScreen.qml b/src/app/qml/QfWelcomeScreen.qml
+index f41b4e8..1e18334 100644
+--- a/src/app/qml/QfWelcomeScreen.qml
++++ b/src/app/qml/QfWelcomeScreen.qml
+@@ -492,6 +492,23 @@ Page {
+         wrapMode: Text.WordWrap
+       }
+ 
++      // NAPR: author credit (as in NAPR 1.9.6)
++      Text {
++        id: authorText
++        visible: !feedbackView.visible
++        Layout.leftMargin: 6
++        Layout.rightMargin: 6
++        Layout.bottomMargin: 6
++        Layout.fillWidth: true
++        Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
++        text: qsTr("ავტორი: Luka Nukradze") + "<br><small>" + qsTr("GIS Specialist · Field Data Collection") + "</small>"
++        textFormat: Text.StyledText
++        font: QfTheme.defaultFont
++        color: QfTheme.mainColor
++        horizontalAlignment: Text.AlignHCenter
++        wrapMode: Text.WordWrap
++      }
++
+       Rectangle {
+         Layout.leftMargin: 6
+         Layout.rightMargin: 6
+diff --git a/src/app/qml/QgisMobileapp.qml b/src/app/qml/QgisMobileapp.qml
+index 8b351c1..f187b19 100644
+--- a/src/app/qml/QgisMobileapp.qml
++++ b/src/app/qml/QgisMobileapp.qml
+@@ -2277,6 +2277,18 @@ ApplicationWindow {
+       anchors.top: locatorItem.top
+       anchors.topMargin: QfTheme.toolButtonSize + 4
+       spacing: 4
++
++      // NAPR: topology checker toggle (top-right, below search — same spot as NAPR 1.9.6)
++      QfToolButton {
++        id: topologyCheckerButton
++        round: true
++        visible: !screenLocker.enabled && stateMachine.state !== "measure"
++        iconSource: QfTheme.getThemeVectorIcon("ic_topology_white_24dp")
++        iconColor: topologyCheckerDialog.isOpen ? QfTheme.mainColor : QfTheme.toolButtonColor
++        bgcolor: QfTheme.toolButtonBackgroundColor
++
++        onClicked: topologyCheckerDialog.isOpen = !topologyCheckerDialog.isOpen
++      }
+     }
+ 
+     Column {
+@@ -2865,6 +2877,21 @@ ApplicationWindow {
+         }
+       }
+ 
++      // NAPR: shape digitizing (rectangle / circle / regular polygon) for polygon layers
++      QfToolButton {
++        id: shapeButton
++        round: true
++        visible: stateMachine.state === "digitize" && dashBoard.activeLayer && dashBoard.activeLayer.isValid && dashBoard.activeLayer.geometryType() === Qgis.GeometryType.Polygon
++        iconSource: QfTheme.getThemeVectorIcon("ic_geometry_polygon_24dp")
++        iconColor: shapeDigitizingDialog.isOpen ? QfTheme.mainColor : QfTheme.toolButtonColor
++        bgcolor: QfTheme.toolButtonBackgroundColor
++
++        onClicked: {
++          shapeDigitizingDialog.currentLayer = dashBoard.activeLayer;
++          shapeDigitizingDialog.isOpen = !shapeDigitizingDialog.isOpen;
++        }
++      }
++
+       QfToolButton {
+         id: elevationProfileButton
+         round: true
+@@ -5578,6 +5605,47 @@ ApplicationWindow {
+     }
+   }
+ 
++  // NAPR: topology checker side panel
++  TopologyCheckerDialog {
++    id: topologyCheckerDialog
++    anchors.fill: parent
++    mapSettingsRef: mapCanvas.mapSettings
++    isOpen: false
++
++    Keys.onReleased: event => {
++      if (event.key === Qt.Key_Back || event.key === Qt.Key_Escape) {
++        event.accepted = true;
++        isOpen = false;
++      }
++    }
++  }
++
++  // NAPR: shape digitizing overlay
++  ShapeDigitizingDialog {
++    id: shapeDigitizingDialog
++    anchors.fill: parent
++    mapSettingsRef: mapCanvas.mapSettings
++    isOpen: false
++
++    onToast: message => displayToast(message)
++
++    // Close the overlay if the user leaves digitize mode or switches layer
++    Connections {
++      target: stateMachine
++      function onStateChanged() {
++        if (stateMachine.state !== "digitize")
++          shapeDigitizingDialog.isOpen = false;
++      }
++    }
++
++    Keys.onReleased: event => {
++      if (event.key === Qt.Key_Back || event.key === Qt.Key_Escape) {
++        event.accepted = true;
++        isOpen = false;
++      }
++    }
++  }
++
+   QfAbout {
+     id: aboutDialog
+     anchors.fill: parent
+diff --git a/src/core/CMakeLists.txt b/src/core/CMakeLists.txt
+index 59c94e3..e11470e 100644
+--- a/src/core/CMakeLists.txt
++++ b/src/core/CMakeLists.txt
+@@ -40,6 +40,8 @@ set(QFIELD_CORE_SRCS
+     positioning/qfegenioussreceiver.cpp
+     positioning/qffilereceiver.cpp
+     positioning/qftcpreceiver.cpp
++    shapedigitizingmodel.cpp
++    topologycheckermodel.cpp
+     positioning/qfudpreceiver.cpp
+     positioning/qfpositioning.cpp
+     positioning/qfpositioningsource.cpp
+@@ -163,6 +165,8 @@ set(QFIELD_CORE_HDRS
+     positioning/qfntripsettings.h
+     positioning/qfntripsourcetablefetcher.h
+     positioning/qftcpreceiver.h
++    shapedigitizingmodel.h
++    topologycheckermodel.h
+     positioning/qfudpreceiver.h
+     positioning/qfgeofencer.h
+     positioning/qfpositioninginformationmodel.h
+diff --git a/src/core/qfcore.cpp b/src/core/qfcore.cpp
+index 531930f..a753b5d 100644
+--- a/src/core/qfcore.cpp
++++ b/src/core/qfcore.cpp
+@@ -73,6 +73,8 @@
+ #include "qfresourcesource.h"
+ #include "qfrubberbandmodel.h"
+ #include "qfrubberbandshape.h"
++#include "shapedigitizingmodel.h"
++#include "topologycheckermodel.h"
+ #include "qfscalebarmeasurement.h"
+ #include "qfsettings.h"
+ #include "qfsubmodel.h"
+@@ -161,6 +163,9 @@ namespace QfCore
+     qmlRegisterType<QfBarcodeDecoder>( "org.qfield.core", 1, 0, "QfBarcodeDecoder" );
+     qmlRegisterType<QfCameraOrientationNormalizer>( "org.qfield.core", 1, 0, "QfCameraOrientationNormalizer" );
+     qmlRegisterType<QfCogoExecutor>( "org.qfield.core", 1, 0, "QfCogoExecutor" );
++    qmlRegisterType<ShapeDigitizingModel>( "org.qfield.core", 1, 0, "ShapeDigitizingModel" );
++    qmlRegisterType<TopologyCheckerModel>( "org.qfield.core", 1, 0, "TopologyCheckerModel" );
++    qmlRegisterType<TopologyRulesModel>( "org.qfield.core", 1, 0, "TopologyRulesModel" );
+     qmlRegisterType<QfCogoOperationsModel>( "org.qfield.core", 1, 0, "QfCogoOperationsModel" );
+     qmlRegisterType<QfDeltaChangesModel>( "org.qfield.core", 1, 0, "QfDeltaChangesModel" );
+     qmlRegisterType<QfDeltaListModel>( "org.qfield.core", 1, 0, "QfDeltaListModel" );
+diff --git a/src/core/shapedigitizingmodel.cpp b/src/core/shapedigitizingmodel.cpp
+new file mode 100644
+index 0000000..c17ef40
+--- /dev/null
++++ b/src/core/shapedigitizingmodel.cpp
+@@ -0,0 +1,411 @@
++#include "shapedigitizingmodel.h"
++
++#include "qgsquickmapsettings.h"
++#include "qfsnappingresult.h"
++#include "qfsnappingutils.h"
++
++#include <algorithm>
++#include <cmath>
++#include <memory>
++
++#include <QVariantMap>
++#include <qgsabstractgeometry.h>
++#include <qgscircle.h>
++#include <qgscoordinatetransform.h>
++#include <qgsexception.h>
++#include <qgsfeature.h>
++#include <qgspoint.h>
++#include <qgspolygon.h>
++#include <qgsproject.h>
++#include <qgsquadrilateral.h>
++#include <qgsrectangle.h>
++#include <qgsregularpolygon.h>
++#include <qgsvectorlayer.h>
++#include <qgswkbtypes.h>
++
++ShapeDigitizingModel::ShapeDigitizingModel( QObject *parent )
++  : QObject( parent )
++{
++  mSnapper = new QfSnappingUtils( this );
++}
++
++void ShapeDigitizingModel::setMapSettings( QObject *mapSettings )
++{
++  mMapSettings = mapSettings;
++  if ( mSnapper )
++  {
++    if ( QgsQuickMapSettings *qms = qobject_cast<QgsQuickMapSettings *>( mapSettings ) )
++      mSnapper->setMapSettings( qms );
++  }
++}
++
++void ShapeDigitizingModel::setSnapEnabled( bool enabled )
++{
++  if ( enabled == mSnapEnabled )
++    return;
++  mSnapEnabled = enabled;
++  emit snapEnabledChanged();
++}
++
++int ShapeDigitizingModel::requiredPoints() const
++{
++  switch ( mMode )
++  {
++    case RectangleExtent:   return 2;
++    case Rectangle3Points:  return 3;
++    case Circle:            return 2;
++    case RegularPolygon:    return 2;
++  }
++  return 2;
++}
++
++void ShapeDigitizingModel::setMode( int mode )
++{
++  if ( mode < 0 || mode >= ShapeModeCount || mode == mMode )
++    return;
++  mMode = mode;
++  mPoints.clear();
++  mHasProvisional = false;
++  emit modeChanged();
++  emit pointsChanged();
++}
++
++void ShapeDigitizingModel::setNumSides( int n )
++{
++  n = std::max( 3, std::min( 100, n ) );
++  if ( n == mNumSides )
++    return;
++  mNumSides = n;
++  emit numSidesChanged();
++}
++
++QObject *ShapeDigitizingModel::targetLayer() const
++{
++  return mTargetLayer;
++}
++
++void ShapeDigitizingModel::setTargetLayer( QObject *layer )
++{
++  QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( layer );
++  if ( vl == mTargetLayer )
++    return;
++  mTargetLayer = vl;
++  emit targetLayerChanged();
++}
++
++QStringList ShapeDigitizingModel::modeNames() const
++{
++  return QStringList {
++    QStringLiteral( "მართკუთხედი (2 კუთხე)" ),
++    QStringLiteral( "მართკუთხედი (3 წერტილი)" ),
++    QStringLiteral( "წრე (ცენტრი + რადიუსი)" ),
++    QStringLiteral( "რეგ. პოლიგონი" )
++  };
++}
++
++void ShapeDigitizingModel::refreshMapCrs()
++{
++  mMapCrs = QgsCoordinateReferenceSystem();
++  if ( mMapSettings )
++  {
++    const QVariant cv = mMapSettings->property( "destinationCrs" );
++    if ( cv.canConvert<QgsCoordinateReferenceSystem>() )
++      mMapCrs = cv.value<QgsCoordinateReferenceSystem>();
++  }
++  if ( !mMapCrs.isValid() )
++    mMapCrs = QgsProject::instance()->crs();
++}
++
++QgsPointXY ShapeDigitizingModel::mapCenter() const
++{
++  if ( mMapSettings )
++  {
++    const QVariant ev = mMapSettings->property( "extent" );
++    if ( ev.canConvert<QgsRectangle>() )
++    {
++      const QgsRectangle r = ev.value<QgsRectangle>();
++      return QgsPointXY( ( r.xMinimum() + r.xMaximum() ) / 2.0,
++                         ( r.yMinimum() + r.yMaximum() ) / 2.0 );
++    }
++  }
++  return QgsPointXY();
++}
++
++QPointF ShapeDigitizingModel::toScreen( const QgsPointXY &p, bool *ok ) const
++{
++  QPointF screen;
++  bool success = false;
++  if ( mMapSettings )
++    success = QMetaObject::invokeMethod( mMapSettings, "coordinateToScreen",
++      Qt::DirectConnection, Q_RETURN_ARG( QPointF, screen ),
++      Q_ARG( QgsPoint, QgsPoint( p.x(), p.y() ) ) );
++  if ( ok )
++    *ok = success;
++  return screen;
++}
++
++QgsPointXY ShapeDigitizingModel::fromScreen( double x, double y, bool *ok ) const
++{
++  QgsPoint result;
++  bool success = false;
++  if ( mMapSettings )
++    success = QMetaObject::invokeMethod( mMapSettings, "screenToCoordinate",
++      Qt::DirectConnection, Q_RETURN_ARG( QgsPoint, result ),
++      Q_ARG( QPointF, QPointF( x, y ) ) );
++  if ( ok )
++    *ok = success;
++  return QgsPointXY( result.x(), result.y() );
++}
++
++QgsPointXY ShapeDigitizingModel::provisionalPoint() const
++{
++  return mHasProvisional ? mProvisional : mapCenter();
++}
++
++QgsPointXY ShapeDigitizingModel::snapScreen( double x, double y, bool *snapped )
++{
++  if ( snapped )
++    *snapped = false;
++
++  // Use the project's snapping configuration (vertex/edge/tolerance/layers) so
++  // the shape tool snaps exactly like the rest of QField digitizing.
++  if ( mSnapEnabled && mSnapper && mSnapper->mapSettings() )
++  {
++    mSnapper->setConfig( QgsProject::instance()->snappingConfig() );
++    mSnapper->setInputCoordinate( QPointF( x, y ) );
++    const QfSnappingResult r = mSnapper->snappingResult();
++    if ( r.isValid() )
++    {
++      if ( snapped )
++        *snapped = true;
++      const QgsPoint p = r.point(); // already in map (destination) CRS
++      return QgsPointXY( p.x(), p.y() );
++    }
++  }
++
++  bool ok = false;
++  return fromScreen( x, y, &ok ); // fall back to the exact tapped location
++}
++
++void ShapeDigitizingModel::capturePoint()
++{
++  if ( mPoints.count() >= requiredPoints() )
++    return; // already have everything this shape needs
++  refreshMapCrs();
++  mPoints.append( mapCenter() );
++  mHasProvisional = false;
++  emit pointsChanged();
++}
++
++void ShapeDigitizingModel::capturePointAtScreen( double x, double y )
++{
++  if ( mPoints.count() >= requiredPoints() )
++    return;
++  refreshMapCrs();
++  bool snapped = false;
++  const QgsPointXY p = snapScreen( x, y, &snapped );
++  mPoints.append( p );
++  mHasProvisional = false;
++  mProvisionalSnapped = false;
++  emit pointsChanged();
++}
++
++void ShapeDigitizingModel::setProvisionalScreenPoint( double x, double y )
++{
++  bool snapped = false;
++  const QgsPointXY p = snapScreen( x, y, &snapped );
++  mProvisional = p;
++  mHasProvisional = true;
++  mProvisionalSnapped = snapped;
++  emit pointsChanged(); // refresh the live preview
++}
++
++void ShapeDigitizingModel::clearProvisional()
++{
++  if ( !mHasProvisional )
++    return;
++  mHasProvisional = false;
++  mProvisionalSnapped = false;
++  emit pointsChanged();
++}
++
++void ShapeDigitizingModel::undoPoint()
++{
++  if ( mPoints.isEmpty() )
++    return;
++  mPoints.removeLast();
++  emit pointsChanged();
++}
++
++void ShapeDigitizingModel::clear()
++{
++  if ( mPoints.isEmpty() && !mHasProvisional )
++    return;
++  mPoints.clear();
++  mHasProvisional = false;
++  mProvisionalSnapped = false;
++  emit pointsChanged();
++}
++
++QgsGeometry ShapeDigitizingModel::buildGeometryMapCrs( const QVector<QgsPointXY> &pts ) const
++{
++  if ( pts.count() < requiredPoints() )
++    return QgsGeometry();
++
++  std::unique_ptr<QgsPolygon> poly;
++
++  switch ( mMode )
++  {
++    case RectangleExtent:
++    {
++      const QgsQuadrilateral q = QgsQuadrilateral::rectangleFromExtent(
++        QgsPoint( pts[0].x(), pts[0].y() ),
++        QgsPoint( pts[1].x(), pts[1].y() ) );
++      if ( q.isValid() )
++        poly.reset( q.toPolygon() );
++      break;
++    }
++    case Rectangle3Points:
++    {
++      const QgsQuadrilateral q = QgsQuadrilateral::rectangleFrom3Points(
++        QgsPoint( pts[0].x(), pts[0].y() ),
++        QgsPoint( pts[1].x(), pts[1].y() ),
++        QgsPoint( pts[2].x(), pts[2].y() ),
++        QgsQuadrilateral::Distance );
++      if ( q.isValid() )
++        poly.reset( q.toPolygon() );
++      break;
++    }
++    case Circle:
++    {
++      const double r = std::hypot( pts[1].x() - pts[0].x(), pts[1].y() - pts[0].y() );
++      if ( r > 0.0 )
++      {
++        const QgsCircle c( QgsPoint( pts[0].x(), pts[0].y() ), r );
++        poly.reset( c.toPolygon( 72 ) );
++      }
++      break;
++    }
++    case RegularPolygon:
++    {
++      const QgsPoint center( pts[0].x(), pts[0].y() );
++      const QgsPoint vertex( pts[1].x(), pts[1].y() );
++      if ( center != vertex )
++      {
++        const QgsRegularPolygon rp( center, vertex,
++                                    static_cast<unsigned int>( std::max( 3, mNumSides ) ),
++                                    QgsRegularPolygon::InscribedCircle );
++        poly.reset( rp.toPolygon() );
++      }
++      break;
++    }
++  }
++
++  if ( !poly )
++    return QgsGeometry();
++  return QgsGeometry( poly.release() );
++}
++
++QVariantList ShapeDigitizingModel::capturedPointsScreen() const
++{
++  QVariantList out;
++  for ( const QgsPointXY &p : mPoints )
++  {
++    bool ok = false;
++    const QPointF s = toScreen( p, &ok );
++    if ( !ok )
++      continue;
++    QVariantMap m;
++    m[QStringLiteral( "x" )] = s.x();
++    m[QStringLiteral( "y" )] = s.y();
++    out.append( m );
++  }
++  return out;
++}
++
++QVariantList ShapeDigitizingModel::previewOutlineScreen() const
++{
++  // Captured points + the live pen/crosshair position as the provisional point.
++  QVector<QgsPointXY> pts = mPoints;
++  if ( pts.count() < requiredPoints() )
++    pts.append( provisionalPoint() );
++
++  const QgsGeometry geom = buildGeometryMapCrs( pts );
++  QVariantList out;
++  if ( geom.isNull() || geom.isEmpty() )
++    return out;
++
++  QgsVertexIterator vit = geom.vertices();
++  while ( vit.hasNext() )
++  {
++    const QgsPoint v = vit.next();
++    bool ok = false;
++    const QPointF s = toScreen( QgsPointXY( v.x(), v.y() ), &ok );
++    if ( !ok )
++      continue;
++    QVariantMap m;
++    m[QStringLiteral( "x" )] = s.x();
++    m[QStringLiteral( "y" )] = s.y();
++    out.append( m );
++  }
++  return out;
++}
++
++QString ShapeDigitizingModel::commit()
++{
++  if ( !canCommit() )
++    return QStringLiteral( "არასაკმარისი წერტილი" );
++
++  QgsVectorLayer *layer = mTargetLayer;
++  if ( !layer || !layer->isValid() )
++    return QStringLiteral( "ფენა არ არის არჩეული" );
++  if ( layer->geometryType() != Qgis::GeometryType::Polygon )
++    return QStringLiteral( "აქტიური ფენა არ არის პოლიგონური" );
++
++  refreshMapCrs();
++  QgsGeometry geom = buildGeometryMapCrs( mPoints );
++  if ( geom.isNull() || geom.isEmpty() )
++    return QStringLiteral( "ფიგურა ვერ აიგო" );
++
++  // Map CRS → layer CRS.
++  if ( mMapCrs.isValid() && layer->crs().isValid() && mMapCrs != layer->crs() )
++  {
++    try
++    {
++      const QgsCoordinateTransform ct( mMapCrs, layer->crs(), QgsProject::instance() );
++      geom.transform( ct );
++    }
++    catch ( const QgsCsException & )
++    {
++      return QStringLiteral( "კოორდინატთა გარდაქმნა ჩაიშალა" );
++    }
++  }
++
++  // Match the layer's single/multi geometry type.
++  if ( QgsWkbTypes::isMultiType( layer->wkbType() ) )
++    geom.convertToMultiType();
++
++  const bool wasEditing = layer->isEditable();
++  if ( !wasEditing && !layer->startEditing() )
++    return QStringLiteral( "ფენის რედაქტირება ვერ ჩაირთო" );
++
++  QgsFeature f( layer->fields() );
++  f.setGeometry( geom );
++
++  bool ok = layer->addFeature( f );
++  if ( ok && !wasEditing )
++    ok = layer->commitChanges();
++  if ( !ok && !wasEditing && layer->isEditable() )
++    layer->rollBack(); // do not leave the layer stuck in edit mode after a failure
++  layer->triggerRepaint();
++
++  if ( !ok )
++  {
++    emit committed( false, QStringLiteral( "ფიჩერი ვერ დაემატა" ) );
++    return QStringLiteral( "ფიჩერი ვერ დაემატა" );
++  }
++
++  clear();
++  emit committed( true, QStringLiteral( "ფიგურა დაემატა ✓" ) );
++  return QString();
++}
+diff --git a/src/core/shapedigitizingmodel.h b/src/core/shapedigitizingmodel.h
+new file mode 100644
+index 0000000..969d5aa
+--- /dev/null
++++ b/src/core/shapedigitizingmodel.h
+@@ -0,0 +1,132 @@
++#ifndef SHAPEDIGITIZINGMODEL_H
++#define SHAPEDIGITIZINGMODEL_H
++
++#include <QObject>
++#include <QPointF>
++#include <QVariantList>
++#include <QVector>
++#include <qgscoordinatereferencesystem.h>
++#include <qgsgeometry.h>
++#include <qgspointxy.h>
++
++class QgsVectorLayer;
++class QgsQuickMapSettings;
++class QfSnappingUtils;
++
++/**
++ * Backs a QGIS-style "shape digitizing" toolbar for QField.
++ *
++ * The user pans the map so the fixed centre crosshair sits on each construction
++ * point, taps "capture", and the model builds the requested shape using the very
++ * same helper classes the QGIS desktop shape tools use:
++ *   - rectangle from extent / from 3 points  → QgsQuadrilateral
++ *   - circle (centre + radius point)          → QgsCircle
++ *   - regular polygon (centre + first vertex) → QgsRegularPolygon
++ * The finished polygon is added as a new feature to the target editable layer.
++ *
++ * All captured points are kept in MAP CRS and transformed to the layer CRS on
++ * commit, mirroring how TopologyCheckerModel handles the cadastral WFS layers.
++ */
++class ShapeDigitizingModel : public QObject
++{
++    Q_OBJECT
++
++    Q_PROPERTY( int mode READ mode WRITE setMode NOTIFY modeChanged )
++    Q_PROPERTY( int pointCount READ pointCount NOTIFY pointsChanged )
++    Q_PROPERTY( int requiredPoints READ requiredPoints NOTIFY modeChanged )
++    Q_PROPERTY( bool canCommit READ canCommit NOTIFY pointsChanged )
++    Q_PROPERTY( int numSides READ numSides WRITE setNumSides NOTIFY numSidesChanged )
++    Q_PROPERTY( QObject *mapSettings READ mapSettings WRITE setMapSettings )
++    Q_PROPERTY( QObject *targetLayer READ targetLayer WRITE setTargetLayer NOTIFY targetLayerChanged )
++    Q_PROPERTY( bool snapEnabled READ snapEnabled WRITE setSnapEnabled NOTIFY snapEnabledChanged )
++    Q_PROPERTY( bool provisionalSnapped READ provisionalSnapped NOTIFY pointsChanged )
++
++  public:
++    // Order matches modeNames() so a combo/button index maps to the enum value.
++    enum ShapeMode
++    {
++      RectangleExtent = 0,  //!< 2 opposite corners (axis-aligned)
++      Rectangle3Points,     //!< baseline (2 pts) + perpendicular width (3rd pt)
++      Circle,               //!< centre + radius point
++      RegularPolygon,       //!< centre + first vertex (N sides)
++      ShapeModeCount
++    };
++    Q_ENUM( ShapeMode )
++
++    explicit ShapeDigitizingModel( QObject *parent = nullptr );
++
++    int mode() const { return mMode; }
++    void setMode( int mode );
++
++    int numSides() const { return mNumSides; }
++    void setNumSides( int n );
++
++    int pointCount() const { return mPoints.count(); }
++    int requiredPoints() const;
++    bool canCommit() const { return mPoints.count() >= requiredPoints(); }
++
++    QObject *mapSettings() const { return mMapSettings; }
++    void setMapSettings( QObject *mapSettings );
++    QObject *targetLayer() const;
++    void setTargetLayer( QObject *layer );
++
++    bool snapEnabled() const { return mSnapEnabled; }
++    void setSnapEnabled( bool enabled );
++    bool provisionalSnapped() const { return mProvisionalSnapped; }
++
++    //! Human-readable shape names, in enum order (index == ShapeMode value).
++    Q_INVOKABLE QStringList modeNames() const;
++
++    //! Capture the current map-centre (crosshair) coordinate as the next point.
++    Q_INVOKABLE void capturePoint();
++    //! Capture a point at an exact screen position (pen/finger tap on the map).
++    Q_INVOKABLE void capturePointAtScreen( double x, double y );
++    //! Track the live pen/finger position so the preview follows it (no commit).
++    Q_INVOKABLE void setProvisionalScreenPoint( double x, double y );
++    Q_INVOKABLE void clearProvisional();
++    Q_INVOKABLE void undoPoint();
++    Q_INVOKABLE void clear();
++
++    //! Build the shape and add it as a feature to the target layer.
++    //! Returns an empty string on success, otherwise a human-readable error.
++    Q_INVOKABLE QString commit();
++
++    //! Screen-pixel positions [{x,y}, ...] of the captured construction vertices.
++    Q_INVOKABLE QVariantList capturedPointsScreen() const;
++    //! Screen-pixel outline [{x,y}, ...] of the shape currently under construction,
++    //! using the captured points plus the live crosshair as the provisional next
++    //! point, so the preview updates as the user pans the map.
++    Q_INVOKABLE QVariantList previewOutlineScreen() const;
++
++  signals:
++    void modeChanged();
++    void pointsChanged();
++    void numSidesChanged();
++    void targetLayerChanged();
++    void snapEnabledChanged();
++    void committed( bool ok, const QString &message );
++
++  private:
++    void refreshMapCrs();
++    QgsPointXY mapCenter() const;
++    QgsPointXY provisionalPoint() const;
++    QgsGeometry buildGeometryMapCrs( const QVector<QgsPointXY> &pts ) const;
++    QPointF toScreen( const QgsPointXY &mapPoint, bool *ok ) const;
++    QgsPointXY fromScreen( double x, double y, bool *ok ) const;
++    //! Screen point → map point, snapped to project geometry when snapping is on.
++    QgsPointXY snapScreen( double x, double y, bool *snapped );
++
++    int mMode = RectangleExtent;
++    int mNumSides = 5;
++    QVector<QgsPointXY> mPoints; // in map CRS
++    QgsPointXY mProvisional;     // live pen/finger position, in map CRS
++    bool mHasProvisional = false;
++    QObject *mMapSettings = nullptr;
++    QgsVectorLayer *mTargetLayer = nullptr;
++    QgsCoordinateReferenceSystem mMapCrs;
++    QfSnappingUtils *mSnapper = nullptr;
++    bool mSnapEnabled = true;
++    bool mProvisionalSnapped = false;
++};
++
++#endif // SHAPEDIGITIZINGMODEL_H
+diff --git a/src/core/topologycheckermodel.cpp b/src/core/topologycheckermodel.cpp
+new file mode 100644
+index 0000000..14302a8
+--- /dev/null
++++ b/src/core/topologycheckermodel.cpp
+@@ -0,0 +1,822 @@
++#include "topologycheckermodel.h"
++
++#include <QPointF>
++#include <QSet>
++#include <algorithm>
++#include <memory>
++#include <utility>
++#include <QSettings>
++#include <qgsabstractgeometry.h>
++#include <qgscoordinatetransform.h>
++#include <qgscurve.h>
++#include <qgscurvepolygon.h>
++#include <qgsexception.h>
++#include <qgsfeatureiterator.h>
++#include <qgsfeaturerequest.h>
++#include <qgsgeometry.h>
++#include <qgspoint.h>
++#include <qgspolygon.h>
++#include <qgsproject.h>
++
++// Areas (in layer CRS units, m² for the EPSG:32638 cadastral data) below this
++// are treated as numeric noise from boundary snapping, not real topology errors.
++static const double AREA_TOLERANCE = 1e-6;
++
++// =====================================================================
++//  TopologyRulesModel
++// =====================================================================
++
++TopologyRulesModel::TopologyRulesModel( QObject *parent )
++  : QAbstractListModel( parent )
++{
++  load();
++  if ( mRules.isEmpty() )
++    loadDefaults();
++}
++
++int TopologyRulesModel::rowCount( const QModelIndex &parent ) const
++{
++  if ( parent.isValid() ) return 0;
++  return mRules.count();
++}
++
++QVariant TopologyRulesModel::data( const QModelIndex &index, int role ) const
++{
++  if ( !index.isValid() || index.row() >= mRules.count() )
++    return QVariant();
++
++  const TopologyRule &r = mRules.at( index.row() );
++  switch ( role )
++  {
++    case RuleTypeRole:     return r.type;
++    case RuleTypeNameRole: return ruleTypeName( r.type );
++    case Layer1Role:       return r.layer1;
++    case Layer2Role:       return r.layer2;
++    case EnabledRole:      return r.enabled;
++    case NeedsLayer2Role:  return ruleTypeNeedsLayer2( r.type );
++  }
++  return QVariant();
++}
++
++QHash<int, QByteArray> TopologyRulesModel::roleNames() const
++{
++  QHash<int, QByteArray> roles;
++  roles[RuleTypeRole]     = "ruleType";
++  roles[RuleTypeNameRole] = "ruleTypeName";
++  roles[Layer1Role]       = "layer1";
++  roles[Layer2Role]       = "layer2";
++  roles[EnabledRole]      = "ruleEnabled";
++  roles[NeedsLayer2Role]  = "needsLayer2";
++  return roles;
++}
++
++QString TopologyRulesModel::ruleTypeName( int type )
++{
++  switch ( type )
++  {
++    case MustContain:                 return QStringLiteral( "must contain" );
++    case MustNotHaveDuplicates:       return QStringLiteral( "must not have duplicates" );
++    case MustNotHaveGaps:             return QStringLiteral( "must not have gaps" );
++    case MustNotHaveInvalidGeometries:return QStringLiteral( "must not have invalid geometries" );
++    case MustNotHaveMultiPart:        return QStringLiteral( "must not have multi-part geometries" );
++    case MustNotOverlap:              return QStringLiteral( "must not overlap" );
++    case MustNotOverlapWith:          return QStringLiteral( "must not overlap with" );
++    case MustBeInsideOrDisjoint:      return QStringLiteral( "must be inside or disjoint" );
++  }
++  return QString();
++}
++
++QStringList TopologyRulesModel::ruleTypeNames() const
++{
++  QStringList names;
++  for ( int t = 0; t < RuleTypeCount; ++t )
++    names << ruleTypeName( t );
++  return names;
++}
++
++bool TopologyRulesModel::ruleTypeNeedsLayer2( int type ) const
++{
++  return type == MustNotOverlapWith || type == MustContain || type == MustBeInsideOrDisjoint;
++}
++
++void TopologyRulesModel::addRule( int type, const QString &layer1, const QString &layer2 )
++{
++  if ( type < 0 || type >= RuleTypeCount || layer1.isEmpty() )
++    return;
++
++  TopologyRule r;
++  r.type    = type;
++  r.layer1  = layer1;
++  r.layer2  = ruleTypeNeedsLayer2( type ) ? layer2 : QString();
++  r.enabled = true;
++
++  beginInsertRows( QModelIndex(), mRules.count(), mRules.count() );
++  mRules.append( r );
++  endInsertRows();
++  save();
++  emit countChanged();
++  emit rulesChanged();
++}
++
++void TopologyRulesModel::removeRule( int row )
++{
++  if ( row < 0 || row >= mRules.count() )
++    return;
++  beginRemoveRows( QModelIndex(), row, row );
++  mRules.removeAt( row );
++  endRemoveRows();
++  save();
++  emit countChanged();
++  emit rulesChanged();
++}
++
++void TopologyRulesModel::setRuleEnabled( int row, bool enabled )
++{
++  if ( row < 0 || row >= mRules.count() || mRules[row].enabled == enabled )
++    return;
++  mRules[row].enabled = enabled;
++  const QModelIndex idx = index( row );
++  emit dataChanged( idx, idx, { EnabledRole } );
++  save();
++  emit rulesChanged();
++}
++
++void TopologyRulesModel::resetToDefaults()
++{
++  beginResetModel();
++  loadDefaults();
++  endResetModel();
++  save();
++  emit countChanged();
++  emit rulesChanged();
++}
++
++void TopologyRulesModel::loadDefaults()
++{
++  mRules.clear();
++  const QString nakveti = QStringLiteral( "ნაკვეთი" );
++  const QString shenoba = QStringLiteral( "შენობა" );
++
++  mRules.append( { MustNotOverlap,               nakveti, QString(), true } );
++  // A building must be fully inside a single parcel or not touch any parcel at
++  // all (straddling a boundary / spanning two parcels is an error).
++  mRules.append( { MustBeInsideOrDisjoint,       shenoba, nakveti,   true } );
++  mRules.append( { MustNotHaveDuplicates,        nakveti, QString(), true } );
++  mRules.append( { MustNotHaveGaps,              nakveti, QString(), true } );
++  mRules.append( { MustNotHaveInvalidGeometries, nakveti, QString(), true } );
++  mRules.append( { MustNotHaveDuplicates,        shenoba, QString(), true } );
++  mRules.append( { MustNotOverlap,               shenoba, QString(), true } );
++  mRules.append( { MustNotHaveInvalidGeometries, shenoba, QString(), true } );
++}
++
++void TopologyRulesModel::load()
++{
++  mRules.clear();
++  QSettings s;
++  // Sentinel so an explicitly-emptied rule list is not overwritten by defaults.
++  if ( !s.value( QStringLiteral( "qfield/topology/initialized" ), false ).toBool() )
++    return;
++
++  const int n = s.beginReadArray( QStringLiteral( "qfield/topology/rules" ) );
++  for ( int i = 0; i < n; ++i )
++  {
++    s.setArrayIndex( i );
++    TopologyRule r;
++    r.type    = s.value( QStringLiteral( "type" ) ).toInt();
++    r.layer1  = s.value( QStringLiteral( "layer1" ) ).toString();
++    r.layer2  = s.value( QStringLiteral( "layer2" ) ).toString();
++    r.enabled = s.value( QStringLiteral( "enabled" ), true ).toBool();
++    if ( r.type >= 0 && r.type < RuleTypeCount && !r.layer1.isEmpty() )
++      mRules.append( r );
++  }
++  s.endArray();
++}
++
++void TopologyRulesModel::save() const
++{
++  QSettings s;
++  s.setValue( QStringLiteral( "qfield/topology/initialized" ), true );
++  s.beginWriteArray( QStringLiteral( "qfield/topology/rules" ), mRules.count() );
++  for ( int i = 0; i < mRules.count(); ++i )
++  {
++    s.setArrayIndex( i );
++    s.setValue( QStringLiteral( "type" ), mRules[i].type );
++    s.setValue( QStringLiteral( "layer1" ), mRules[i].layer1 );
++    s.setValue( QStringLiteral( "layer2" ), mRules[i].layer2 );
++    s.setValue( QStringLiteral( "enabled" ), mRules[i].enabled );
++  }
++  s.endArray();
++}
++
++// =====================================================================
++//  TopologyCheckerModel
++// =====================================================================
++
++TopologyCheckerModel::TopologyCheckerModel( QObject *parent )
++  : QAbstractListModel( parent )
++{
++  mRulesModel = new TopologyRulesModel( this );
++}
++
++int TopologyCheckerModel::rowCount( const QModelIndex &parent ) const
++{
++  if ( parent.isValid() ) return 0;
++  return mErrors.count();
++}
++
++QVariant TopologyCheckerModel::data( const QModelIndex &index, int role ) const
++{
++  if ( !index.isValid() || index.row() >= mErrors.count() )
++    return QVariant();
++
++  const TopologyError &err = mErrors.at( index.row() );
++  switch ( role )
++  {
++    case DisplayTextRole:  return err.displayText;
++    case HasGeometryRole:  return err.hasGeometry;
++    case BboxXMinRole:     return err.bboxXMin;
++    case BboxYMinRole:     return err.bboxYMin;
++    case BboxXMaxRole:     return err.bboxXMax;
++    case BboxYMaxRole:     return err.bboxYMax;
++    case SectionTextRole:  return err.sectionText;
++    case DisplayIndexRole: return err.displayIndex;
++  }
++  return QVariant();
++}
++
++QHash<int, QByteArray> TopologyCheckerModel::roleNames() const
++{
++  QHash<int, QByteArray> roles;
++  roles[DisplayTextRole]  = "displayText";
++  roles[HasGeometryRole]  = "hasGeometry";
++  roles[BboxXMinRole]     = "bboxXMin";
++  roles[BboxYMinRole]     = "bboxYMin";
++  roles[BboxXMaxRole]     = "bboxXMax";
++  roles[BboxYMaxRole]     = "bboxYMax";
++  roles[SectionTextRole]  = "sectionText";
++  roles[DisplayIndexRole] = "displayIndex";
++  return roles;
++}
++
++QStringList TopologyCheckerModel::vectorLayerNames() const
++{
++  QStringList names;
++  const QMap<QString, QgsMapLayer *> layers = QgsProject::instance()->mapLayers();
++  for ( QgsMapLayer *ml : layers )
++  {
++    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( ml );
++    if ( vl && vl->isValid() )
++      names << vl->name();
++  }
++  names.sort( Qt::CaseInsensitive );
++  return names;
++}
++
++QgsVectorLayer *TopologyCheckerModel::resolveLayer( const QString &name ) const
++{
++  if ( name.isEmpty() ) return nullptr;
++  const QMap<QString, QgsMapLayer *> layers = QgsProject::instance()->mapLayers();
++  // Prefer an exact (case-insensitive) name match.
++  for ( QgsMapLayer *ml : layers )
++  {
++    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( ml );
++    if ( vl && vl->isValid() && vl->name().compare( name, Qt::CaseInsensitive ) == 0 )
++      return vl;
++  }
++  // Fall back to a substring match (handles "ნაკვეთი (axmeta)" etc.).
++  for ( QgsMapLayer *ml : layers )
++  {
++    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( ml );
++    if ( vl && vl->isValid() && vl->name().contains( name, Qt::CaseInsensitive ) )
++      return vl;
++  }
++  return nullptr;
++}
++
++QgsRectangle TopologyCheckerModel::toLayerExtent( const QgsRectangle &mapExtent, QgsVectorLayer *layer ) const
++{
++  if ( !layer ) return mapExtent;
++  if ( !mMapCrs.isValid() || !layer->crs().isValid() || layer->crs() == mMapCrs )
++    return mapExtent;
++  try
++  {
++    QgsCoordinateTransform ct( mMapCrs, layer->crs(), QgsProject::instance() );
++    return ct.transformBoundingBox( mapExtent );
++  }
++  catch ( const QgsCsException & )
++  {
++    return mapExtent;
++  }
++}
++
++QgsRectangle TopologyCheckerModel::toMapExtent( const QgsRectangle &bboxInLayerCrs, QgsVectorLayer *layer ) const
++{
++  if ( !layer ) return bboxInLayerCrs;
++  if ( !mMapCrs.isValid() || !layer->crs().isValid() || layer->crs() == mMapCrs )
++    return bboxInLayerCrs;
++  try
++  {
++    QgsCoordinateTransform ct( layer->crs(), mMapCrs, QgsProject::instance() );
++    return ct.transformBoundingBox( bboxInLayerCrs );
++  }
++  catch ( const QgsCsException & )
++  {
++    return bboxInLayerCrs;
++  }
++}
++
++QgsGeometry TopologyCheckerModel::geomToLayer( const QgsGeometry &geomInOtherCrs,
++                                               QgsVectorLayer *from, QgsVectorLayer *to ) const
++{
++  if ( !from || !to || from->crs() == to->crs() )
++    return geomInOtherCrs;
++  QgsGeometry g = geomInOtherCrs;
++  try
++  {
++    QgsCoordinateTransform ct( from->crs(), to->crs(), QgsProject::instance() );
++    g.transform( ct );
++  }
++  catch ( const QgsCsException & )
++  {
++    return QgsGeometry();
++  }
++  return g;
++}
++
++TopologyCheckerModel::LayerCache *TopologyCheckerModel::layerCache( QgsVectorLayer *layer,
++                                                                    const QgsRectangle &mapExtent )
++{
++  if ( !layer ) return nullptr;
++  const QString id = layer->id();
++  auto found = mCaches.constFind( id );
++  if ( found != mCaches.constEnd() )
++    return found.value();
++
++  LayerCache *lc = new LayerCache();
++  lc->layer = layer;
++
++  QgsFeatureRequest req;
++  req.setFilterRect( toLayerExtent( mapExtent, layer ) );
++  QgsFeatureIterator it = layer->getFeatures( req );
++  QgsFeature f;
++  while ( it.nextFeature( f ) )
++  {
++    if ( !f.hasGeometry() ) continue;
++    QgsGeometry g = f.geometry();
++    const bool wasInvalid = g.isNull() || !g.isGeosValid();
++    if ( wasInvalid )
++    {
++      // Invalid WFS geometries break intersection()/unaryUnion(); repair a copy
++      // for all geometric ops but remember the feature for the "invalid" rule.
++      const QgsGeometry fixed = g.makeValid();
++      if ( !fixed.isNull() && !fixed.isEmpty() )
++        g = fixed;
++      lc->invalidIds.insert( f.id() );
++    }
++    f.setGeometry( g );
++    lc->index.addFeature( f );
++    lc->geoms.insert( f.id(), g );
++  }
++
++  mCaches.insert( id, lc );
++  return lc;
++}
++
++void TopologyCheckerModel::addError( const QString &label, const QgsRectangle &bboxInLayerCrs,
++                                     QgsVectorLayer *layer )
++{
++  QgsRectangle bbox = toMapExtent( bboxInLayerCrs, layer );
++  TopologyError err;
++  err.displayText = label;
++  err.sectionText = label;
++  err.bboxXMin    = bbox.xMinimum();
++  err.bboxYMin    = bbox.yMinimum();
++  err.bboxXMax    = bbox.xMaximum();
++  err.bboxYMax    = bbox.yMaximum();
++  err.hasGeometry = !bbox.isNull();
++  mErrors.append( err );
++}
++
++// ---------------------------------------------------------------------
++//  Individual checks (all operate on cached features in layer CRS)
++// ---------------------------------------------------------------------
++
++void TopologyCheckerModel::checkInvalidGeometries( LayerCache *lc, const QString &label )
++{
++  // invalidIds was populated from the *original* geometry while loading the cache.
++  for ( const QgsFeatureId id : std::as_const( lc->invalidIds ) )
++  {
++    const QgsGeometry geom = lc->geoms.value( id );
++    addError( label, geom.boundingBox(), lc->layer );
++  }
++}
++
++void TopologyCheckerModel::checkMultiPart( LayerCache *lc, const QString &label )
++{
++  for ( auto it = lc->geoms.constBegin(); it != lc->geoms.constEnd(); ++it )
++  {
++    const QgsGeometry &geom = it.value();
++    if ( !geom.isNull() && geom.isMultipart() && geom.constGet() && geom.constGet()->partCount() > 1 )
++      addError( label, geom.boundingBox(), lc->layer );
++  }
++}
++
++void TopologyCheckerModel::checkDuplicates( LayerCache *lc, const QString &label )
++{
++  QSet<QgsFeatureId> reported;
++  for ( auto it = lc->geoms.constBegin(); it != lc->geoms.constEnd(); ++it )
++  {
++    const QgsFeatureId idA = it.key();
++    if ( reported.contains( idA ) ) continue;
++    const QList<QgsFeatureId> cand = lc->index.intersects( it.value().boundingBox() );
++    for ( QgsFeatureId idB : cand )
++    {
++      if ( idB <= idA || reported.contains( idB ) ) continue;
++      if ( lc->geoms[idA].equals( lc->geoms[idB] ) )
++      {
++        addError( label, lc->geoms[idA].boundingBox(), lc->layer );
++        reported.insert( idA );
++        reported.insert( idB );
++        break;
++      }
++    }
++  }
++}
++
++void TopologyCheckerModel::checkOverlapsSelf( LayerCache *lc, const QString &label )
++{
++  QSet<QPair<QgsFeatureId, QgsFeatureId>> reported;
++  for ( auto it = lc->geoms.constBegin(); it != lc->geoms.constEnd(); ++it )
++  {
++    const QgsFeatureId idA = it.key();
++    const QList<QgsFeatureId> cand = lc->index.intersects( it.value().boundingBox() );
++    for ( QgsFeatureId idB : cand )
++    {
++      if ( idB <= idA ) continue;
++      const auto pair = qMakePair( idA, idB );
++      if ( reported.contains( pair ) ) continue;
++      const QgsGeometry inter = lc->geoms[idA].intersection( lc->geoms[idB] );
++      // Shared edges give a 0-area line; only real 2D overlaps count.
++      if ( !inter.isNull() && inter.area() > AREA_TOLERANCE )
++      {
++        addError( label, inter.boundingBox(), lc->layer );
++        reported.insert( pair );
++      }
++    }
++  }
++}
++
++void TopologyCheckerModel::checkOverlapsWith( LayerCache *lcA, LayerCache *lcB, const QString &label )
++{
++  for ( auto it = lcA->geoms.constBegin(); it != lcA->geoms.constEnd(); ++it )
++  {
++    const QgsGeometry &gA = it.value();
++    const QList<QgsFeatureId> cand = lcB->index.intersects( gA.boundingBox() );
++    for ( QgsFeatureId idB : cand )
++    {
++      const QgsGeometry gB = geomToLayer( lcB->geoms[idB], lcB->layer, lcA->layer );
++      const QgsGeometry inter = gA.intersection( gB );
++      if ( !inter.isNull() && inter.area() > AREA_TOLERANCE )
++      {
++        addError( label, inter.boundingBox(), lcA->layer );
++        break;
++      }
++    }
++  }
++}
++
++void TopologyCheckerModel::checkGaps( LayerCache *lc, const QString &label )
++{
++  // Union every polygon; an enclosed empty area becomes an INTERIOR RING of the
++  // union. Those rings are the real gaps. The outer boundary is the exterior
++  // ring and is correctly ignored — this is why we do NOT use a convex hull.
++  QVector<QgsGeometry> parts;
++  parts.reserve( lc->geoms.size() );
++  for ( auto it = lc->geoms.constBegin(); it != lc->geoms.constEnd(); ++it )
++    parts.append( it.value() );
++  if ( parts.isEmpty() ) return;
++
++  const QgsGeometry combined = QgsGeometry::unaryUnion( parts );
++  if ( combined.isNull() || combined.isEmpty() ) return;
++
++  const QVector<QgsGeometry> partGeoms = combined.asGeometryCollection();
++  for ( const QgsGeometry &part : partGeoms )
++  {
++    const QgsCurvePolygon *poly = qgsgeometry_cast<const QgsCurvePolygon *>( part.constGet() );
++    if ( !poly ) continue;
++    for ( int i = 0; i < poly->numInteriorRings(); ++i )
++    {
++      const QgsCurve *ring = poly->interiorRing( i );
++      if ( !ring ) continue;
++      std::unique_ptr<QgsPolygon> gapPoly( new QgsPolygon() );
++      gapPoly->setExteriorRing( ring->clone() );
++      const QgsGeometry gap( gapPoly.release() );
++      if ( gap.area() > AREA_TOLERANCE )
++        addError( label, gap.boundingBox(), lc->layer );
++    }
++  }
++}
++
++void TopologyCheckerModel::checkContains( LayerCache *lcA, LayerCache *lcB, const QString &label )
++{
++  // Each layer-1 feature must contain at least one layer-2 feature.
++  for ( auto it = lcA->geoms.constBegin(); it != lcA->geoms.constEnd(); ++it )
++  {
++    const QgsGeometry &gA = it.value();
++    bool containsOne = false;
++    const QList<QgsFeatureId> cand = lcB->index.intersects( gA.boundingBox() );
++    for ( QgsFeatureId idB : cand )
++    {
++      const QgsGeometry gB = geomToLayer( lcB->geoms[idB], lcB->layer, lcA->layer );
++      if ( gA.contains( gB ) )
++      {
++        containsOne = true;
++        break;
++      }
++    }
++    if ( !containsOne )
++      addError( label, gA.boundingBox(), lcA->layer );
++  }
++}
++
++void TopologyCheckerModel::checkInsideOrDisjoint( LayerCache *lcA, LayerCache *lcB, const QString &label )
++{
++  // Each layer-1 feature (e.g. building) must be EITHER fully inside a single
++  // layer-2 feature (e.g. parcel) OR not touch any parcel at all. Straddling a
++  // boundary, or spanning two adjacent parcels, is a topology error. The error
++  // is reported at the part of the building that sticks outside the parcels —
++  // that becomes the "imaginary point" the UI zooms to and blinks.
++  for ( auto it = lcA->geoms.constBegin(); it != lcA->geoms.constEnd(); ++it )
++  {
++    const QgsGeometry &gA = it.value();
++    const QList<QgsFeatureId> cand = lcB->index.intersects( gA.boundingBox() );
++
++    bool touchesAny = false;
++    bool withinOne  = false;
++    QVector<QgsGeometry> overlappingParcels;
++
++    for ( QgsFeatureId idB : cand )
++    {
++      const QgsGeometry gB = geomToLayer( lcB->geoms[idB], lcB->layer, lcA->layer );
++      const QgsGeometry inter = gA.intersection( gB );
++      // A shared edge gives a 0-area intersection; ignore it (that is "disjoint").
++      if ( inter.isNull() || inter.area() <= AREA_TOLERANCE )
++        continue;
++
++      touchesAny = true;
++      overlappingParcels.append( gB );
++      if ( gB.contains( gA ) )
++      {
++        withinOne = true;
++        break;
++      }
++    }
++
++    if ( !touchesAny || withinOne )
++      continue; // OK: fully outside, or fully inside one parcel
++
++    // Violation: locate the part of the building outside the parcels it touches.
++    QgsGeometry problem = gA;
++    if ( !overlappingParcels.isEmpty() )
++    {
++      const QgsGeometry pUnion  = QgsGeometry::unaryUnion( overlappingParcels );
++      const QgsGeometry outside = gA.difference( pUnion );
++      if ( !outside.isNull() && outside.area() > AREA_TOLERANCE )
++        problem = outside;
++    }
++    addError( label, problem.boundingBox(), lcA->layer );
++  }
++}
++
++// ---------------------------------------------------------------------
++//  Orchestration
++// ---------------------------------------------------------------------
++
++void TopologyCheckerModel::runChecks( const QgsRectangle &mapExtent )
++{
++  beginResetModel();
++  mErrors.clear();
++  endResetModel();
++  emit countChanged();
++  emit hasErrorsChanged();
++
++  qDeleteAll( mCaches );
++  mCaches.clear();
++
++  const QVector<TopologyRule> rules = mRulesModel->rules();
++
++  QSet<QString> missing;
++  int enabledCount = 0;
++
++  for ( const TopologyRule &rule : rules )
++  {
++    if ( !rule.enabled ) continue;
++    ++enabledCount;
++
++    QgsVectorLayer *l1 = resolveLayer( rule.layer1 );
++    if ( !l1 )
++    {
++      missing.insert( rule.layer1 );
++      continue;
++    }
++
++    const bool needs2 = mRulesModel->ruleTypeNeedsLayer2( rule.type );
++    QgsVectorLayer *l2 = needs2 ? resolveLayer( rule.layer2 ) : nullptr;
++    if ( needs2 && !l2 )
++    {
++      missing.insert( rule.layer2 );
++      continue;
++    }
++
++    LayerCache *lc1 = layerCache( l1, mapExtent );
++    LayerCache *lc2 = l2 ? layerCache( l2, mapExtent ) : nullptr;
++
++    const QString name1 = l1->name();
++    const QString name2 = l2 ? l2->name() : QString();
++
++    switch ( rule.type )
++    {
++      case TopologyRulesModel::MustNotOverlap:
++        checkOverlapsSelf( lc1, tr( "%1 — გადაფარვა" ).arg( name1 ) );
++        break;
++      case TopologyRulesModel::MustNotOverlapWith:
++        checkOverlapsWith( lc1, lc2, tr( "%1 — გადაფარვა %2-თან" ).arg( name1, name2 ) );
++        break;
++      case TopologyRulesModel::MustNotHaveDuplicates:
++        checkDuplicates( lc1, tr( "%1 — დუბლიკატი" ).arg( name1 ) );
++        break;
++      case TopologyRulesModel::MustNotHaveGaps:
++        checkGaps( lc1, tr( "%1 — ხარვეზი (gap)" ).arg( name1 ) );
++        break;
++      case TopologyRulesModel::MustNotHaveInvalidGeometries:
++        checkInvalidGeometries( lc1, tr( "%1 — არავალიდური გეომეტრია" ).arg( name1 ) );
++        break;
++      case TopologyRulesModel::MustNotHaveMultiPart:
++        checkMultiPart( lc1, tr( "%1 — მრავალნაწილიანი" ).arg( name1 ) );
++        break;
++      case TopologyRulesModel::MustContain:
++        checkContains( lc1, lc2, tr( "%1 — არ შეიცავს %2-ს" ).arg( name1, name2 ) );
++        break;
++      case TopologyRulesModel::MustBeInsideOrDisjoint:
++        checkInsideOrDisjoint( lc1, lc2, tr( "%1 — სცდება %2-ს (არ არის სრულად შიგნით)" ).arg( name1, name2 ) );
++        break;
++    }
++  }
++
++  mChecked = true;
++  const int n = mErrors.count();
++
++  // Per-category counts → section header "label (N)" + per-section index.
++  {
++    QMap<QString, int> catCounts;
++    for ( const auto &e : std::as_const( mErrors ) ) catCounts[e.sectionText]++;
++    QMap<QString, int> catIdx;
++    for ( auto &e : mErrors )
++    {
++      const QString key = e.sectionText;
++      e.sectionText  = key + QStringLiteral( " (%1)" ).arg( catCounts[key] );
++      e.displayIndex = ++catIdx[e.sectionText];
++    }
++  }
++
++  if ( enabledCount == 0 )
++  {
++    mStatusText = tr( "ჩართული წესი არ არის — გახსენით პარამეტრები" );
++  }
++  else if ( !missing.isEmpty() )
++  {
++    const QString found = n == 0
++      ? tr( "ხარვეზი არ აღმოჩენილა" )
++      : tr( "%1 ხარვეზი" ).arg( n );
++    mStatusText = tr( "%1\n⚠ ფენა ვერ მოიძებნა: %2" ).arg( found, QStringList( missing.values() ).join( QStringLiteral( ", " ) ) );
++  }
++  else
++  {
++    mStatusText = n == 0
++      ? tr( "ხარვეზი არ აღმოჩენილა ✓" )
++      : tr( "%1 ხარვეზი აღმოჩენილა" ).arg( n );
++  }
++
++  qDeleteAll( mCaches );
++  mCaches.clear();
++
++  beginResetModel();
++  endResetModel();
++  emit countChanged();
++  emit checkedChanged();
++  emit hasErrorsChanged();
++  emit statusTextChanged();
++}
++
++void TopologyCheckerModel::runChecksForCurrentExtent()
++{
++  QgsRectangle extent;
++  mMapCrs = QgsCoordinateReferenceSystem();
++
++  if ( mMapSettings )
++  {
++    const QVariant ev = mMapSettings->property( "extent" );
++    if ( ev.canConvert<QgsRectangle>() )
++      extent = ev.value<QgsRectangle>();
++
++    const QVariant cv = mMapSettings->property( "destinationCrs" );
++    if ( cv.canConvert<QgsCoordinateReferenceSystem>() )
++      mMapCrs = cv.value<QgsCoordinateReferenceSystem>();
++  }
++
++  if ( !mMapCrs.isValid() )
++    mMapCrs = QgsProject::instance()->crs();
++
++  if ( extent.isEmpty() || extent.isNull() )
++  {
++    beginResetModel();
++    mErrors.clear();
++    mChecked    = true;
++    mStatusText = tr( "ვერ მოიძებნა რუქის არე (extent)" );
++    endResetModel();
++    emit statusTextChanged();
++    emit countChanged();
++    emit checkedChanged();
++    emit hasErrorsChanged();
++    return;
++  }
++
++  runChecks( extent );
++}
++
++void TopologyCheckerModel::clearResults()
++{
++  beginResetModel();
++  mErrors.clear();
++  mChecked    = false;
++  mStatusText = QString();
++  endResetModel();
++
++  emit countChanged();
++  emit checkedChanged();
++  emit hasErrorsChanged();
++  emit statusTextChanged();
++}
++
++void TopologyCheckerModel::zoomToError( int index )
++{
++  if ( !mMapSettings || index < 0 || index >= mErrors.count() )
++    return;
++
++  const TopologyError &err = mErrors.at( index );
++  const QgsRectangle errBox( err.bboxXMin, err.bboxYMin, err.bboxXMax, err.bboxYMax );
++
++  // "Imaginary point" at the error location: the centre of the error geometry's
++  // bbox (e.g. the middle of an overlap area). This is what we zoom to and blink.
++  const double cx = ( err.bboxXMin + err.bboxXMax ) / 2.0;
++  const double cy = ( err.bboxYMin + err.bboxYMax ) / 2.0;
++
++  // Zoom like the QGIS Topology Checker: a TIGHT zoom centred on the error,
++  // framed to the screen aspect ratio so the error sits in the middle. Sizing is
++  // relative to the current view (CRS-unit agnostic): always zoom IN, with a
++  // floor so a tiny/point error still gets a strong, precise zoom-in.
++  QgsRectangle cur;
++  const QVariant ev = mMapSettings->property( "extent" );
++  if ( ev.canConvert<QgsRectangle>() )
++    cur = ev.value<QgsRectangle>();
++  const double curW = cur.width() > 0.0 ? cur.width() : 0.0;
++  const double curH = cur.height() > 0.0 ? cur.height() : 0.0;
++  const double aspect = curH > 0.0 ? curW / curH : 1.0;
++
++  const double errSize = std::max( errBox.width(), errBox.height() );
++  double targetHalf = errSize * 0.75; // error fills ~2/3 of the view
++  if ( curW > 0.0 )
++  {
++    const double minHalf = curW * 0.015; // floor → strong zoom-in for tiny errors
++    const double maxHalf = curW * 0.45;  // ceiling → always zoom in, keep context
++    targetHalf = std::max( minHalf, std::min( targetHalf, maxHalf ) );
++  }
++  else if ( targetHalf <= 0.0 )
++  {
++    targetHalf = 10.0;
++  }
++
++  // Match the screen aspect so setExtent does not expand the view unexpectedly.
++  double halfW = targetHalf;
++  double halfH = targetHalf;
++  if ( aspect >= 1.0 )
++    halfW = targetHalf * aspect;
++  else
++    halfH = targetHalf / aspect;
++
++  const QgsRectangle view( cx - halfW, cy - halfH, cx + halfW, cy + halfH );
++
++  // NOTE: setExtent() is the property WRITE accessor, NOT a Q_INVOKABLE/slot, so
++  // QMetaObject::invokeMethod( "setExtent" ) silently does nothing. Setting the
++  // "extent" property goes through the accessor and actually moves the canvas.
++  mMapSettings->setProperty( "extent", QVariant::fromValue( view ) );
++
++  // Convert the imaginary point to screen pixels for the blinking marker.
++  QPointF screenPt;
++  const bool ok = QMetaObject::invokeMethod( mMapSettings, "coordinateToScreen",
++    Qt::DirectConnection, Q_RETURN_ARG( QPointF, screenPt ),
++    Q_ARG( QgsPoint, QgsPoint( cx, cy ) ) );
++
++  if ( ok )
++    emit highlightPointRequested( screenPt.x(), screenPt.y() );
++}
+diff --git a/src/core/topologycheckermodel.h b/src/core/topologycheckermodel.h
+new file mode 100644
+index 0000000..cc68a2a
+--- /dev/null
++++ b/src/core/topologycheckermodel.h
+@@ -0,0 +1,208 @@
++#ifndef TOPOLOGYCHECKERMODEL_H
++#define TOPOLOGYCHECKERMODEL_H
++
++#include <QAbstractListModel>
++#include <QHash>
++#include <QVector>
++#include <qgscoordinatereferencesystem.h>
++#include <qgsfeature.h>
++#include <qgsgeometry.h>
++#include <qgsrectangle.h>
++#include <qgsspatialindex.h>
++#include <qgsvectorlayer.h>
++
++/**
++ * One topology check error, ready to be shown in the list and zoomed to.
++ * The bbox is stored in MAP CRS so zoom/highlight need no further transform.
++ */
++struct TopologyError
++{
++  QString displayText;
++  QString sectionText;
++  int displayIndex = 0;
++  double bboxXMin = 0, bboxYMin = 0, bboxXMax = 0, bboxYMax = 0;
++  bool hasGeometry = false;
++};
++
++/**
++ * A single configurable topology rule, QGIS-style.
++ * type is one of TopologyRulesModel::RuleType.
++ */
++struct TopologyRule
++{
++  int type = 0;
++  QString layer1;
++  QString layer2;
++  bool enabled = true;
++};
++
++/**
++ * Model holding the user-configurable list of topology rules (like the QGIS
++ * Topology Checker settings). Persisted with QSettings so the configuration
++ * survives app restarts. Falls back to a sensible default set on first run.
++ */
++class TopologyRulesModel : public QAbstractListModel
++{
++    Q_OBJECT
++    Q_PROPERTY( int count READ count NOTIFY countChanged )
++
++  public:
++    // Order matches the QGIS "Add Rule" dropdown so combo index == enum value.
++    enum RuleType
++    {
++      MustContain = 0,
++      MustNotHaveDuplicates,
++      MustNotHaveGaps,
++      MustNotHaveInvalidGeometries,
++      MustNotHaveMultiPart,
++      MustNotOverlap,
++      MustNotOverlapWith,
++      MustBeInsideOrDisjoint,
++      RuleTypeCount
++    };
++    Q_ENUM( RuleType )
++
++    enum Roles
++    {
++      RuleTypeRole = Qt::UserRole + 1,
++      RuleTypeNameRole,
++      Layer1Role,
++      Layer2Role,
++      EnabledRole,
++      NeedsLayer2Role,
++    };
++    Q_ENUM( Roles )
++
++    explicit TopologyRulesModel( QObject *parent = nullptr );
++
++    int rowCount( const QModelIndex &parent = QModelIndex() ) const override;
++    QVariant data( const QModelIndex &index, int role = Qt::DisplayRole ) const override;
++    QHash<int, QByteArray> roleNames() const override;
++
++    int count() const { return mRules.count(); }
++    const QVector<TopologyRule> &rules() const { return mRules; }
++
++    //! Human readable rule names, in dropdown order (index == RuleType value).
++    Q_INVOKABLE QStringList ruleTypeNames() const;
++    //! Whether the given rule type uses a second layer.
++    Q_INVOKABLE bool ruleTypeNeedsLayer2( int type ) const;
++
++    Q_INVOKABLE void addRule( int type, const QString &layer1, const QString &layer2 );
++    Q_INVOKABLE void removeRule( int row );
++    Q_INVOKABLE void setRuleEnabled( int row, bool enabled );
++    Q_INVOKABLE void resetToDefaults();
++
++    static QString ruleTypeName( int type );
++
++  signals:
++    void countChanged();
++    void rulesChanged();
++
++  private:
++    void load();
++    void save() const;
++    void loadDefaults();
++
++    QVector<TopologyRule> mRules;
++};
++
++/**
++ * Runs the configured topology rules against the features visible in the
++ * current map extent and exposes the resulting errors as a list model.
++ */
++class TopologyCheckerModel : public QAbstractListModel
++{
++    Q_OBJECT
++
++    Q_PROPERTY( int count READ count NOTIFY countChanged )
++    Q_PROPERTY( bool checked READ checked NOTIFY checkedChanged )
++    Q_PROPERTY( bool hasErrors READ hasErrors NOTIFY hasErrorsChanged )
++    Q_PROPERTY( QString statusText READ statusText NOTIFY statusTextChanged )
++    Q_PROPERTY( QObject *mapSettings READ mapSettings WRITE setMapSettings )
++    Q_PROPERTY( QObject *rules READ rulesObject CONSTANT )
++
++  public:
++    enum Roles
++    {
++      DisplayTextRole = Qt::UserRole + 1,
++      HasGeometryRole,
++      BboxXMinRole,
++      BboxYMinRole,
++      BboxXMaxRole,
++      BboxYMaxRole,
++      SectionTextRole,
++      DisplayIndexRole,
++    };
++    Q_ENUM( Roles )
++
++    explicit TopologyCheckerModel( QObject *parent = nullptr );
++
++    int rowCount( const QModelIndex &parent = QModelIndex() ) const override;
++    QVariant data( const QModelIndex &index, int role = Qt::DisplayRole ) const override;
++    QHash<int, QByteArray> roleNames() const override;
++
++    int count() const { return mErrors.count(); }
++    bool checked() const { return mChecked; }
++    bool hasErrors() const { return !mErrors.isEmpty(); }
++    QString statusText() const { return mStatusText; }
++
++    QObject *mapSettings() const { return mMapSettings; }
++    void setMapSettings( QObject *mapSettings ) { mMapSettings = mapSettings; }
++    QObject *rulesObject() const { return mRulesModel; }
++
++    //! Names of all valid vector layers in the current project (for the rule editor combos).
++    Q_INVOKABLE QStringList vectorLayerNames() const;
++
++    Q_INVOKABLE void runChecksForCurrentExtent();
++    Q_INVOKABLE void clearResults();
++    Q_INVOKABLE void zoomToError( int index );
++
++  signals:
++    void countChanged();
++    void checkedChanged();
++    void hasErrorsChanged();
++    void statusTextChanged();
++    //! Emitted after zoomToError with the error's "imaginary point" already in
++    //! screen pixels — the UI blinks a marker there (no rectangle).
++    void highlightPointRequested( double x, double y );
++
++  private:
++    //! Per-layer cache of features (in layer CRS) built once per run.
++    struct LayerCache
++    {
++      QgsVectorLayer *layer = nullptr;
++      QgsSpatialIndex index;
++      QHash<QgsFeatureId, QgsGeometry> geoms; // made valid, in layer CRS
++      QSet<QgsFeatureId> invalidIds;          // features whose original geometry was invalid
++    };
++
++    QgsVectorLayer *resolveLayer( const QString &name ) const;
++    LayerCache *layerCache( QgsVectorLayer *layer, const QgsRectangle &mapExtent );
++
++    QgsRectangle toLayerExtent( const QgsRectangle &mapExtent, QgsVectorLayer *layer ) const;
++    QgsRectangle toMapExtent( const QgsRectangle &bboxInLayerCrs, QgsVectorLayer *layer ) const;
++    QgsGeometry geomToLayer( const QgsGeometry &geomInOtherCrs, QgsVectorLayer *from, QgsVectorLayer *to ) const;
++
++    void addError( const QString &label, const QgsRectangle &bboxInLayerCrs, QgsVectorLayer *layer );
++
++    void checkInvalidGeometries( LayerCache *lc, const QString &label );
++    void checkMultiPart( LayerCache *lc, const QString &label );
++    void checkDuplicates( LayerCache *lc, const QString &label );
++    void checkOverlapsSelf( LayerCache *lc, const QString &label );
++    void checkOverlapsWith( LayerCache *lcA, LayerCache *lcB, const QString &label );
++    void checkGaps( LayerCache *lc, const QString &label );
++    void checkContains( LayerCache *lcA, LayerCache *lcB, const QString &label );
++    void checkInsideOrDisjoint( LayerCache *lcA, LayerCache *lcB, const QString &label );
++
++    void runChecks( const QgsRectangle &mapExtent );
++
++    QVector<TopologyError> mErrors;
++    bool mChecked = false;
++    QString mStatusText;
++    QObject *mMapSettings = nullptr;
++    QgsCoordinateReferenceSystem mMapCrs;
++    TopologyRulesModel *mRulesModel = nullptr;
++    QHash<QString, LayerCache *> mCaches; // keyed by layer id, valid during one run
++};
++
++#endif // TOPOLOGYCHECKERMODEL_H
+diff --git a/src/gui/qml/CMakeLists.txt b/src/gui/qml/CMakeLists.txt
+index 05cbb4b..91eece1 100644
+--- a/src/gui/qml/CMakeLists.txt
++++ b/src/gui/qml/CMakeLists.txt
+@@ -22,6 +22,8 @@ set(QFIELD_GUI_QML_FILES
+     QfConfirmationToolbar.qml
+     QfContainerCard.qml
+     QfDialog.qml
++    TopologyCheckerDialog.qml
++    ShapeDigitizingDialog.qml
+     QfDigitizingToolbar.qml
+     QfDropShadow.qml
+     QfEgenioussDeviceChooser.qml
+diff --git a/src/gui/qml/ShapeDigitizingDialog.qml b/src/gui/qml/ShapeDigitizingDialog.qml
+new file mode 100644
+index 0000000..65e2f15
+--- /dev/null
++++ b/src/gui/qml/ShapeDigitizingDialog.qml
+@@ -0,0 +1,373 @@
++import QtQuick
++import QtQuick.Controls
++import QtQuick.Layouts
++
++import org.qfield.core
++import org.qfield.gui
++
++/**
++ * QGIS-style shape digitizing overlay for QField.
++ *
++ * Two input modes (toggled in the header):
++ *  - Pen mode (default): tap the map directly with the pen/finger to place each
++ *    point exactly where you touch; the live preview follows the pen. Best for
++ *    small/precise objects. Map panning is paused while pen mode is on.
++ *  - Centre mode: the map stays pannable; line up the fixed centre crosshair and
++ *    tap "წერტილი" to capture the map centre.
++ *
++ * The captured points build a rectangle / circle / regular polygon, which is
++ * added as a new feature to the current editable polygon layer.
++ */
++Item {
++  id: root
++
++  property var mapSettingsRef: null
++  property var currentLayer: null
++  property bool isOpen: false
++  // Pen mode: tap directly on the map (pen/finger) to place each point exactly
++  // where you touch. Off = use the fixed centre crosshair + "წერტილი" button.
++  property bool penMode: true
++
++  signal toast( string message )
++
++  visible: isOpen
++
++  ShapeDigitizingModel {
++    id: shapeModel
++    mapSettings: root.mapSettingsRef
++    targetLayer: root.currentLayer
++  }
++
++  onIsOpenChanged: {
++    if ( isOpen ) {
++      shapeModel.clear()
++      previewCanvas.requestPaint()
++    }
++  }
++
++  // ---- Live preview of the shape under construction ----
++  Canvas {
++    id: previewCanvas
++    anchors.fill: parent
++    visible: root.isOpen
++    z: 4
++
++    onPaint: {
++      var ctx = getContext( "2d" )
++      ctx.reset()
++
++      // Shape outline (captured points + provisional crosshair point)
++      var outline = shapeModel.previewOutlineScreen()
++      if ( outline.length > 1 ) {
++        ctx.beginPath()
++        ctx.moveTo( outline[0].x, outline[0].y )
++        for ( var i = 1; i < outline.length; i++ )
++          ctx.lineTo( outline[i].x, outline[i].y )
++        ctx.closePath()
++        ctx.fillStyle = "rgba(255, 102, 0, 0.18)"
++        ctx.fill()
++        ctx.lineWidth = 3
++        ctx.strokeStyle = "#FF6600"
++        ctx.stroke()
++      }
++
++      // Captured construction vertices
++      var pts = shapeModel.capturedPointsScreen()
++      for ( var j = 0; j < pts.length; j++ ) {
++        ctx.beginPath()
++        ctx.arc( pts[j].x, pts[j].y, 7, 0, 2 * Math.PI )
++        ctx.fillStyle = "#1565C0"
++        ctx.fill()
++        ctx.lineWidth = 2
++        ctx.strokeStyle = "white"
++        ctx.stroke()
++      }
++    }
++  }
++
++  Connections {
++    target: shapeModel
++    function onPointsChanged() { previewCanvas.requestPaint() }
++    function onModeChanged() { previewCanvas.requestPaint() }
++    function onNumSidesChanged() { previewCanvas.requestPaint() }
++  }
++
++  Connections {
++    target: root.mapSettingsRef
++    ignoreUnknownSignals: true
++    function onExtentChanged() { previewCanvas.requestPaint() }
++    function onVisibleExtentChanged() { previewCanvas.requestPaint() }
++    function onRotationChanged() { previewCanvas.requestPaint() }
++  }
++
++  // ---- Pen / finger tap-to-place surface (active in pen mode) ----
++  // Tapping places a point exactly where you touch; moving updates the live
++  // preview so the shape follows the pen. Panning is paused while pen mode is on.
++  MouseArea {
++    id: penSurface
++    anchors.fill: parent
++    enabled: root.isOpen && root.penMode
++    visible: enabled
++    hoverEnabled: true
++    z: 5  // above the preview canvas (4), below the control card (10)
++    onPositionChanged: mouse => shapeModel.setProvisionalScreenPoint( mouse.x, mouse.y )
++    onPressed: mouse => shapeModel.setProvisionalScreenPoint( mouse.x, mouse.y )
++    onClicked: mouse => shapeModel.capturePointAtScreen( mouse.x, mouse.y )
++    onExited: shapeModel.clearProvisional()
++  }
++
++  // Cursor that follows the pen/finger in pen mode.
++  // Turns purple when the point is snapping to existing geometry.
++  Rectangle {
++    visible: root.isOpen && root.penMode && penSurface.containsMouse
++    property color markColor: shapeModel.provisionalSnapped ? "#9b59b6" : "#FF1744"
++    x: penSurface.mouseX - width / 2
++    y: penSurface.mouseY - height / 2
++    width: shapeModel.provisionalSnapped ? 30 : 24
++    height: width; radius: width / 2
++    color: "transparent"
++    border.color: markColor; border.width: shapeModel.provisionalSnapped ? 3 : 2
++    z: 7
++    Rectangle { anchors.centerIn: parent; width: 5; height: 5; radius: 2.5; color: parent.markColor }
++  }
++
++  // ---- Fixed centre crosshair (capture point in centre mode) ----
++  Item {
++    id: crosshair
++    anchors.centerIn: parent
++    width: 34; height: 34
++    visible: root.isOpen && !root.penMode
++    z: 6
++
++    Rectangle { anchors.centerIn: parent; width: 2; height: 34; color: "#FF1744" }
++    Rectangle { anchors.centerIn: parent; width: 34; height: 2; color: "#FF1744" }
++    Rectangle {
++      anchors.centerIn: parent
++      width: 12; height: 12; radius: 6
++      color: "transparent"
++      border.color: "#FF1744"; border.width: 2
++    }
++  }
++
++  // ---- Control card (bottom, floating) ----
++  Rectangle {
++    id: panel
++    anchors.bottom: parent.bottom
++    anchors.horizontalCenter: parent.horizontalCenter
++    anchors.bottomMargin: 20
++    width: Math.min( parent.width - 20, 540 )
++    height: panelCol.implicitHeight + 20
++    radius: 12
++    color: "white"
++    z: 10
++
++    // Absorb touches so dragging on the card never pans the map.
++    MouseArea { anchors.fill: parent; onClicked: {} }
++
++    ColumnLayout {
++      id: panelCol
++      anchors.fill: parent
++      anchors.margins: 10
++      spacing: 8
++
++      // Header: title + pen/centre toggle + close
++      RowLayout {
++        Layout.fillWidth: true
++        spacing: 8
++
++        Label {
++          text: qsTr( "ფიგურის ხაზვა" )
++          font.pixelSize: 16; font.bold: true; color: "#212121"
++          Layout.fillWidth: true
++          elide: Text.ElideRight
++        }
++
++        // Pen ⇄ centre toggle
++        Rectangle {
++          width: penToggleLabel.implicitWidth + 26; height: 38; radius: 19
++          color: root.penMode ? QfTheme.mainColor : "#ECEFF1"
++          border.color: root.penMode ? QfTheme.mainColor : "#B0BEC5"; border.width: 1
++          Label {
++            id: penToggleLabel
++            anchors.centerIn: parent
++            text: root.penMode ? qsTr( "✏️ კალამი" ) : qsTr( "🎯 ცენტრი" )
++            font.pixelSize: 13; font.bold: true
++            color: root.penMode ? "white" : "#37474F"
++          }
++          MouseArea {
++            anchors.fill: parent
++            onClicked: { root.penMode = !root.penMode; shapeModel.clearProvisional() }
++          }
++        }
++
++        // Close (clearly visible)
++        Rectangle {
++          width: 40; height: 40; radius: 20
++          color: closeArea.pressed ? "#B71C1C" : "#E53935"
++          Label { anchors.centerIn: parent; text: "✕"; font.pixelSize: 20; font.bold: true; color: "white" }
++          MouseArea { id: closeArea; anchors.fill: parent; onClicked: root.isOpen = false }
++        }
++      }
++
++      // Mode chips
++      Flow {
++        Layout.fillWidth: true
++        spacing: 6
++        Repeater {
++          model: shapeModel.modeNames()
++          Rectangle {
++            height: 34; radius: 17
++            width: chipLabel.implicitWidth + 24
++            color: shapeModel.mode === index ? QfTheme.mainColor : "#F0F0F0"
++            border.color: shapeModel.mode === index ? QfTheme.mainColor : "#CCCCCC"
++            border.width: 1
++            Label {
++              id: chipLabel
++              anchors.centerIn: parent
++              text: modelData
++              font.pixelSize: 12
++              font.bold: shapeModel.mode === index
++              color: shapeModel.mode === index ? "white" : "#424242"
++            }
++            MouseArea { anchors.fill: parent; onClicked: shapeModel.mode = index }
++          }
++        }
++      }
++
++      // Snapping toggle (uses the project's snapping configuration)
++      RowLayout {
++        Layout.fillWidth: true
++        spacing: 8
++        Rectangle {
++          width: snapLabel.implicitWidth + 28; height: 32; radius: 16
++          color: shapeModel.snapEnabled ? "#9b59b6" : "#ECEFF1"
++          border.color: shapeModel.snapEnabled ? "#9b59b6" : "#B0BEC5"; border.width: 1
++          Label {
++            id: snapLabel
++            anchors.centerIn: parent
++            text: shapeModel.snapEnabled ? qsTr( "🧲 მიკვრა: ჩართ." ) : qsTr( "🧲 მიკვრა: გამორთ." )
++            font.pixelSize: 12; font.bold: true
++            color: shapeModel.snapEnabled ? "white" : "#37474F"
++          }
++          MouseArea { anchors.fill: parent; onClicked: shapeModel.snapEnabled = !shapeModel.snapEnabled }
++        }
++        Item { Layout.fillWidth: true }
++      }
++
++      // Sides control (regular polygon only)
++      RowLayout {
++        Layout.fillWidth: true
++        visible: shapeModel.mode === ShapeDigitizingModel.RegularPolygon
++        spacing: 8
++        Label { text: qsTr( "გვერდები:" ); font.pixelSize: 13; color: "#424242" }
++        Rectangle {
++          width: 34; height: 34; radius: 6; color: minusArea.pressed ? "#E0E0E0" : "#EEEEEE"
++          Label { anchors.centerIn: parent; text: "−"; font.pixelSize: 20; color: "#424242" }
++          MouseArea { id: minusArea; anchors.fill: parent; onClicked: shapeModel.numSides = shapeModel.numSides - 1 }
++        }
++        Label {
++          text: shapeModel.numSides
++          font.pixelSize: 16; font.bold: true; color: "#212121"
++          horizontalAlignment: Text.AlignHCenter
++          Layout.preferredWidth: 40
++        }
++        Rectangle {
++          width: 34; height: 34; radius: 6; color: plusArea.pressed ? "#E0E0E0" : "#EEEEEE"
++          Label { anchors.centerIn: parent; text: "+"; font.pixelSize: 18; color: "#424242" }
++          MouseArea { id: plusArea; anchors.fill: parent; onClicked: shapeModel.numSides = shapeModel.numSides + 1 }
++        }
++        Item { Layout.fillWidth: true }
++      }
++
++      // Status line
++      Label {
++        Layout.fillWidth: true
++        text: qsTr( "წერტილები: %1 / %2" ).arg( shapeModel.pointCount ).arg( shapeModel.requiredPoints )
++              + "   ·   " + ( root.currentLayer ? root.currentLayer.name : qsTr( "ფენა არ არის" ) )
++        font.pixelSize: 12
++        color: "#757575"
++        elide: Text.ElideRight
++      }
++
++      // Actions
++      RowLayout {
++        Layout.fillWidth: true
++        spacing: 6
++
++        // Capture at centre crosshair (centre mode only)
++        Rectangle {
++          visible: !root.penMode
++          Layout.fillWidth: true
++          height: 44; radius: 8
++          color: captureArea.pressed ? Qt.darker( QfTheme.mainColor, 1.2 ) : QfTheme.mainColor
++          Label {
++            anchors.centerIn: parent
++            text: qsTr( "＋ წერტილი (ცენტრი)" )
++            font.pixelSize: 14; font.bold: true; color: "white"
++          }
++          MouseArea {
++            id: captureArea
++            anchors.fill: parent
++            // Capture at the crosshair (screen centre) so snapping applies here too.
++            onClicked: shapeModel.capturePointAtScreen( root.width / 2, root.height / 2 )
++          }
++        }
++
++        // Pen-mode hint (tap the map instead)
++        Rectangle {
++          visible: root.penMode
++          Layout.fillWidth: true
++          height: 44; radius: 8
++          color: "#E3F2FD"
++          Label {
++            anchors.centerIn: parent
++            text: qsTr( "✏️ შეახე კალამი რუკას წერტილისთვის" )
++            font.pixelSize: 13; color: "#1565C0"
++            elide: Text.ElideRight
++          }
++        }
++
++        // Undo last point
++        Rectangle {
++          Layout.preferredWidth: 48
++          height: 44; radius: 8
++          color: undoArea.pressed ? "#E0E0E0" : "#EEEEEE"
++          Label { anchors.centerIn: parent; text: "↶"; font.pixelSize: 20; color: "#424242" }
++          MouseArea { id: undoArea; anchors.fill: parent; onClicked: shapeModel.undoPoint() }
++        }
++
++        // Clear
++        Rectangle {
++          Layout.preferredWidth: 48
++          height: 44; radius: 8
++          color: clearArea.pressed ? "#FFCDD2" : "#FFEBEE"
++          Label { anchors.centerIn: parent; text: "🗑"; font.pixelSize: 16 }
++          MouseArea { id: clearArea; anchors.fill: parent; onClicked: shapeModel.clear() }
++        }
++
++        // Commit (save feature)
++        Rectangle {
++          Layout.preferredWidth: 120
++          height: 44; radius: 8
++          enabled: shapeModel.canCommit
++          opacity: enabled ? 1.0 : 0.4
++          color: saveArea.pressed ? "#2E7D32" : "#43A047"
++          Label {
++            anchors.centerIn: parent
++            text: qsTr( "შენახვა" )
++            font.pixelSize: 15; font.bold: true; color: "white"
++          }
++          MouseArea {
++            id: saveArea
++            anchors.fill: parent
++            enabled: shapeModel.canCommit
++            onClicked: {
++              var err = shapeModel.commit()
++              root.toast( err === "" ? qsTr( "ფიგურა დაემატა ✓" ) : err )
++            }
++          }
++        }
++      }
++    }
++  }
++}
+diff --git a/src/gui/qml/TopologyCheckerDialog.qml b/src/gui/qml/TopologyCheckerDialog.qml
+new file mode 100644
+index 0000000..207e4a3
+--- /dev/null
++++ b/src/gui/qml/TopologyCheckerDialog.qml
+@@ -0,0 +1,574 @@
++import QtQuick
++import QtQuick.Controls
++import QtQuick.Layouts
++
++import org.qfield.core
++import org.qfield.gui
++
++Item {
++  id: root
++
++  property var mapSettingsRef: null
++  property bool isOpen: false
++  property bool showSettings: false
++
++  visible: isOpen
++
++  // Available vector layer names for the rule editor combos. Refreshed each
++  // time the settings panel is opened so it reflects the current project.
++  property var layerNames: []
++
++  function refreshLayers() {
++    layerNames = topologyModel.vectorLayerNames()
++  }
++
++  onShowSettingsChanged: {
++    if ( showSettings )
++      refreshLayers()
++  }
++
++  // ---- Blinking point marker (drawn exactly on the error after zoom) ----
++  // zoomToError() centres the map on the error's "imaginary point" and emits
++  // highlightPointRequested(x, y) in this item's screen coordinates. We blink a
++  // dot with an expanding ring there — no rectangle (like the QGIS checker).
++  Item {
++    id: errorMarker
++    visible: false
++    z: 5  // below the panel (z:10) so it never draws over it
++    property real px: 0
++    property real py: 0
++
++    // Expanding pulse ring
++    Rectangle {
++      id: markerRing
++      width: 16; height: 16; radius: width / 2
++      x: errorMarker.px - width / 2
++      y: errorMarker.py - height / 2
++      color: "transparent"
++      border.color: "#FF1744"
++      border.width: 3
++      opacity: 0
++    }
++
++    // Solid centre dot
++    Rectangle {
++      id: markerDot
++      width: 18; height: 18; radius: 9
++      x: errorMarker.px - width / 2
++      y: errorMarker.py - height / 2
++      color: "#FF1744"
++      border.color: "white"
++      border.width: 2
++      opacity: 0
++    }
++
++    SequentialAnimation {
++      id: markerAnim
++      loops: 3
++      ParallelAnimation {
++        NumberAnimation { target: markerDot; property: "opacity"; from: 0.25; to: 1.0; duration: 250 }
++        NumberAnimation { target: markerRing; property: "width"; from: 16; to: 64; duration: 650 }
++        NumberAnimation { target: markerRing; property: "opacity"; from: 0.9; to: 0.0; duration: 650 }
++      }
++      NumberAnimation { target: markerDot; property: "opacity"; to: 0.3; duration: 200 }
++      onStopped: {
++        markerRing.width = 16
++        errorMarker.visible = false
++      }
++    }
++  }
++
++  Connections {
++    target: topologyModel
++    function onHighlightPointRequested( px, py ) {
++      errorMarker.px = px
++      errorMarker.py = py
++      markerRing.width = 16
++      errorMarker.visible = true
++      markerAnim.restart()
++    }
++  }
++
++  // ---- Side panel ----
++  Rectangle {
++    id: panel
++    width: Math.min( parent.width * 0.7, 440 )
++    height: parent.height
++    anchors.right: parent.right
++    color: "white"
++    z: 10
++
++    Rectangle {
++      width: 4
++      height: parent.height
++      anchors.left: parent.left
++      anchors.leftMargin: -4
++      gradient: Gradient {
++        orientation: Gradient.Horizontal
++        GradientStop { position: 0.0; color: "transparent" }
++        GradientStop { position: 1.0; color: "#33000000" }
++      }
++    }
++
++    ColumnLayout {
++      anchors.fill: parent
++      spacing: 0
++
++      // ---- Header ----
++      Rectangle {
++        Layout.fillWidth: true
++        height: 52
++        color: QfTheme.mainColor
++
++        RowLayout {
++          anchors.fill: parent
++          anchors.leftMargin: 16
++          anchors.rightMargin: 6
++          spacing: 4
++
++          Label {
++            text: root.showSettings ? qsTr( "წესების პარამეტრები" ) : qsTr( "ტოპოლოგია" )
++            font.pixelSize: 18
++            font.bold: true
++            color: "white"
++            Layout.fillWidth: true
++            elide: Text.ElideRight
++          }
++
++          // Settings / back toggle
++          Rectangle {
++            width: 36; height: 36; radius: 18
++            color: settingsBtnArea.pressed ? Qt.rgba( 0, 0, 0, 0.28 ) : Qt.rgba( 0, 0, 0, 0.15 )
++            Layout.alignment: Qt.AlignVCenter
++            Label {
++              anchors.centerIn: parent
++              text: root.showSettings ? "‹" : "⚙"
++              font.pixelSize: root.showSettings ? 24 : 18
++              font.bold: true; color: "white"
++            }
++            MouseArea {
++              id: settingsBtnArea
++              anchors.fill: parent
++              onClicked: root.showSettings = !root.showSettings
++            }
++          }
++
++          // Close (clearly visible red button)
++          Rectangle {
++            width: 40; height: 40; radius: 20
++            color: closeBtnArea.pressed ? "#B71C1C" : "#E53935"
++            border.color: "white"; border.width: 1
++            Layout.alignment: Qt.AlignVCenter
++            Label {
++              anchors.centerIn: parent
++              text: "✕"; font.pixelSize: 20; font.bold: true; color: "white"
++            }
++            MouseArea {
++              id: closeBtnArea
++              anchors.fill: parent
++              onClicked: root.isOpen = false
++            }
++          }
++        }
++      }
++
++      // =================================================================
++      //  RESULTS VIEW
++      // =================================================================
++      Item {
++        Layout.fillWidth: true
++        Layout.fillHeight: true
++        visible: !root.showSettings
++
++        ColumnLayout {
++          anchors.fill: parent
++          spacing: 0
++
++          // ---- Check button ----
++          Rectangle {
++            Layout.fillWidth: true
++            height: 60
++            color: "#F5F5F5"
++
++            Rectangle {
++              id: checkBtn
++              anchors.centerIn: parent
++              width: parent.width - 32; height: 42; radius: 6
++              color: checkBtnArea.pressed ? Qt.darker( QfTheme.mainColor, 1.2 ) : QfTheme.mainColor
++
++              Label {
++                anchors.centerIn: parent
++                text: qsTr( "შემოწმება" )
++                font.pixelSize: 15; font.bold: true; color: "white"
++              }
++
++              MouseArea {
++                id: checkBtnArea
++                anchors.fill: parent
++                onClicked: topologyModel.runChecksForCurrentExtent()
++              }
++            }
++          }
++
++          // ---- Status ----
++          Label {
++            Layout.fillWidth: true
++            Layout.leftMargin: 16; Layout.rightMargin: 16
++            Layout.topMargin: 6; Layout.bottomMargin: 2
++            text: topologyModel.statusText
++            font.pixelSize: 13
++            color: topologyModel.hasErrors ? "#E53935" : "#43A047"
++            wrapMode: Text.WordWrap
++            visible: topologyModel.statusText !== ""
++          }
++
++          Rectangle {
++            Layout.fillWidth: true; height: 1; color: "#E0E0E0"
++            visible: topologyModel.count > 0
++          }
++
++          // ---- Error list (grouped by sectionText) ----
++          ListView {
++            id: errorList
++            Layout.fillWidth: true
++            Layout.fillHeight: true
++            model: topologyModel
++            clip: true
++            visible: topologyModel.count > 0
++
++            section.property: "sectionText"
++            section.delegate: Rectangle {
++              width: errorList.width
++              height: 36
++              color: "#EEEEEE"
++
++              RowLayout {
++                anchors.fill: parent
++                anchors.leftMargin: 12
++                anchors.rightMargin: 10
++                spacing: 8
++
++                Rectangle {
++                  width: 10; height: 10; radius: 5
++                  color: "#E53935"
++                  Layout.alignment: Qt.AlignVCenter
++                }
++
++                Label {
++                  text: section
++                  font.pixelSize: 13
++                  font.bold: true
++                  color: "#424242"
++                  Layout.fillWidth: true
++                  elide: Text.ElideRight
++                }
++              }
++
++              Rectangle {
++                width: parent.width; height: 1
++                color: "#BDBDBD"
++                anchors.bottom: parent.bottom
++              }
++            }
++
++            delegate: Rectangle {
++              width: errorList.width
++              height: 46
++              color: delegateArea.pressed ? "#FFF3E0" : "white"
++
++              RowLayout {
++                anchors.fill: parent
++                anchors.leftMargin: 28
++                anchors.rightMargin: 10
++                spacing: 8
++
++                Label {
++                  text: qsTr( "ხ. #%1" ).arg( model.displayIndex )
++                  font.pixelSize: 14
++                  color: "#616161"
++                  Layout.fillWidth: true
++                }
++
++                Label {
++                  text: "›"
++                  font.pixelSize: 22
++                  color: model.hasGeometry ? "#FF6600" : "#BDBDBD"
++                  Layout.alignment: Qt.AlignVCenter
++                }
++              }
++
++              Rectangle {
++                width: parent.width - 28; height: 1
++                color: "#F0F0F0"
++                anchors.bottom: parent.bottom
++                anchors.right: parent.right
++              }
++
++              MouseArea {
++                id: delegateArea
++                anchors.fill: parent
++                onClicked: {
++                  if ( model.hasGeometry )
++                    topologyModel.zoomToError( index )
++                }
++              }
++            }
++          }
++
++          // ---- Empty state before check ----
++          Item {
++            Layout.fillWidth: true
++            Layout.fillHeight: true
++            visible: !topologyModel.checked
++
++            Column {
++              anchors.centerIn: parent
++              spacing: 14
++
++              Label {
++                anchors.horizontalCenter: parent.horizontalCenter
++                text: "☑"; font.pixelSize: 52; color: "#BDBDBD"
++              }
++
++              Label {
++                anchors.horizontalCenter: parent.horizontalCenter
++                text: qsTr( "დააჭირეთ შემოწმება ღილაკს" )
++                font.pixelSize: 14; color: "#9E9E9E"
++              }
++            }
++          }
++
++          // ---- No errors state ----
++          Item {
++            Layout.fillWidth: true
++            Layout.fillHeight: true
++            visible: topologyModel.checked && topologyModel.count === 0
++
++            Column {
++              anchors.centerIn: parent
++              spacing: 12
++
++              Label {
++                anchors.horizontalCenter: parent.horizontalCenter
++                text: "✓"; font.pixelSize: 52; color: "#43A047"
++              }
++
++              Label {
++                anchors.horizontalCenter: parent.horizontalCenter
++                text: qsTr( "ხარვეზი არ აღმოჩენილა" )
++                font.pixelSize: 15; color: "#43A047"
++              }
++            }
++          }
++        }
++      }
++
++      // =================================================================
++      //  SETTINGS VIEW (rule editor, QGIS-style)
++      // =================================================================
++      Item {
++        Layout.fillWidth: true
++        Layout.fillHeight: true
++        visible: root.showSettings
++
++        ColumnLayout {
++          anchors.fill: parent
++          spacing: 0
++
++          // ---- Current rules list ----
++          ListView {
++            id: rulesList
++            Layout.fillWidth: true
++            Layout.fillHeight: true
++            clip: true
++            model: topologyModel.rules
++
++            header: Rectangle {
++              width: rulesList.width
++              height: 32
++              color: "#EEEEEE"
++              Label {
++                anchors.verticalCenter: parent.verticalCenter
++                anchors.left: parent.left
++                anchors.leftMargin: 12
++                text: qsTr( "მიმდინარე წესები" )
++                font.pixelSize: 13; font.bold: true; color: "#424242"
++              }
++            }
++
++            delegate: Rectangle {
++              width: rulesList.width
++              height: 56
++              color: "white"
++
++              RowLayout {
++                anchors.fill: parent
++                anchors.leftMargin: 10
++                anchors.rightMargin: 6
++                spacing: 8
++
++                // Enable toggle
++                Switch {
++                  checked: model.ruleEnabled
++                  Layout.alignment: Qt.AlignVCenter
++                  onToggled: topologyModel.rules.setRuleEnabled( index, checked )
++                }
++
++                ColumnLayout {
++                  Layout.fillWidth: true
++                  spacing: 1
++
++                  Label {
++                    text: model.ruleTypeName
++                    font.pixelSize: 13
++                    font.bold: true
++                    color: model.ruleEnabled ? "#212121" : "#9E9E9E"
++                    Layout.fillWidth: true
++                    elide: Text.ElideRight
++                  }
++                  Label {
++                    text: model.needsLayer2
++                          ? ( model.layer1 + "  →  " + model.layer2 )
++                          : model.layer1
++                    font.pixelSize: 12
++                    color: "#757575"
++                    Layout.fillWidth: true
++                    elide: Text.ElideRight
++                  }
++                }
++
++                // Delete
++                Rectangle {
++                  width: 34; height: 34; radius: 17
++                  color: delArea.pressed ? "#FFCDD2" : "#FFEBEE"
++                  Layout.alignment: Qt.AlignVCenter
++                  Label {
++                    anchors.centerIn: parent
++                    text: "🗑"; font.pixelSize: 15
++                  }
++                  MouseArea {
++                    id: delArea
++                    anchors.fill: parent
++                    onClicked: topologyModel.rules.removeRule( index )
++                  }
++                }
++              }
++
++              Rectangle {
++                width: parent.width; height: 1
++                color: "#F0F0F0"
++                anchors.bottom: parent.bottom
++              }
++            }
++
++            // Empty
++            Label {
++              anchors.centerIn: parent
++              visible: topologyModel.rules.count === 0
++              text: qsTr( "წესები არ არის.\nდაამატეთ ქვემოთ." )
++              horizontalAlignment: Text.AlignHCenter
++              font.pixelSize: 13; color: "#9E9E9E"
++            }
++          }
++
++          Rectangle { Layout.fillWidth: true; height: 1; color: "#E0E0E0" }
++
++          // ---- Add-rule editor ----
++          Rectangle {
++            Layout.fillWidth: true
++            Layout.preferredHeight: addCol.implicitHeight + 20
++            color: "#FAFAFA"
++
++            ColumnLayout {
++              id: addCol
++              anchors.fill: parent
++              anchors.margins: 10
++              spacing: 6
++
++              Label {
++                text: qsTr( "ახალი წესი" )
++                font.pixelSize: 13; font.bold: true; color: "#424242"
++              }
++
++              ComboBox {
++                id: ruleTypeCombo
++                Layout.fillWidth: true
++                model: topologyModel.rules.ruleTypeNames()
++                currentIndex: 5  // "must not overlap"
++              }
++
++              ComboBox {
++                id: layer1Combo
++                Layout.fillWidth: true
++                model: root.layerNames
++                displayText: currentIndex < 0 ? qsTr( "ფენა #1" ) : currentText
++              }
++
++              ComboBox {
++                id: layer2Combo
++                Layout.fillWidth: true
++                model: root.layerNames
++                displayText: currentIndex < 0 ? qsTr( "ფენა #2" ) : currentText
++                enabled: topologyModel.rules.ruleTypeNeedsLayer2( ruleTypeCombo.currentIndex )
++                opacity: enabled ? 1.0 : 0.4
++              }
++
++              RowLayout {
++                Layout.fillWidth: true
++                spacing: 8
++
++                Rectangle {
++                  Layout.fillWidth: true
++                  height: 40; radius: 6
++                  color: addArea.pressed ? Qt.darker( QfTheme.mainColor, 1.2 ) : QfTheme.mainColor
++                  Label {
++                    anchors.centerIn: parent
++                    text: qsTr( "დამატება" )
++                    font.pixelSize: 14; font.bold: true; color: "white"
++                  }
++                  MouseArea {
++                    id: addArea
++                    anchors.fill: parent
++                    onClicked: {
++                      if ( layer1Combo.currentIndex < 0 )
++                        return
++                      var needs2 = topologyModel.rules.ruleTypeNeedsLayer2( ruleTypeCombo.currentIndex )
++                      if ( needs2 && layer2Combo.currentIndex < 0 )
++                        return
++                      topologyModel.rules.addRule(
++                        ruleTypeCombo.currentIndex,
++                        layer1Combo.currentText,
++                        needs2 ? layer2Combo.currentText : "" )
++                    }
++                  }
++                }
++
++                Rectangle {
++                  Layout.preferredWidth: 100
++                  height: 40; radius: 6
++                  color: resetArea.pressed ? "#E0E0E0" : "#EEEEEE"
++                  border.color: "#BDBDBD"; border.width: 1
++                  Label {
++                    anchors.centerIn: parent
++                    text: qsTr( "ნაგულისხმევი" )
++                    font.pixelSize: 12; color: "#424242"
++                  }
++                  MouseArea {
++                    id: resetArea
++                    anchors.fill: parent
++                    onClicked: topologyModel.rules.resetToDefaults()
++                  }
++                }
++              }
++            }
++          }
++        }
++      }
++    }
++  }
++
++  TopologyCheckerModel {
++    id: topologyModel
++    mapSettings: root.mapSettingsRef
++  }
++}
