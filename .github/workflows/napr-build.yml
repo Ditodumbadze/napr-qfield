@@ -1,0 +1,184 @@
+---
+# NAPR QField — builds an arm64 Android APK of QField v4.3.3 with the NAPR
+# topology checker + shape digitizing patch applied. Run it from the Actions tab
+# ("Run workflow"). The APK appears under "Artifacts" at the bottom of the run.
+name: 📱 NAPR QField APK
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  QFIELD_VERSION: v4.3.3
+  CUSTOM_APP_NAME: NAPR QField
+  NIGHTLY_PACKAGE_NAME: ch.opengis.napr_qfield
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      matrix:
+        include:
+          - triplet: 'arm64-android'
+            qt_arch: 'android_arm64_v8a'
+            all_files_access: 'OFF'
+            artifact_name: 'android-arm64'
+
+    steps:
+      - name: 🐣 Checkout QField ${{ env.QFIELD_VERSION }}
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: opengisch/QField
+          ref: ${{ env.QFIELD_VERSION }}
+          submodules: recursive
+
+      - name: 📥 Checkout NAPR patch (this repository)
+        uses: actions/checkout@v7.0.1
+        with:
+          path: napr-src
+
+      - name: 🩹 Apply NAPR patch
+        run: |
+          git apply --verbose napr-src/napr-qfield-4.3.3.patch
+          rm -rf napr-src
+          git status --short
+
+      - name: ♻️ Check disk space
+        run: df . -h
+
+      - name: 🧹 Reclaim disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - name: ♻️ Check disk space
+        run: df . -h
+
+      - name: 🌾 Prepare variables
+        id: vars
+        shell: bash
+        run: |
+          NDK_VERSION=28.2.13676358
+          echo "JAVA_HOME=${JAVA_HOME_17_X64}" >> $GITHUB_ENV
+          echo "ANDROID_BUILD_TOOLS_VERSION=35.0.1" >> $GITHUB_ENV
+          echo "ANDROID_NDK_VERSION=${NDK_VERSION}" >> $GITHUB_ENV
+          echo "ANDROID_NDK=/usr/local/lib/android/sdk/ndk/${NDK_VERSION}" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=/usr/local/lib/android/sdk/ndk/${NDK_VERSION}" >> $GITHUB_ENV
+          echo "ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/${NDK_VERSION}" >> $GITHUB_ENV
+          echo "ndk.dir=/usr/local/lib/android/sdk/ndk/${NDK_VERSION}" >> local.properties
+          ALL_FILES_ACCESS=${{ matrix.all_files_access }} ./scripts/ci/env_gh.sh
+
+          BUILD_ROOT="/home/runner"
+          echo "BUILD_ROOT=${BUILD_ROOT}" >> $GITHUB_ENV
+          echo "BUILD_TYPE=Release" >> $GITHUB_ENV
+          echo "CMAKE_BUILD_DIR=${BUILD_ROOT}/builddir" >> $GITHUB_ENV
+
+      - name: 💎 Setup ruby
+        uses: ruby/setup-ruby@v1.321.0
+        with:
+          ruby-version: '3.4' # Not needed with a .ruby-version file
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+      - name: 🪟 Setup .NET
+        uses: actions/setup-dotnet@v6.0.0
+        with:
+          dotnet-version: 8.0.x
+
+      - name: 🐵 Install Mono
+        run: |
+          sudo apt install ca-certificates gnupg
+          sudo gpg --homedir /tmp --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+          sudo chmod +r /usr/share/keyrings/mono-official-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+          sudo apt update
+          sudo apt install mono-devel
+
+      - name: 🐩 Install CMake and Ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.29.0
+
+      - name: 🔨 Prepare build env
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gperf autopoint '^libxcb.*-dev' libxrandr-dev libx11-xcb-dev libsm-dev libegl1-mesa-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev autoconf-archive libgstreamer-gl1.0-0 libgstreamer-plugins-base1.0-0 libfuse2 libcups2-dev nasm libltdl-dev
+          wget https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.sh -O /tmp/cmakeinstall.sh
+          chmod +x /tmp/cmakeinstall.sh
+          sudo /tmp/cmakeinstall.sh --prefix=/usr/local --exclude-subdir
+          rm /tmp/cmakeinstall.sh
+
+      # The sentry-android dependency is added via gradle
+      # This downloads the pre-compiled sentry-android-ndk libraries
+      # But we are compiling this before gradle is executed, so it is not downloaded
+      # Therefore we download it manually to get include headers and libraries
+      # ... a better implementation of this much appreciated ...
+      - name: 📐 Download sentry libs
+        run: |
+          mkdir /tmp/sentry-android-ndk
+          wget https://repo1.maven.org/maven2/io/sentry/sentry-android-ndk/7.22.6/sentry-android-ndk-7.22.6.aar -O /tmp/sentry.zip
+          unzip /tmp/sentry.zip -d /tmp/sentry-android-ndk
+
+      - name: 🌱 Install dependencies and generate project files
+        env:
+          WORKSPACE: ${{ github.workspace }}
+        run: |
+          TRIPLET=${{ matrix.triplet }} ALL_FILES_ACCESS=${{ matrix.all_files_access }} source ./scripts/version_number.sh
+          TRIPLET=${{ matrix.triplet }} ALL_FILES_ACCESS=${{ matrix.all_files_access }} source ./scripts/ci/generate-version-details.sh
+
+          cmake -S "${{ github.workspace }}" \
+                -B "${CMAKE_BUILD_DIR}" \
+                -G Ninja \
+                -D CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+                -D ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT} \
+                -D ANDROID_NDK_VERSION="${ANDROID_NDK_VERSION}" \
+                -D ANDROID_BUILD_TOOLS_VERSION="${ANDROID_BUILD_TOOLS_VERSION}" \
+                -D VCPKG_TARGET_TRIPLET="${{ matrix.triplet }}" \
+                -D VCPKG_INSTALL_OPTIONS="--allow-unsupported" \
+                -D WITH_ALL_FILES_ACCESS="${{ matrix.all_files_access }}" \
+                -D WITH_SPIX=OFF \
+                -D APP_VERSION="${APP_VERSION}" \
+                -D APK_VERSION_CODE="${APK_VERSION_CODE}" \
+                -D APP_VERSION_STR="${APP_VERSION_STR}" \
+                -D APP_PACKAGE_NAME="${APP_PACKAGE_NAME}" \
+                -D APP_ICON="${APP_ICON}" \
+                -D APP_NAME="${APP_NAME}" \
+                -D NUGET_USERNAME=opengisch \
+                -D NUGET_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+                                -D SENTRY_ENV="${APP_ENV}" \
+                -D SENTRY_IMPORT_PREFIX=/tmp/sentry-android-ndk/jni \
+                -D VCPKG_INSTALL_OPTIONS="--x-abi-tools-use-exact-versions"
+
+      - name: 📑 Upload Dep Build Logs
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: build-logs-${{ matrix.triplet }}
+          path: |
+            ${{ env.CMAKE_BUILD_DIR }}/**/*.log
+
+      - name: 🌋 Build
+        run: |
+          cmake --build "${{ env.CMAKE_BUILD_DIR }}" --config ${{ env.BUILD_TYPE }}
+
+      - name: Package
+        run: |
+          cmake --build  "${{ env.CMAKE_BUILD_DIR }}" --target bundle --config Release
+          if [ -f "${{ env.CMAKE_BUILD_DIR }}/src/app/android-build/build/outputs/apk/release/android-build-release-signed.apk" ]; then
+            cp ${{ env.CMAKE_BUILD_DIR }}/src/app/android-build/build/outputs/apk/release/android-build-release-signed.apk /tmp/${{ env.CI_PACKAGE_NAME }}-${{ env.CI_PACKAGE_FILE_SUFFIX }}-${{ matrix.artifact_name }}.apk
+          fi
+          if [ -f "${{ env.CMAKE_BUILD_DIR }}/src/app/android-build/build/outputs/apk/debug/android-build-debug.apk" ]; then
+            cp ${{ env.CMAKE_BUILD_DIR }}/src/app/android-build/build/outputs/apk/debug/android-build-debug.apk /tmp/${{ env.CI_PACKAGE_NAME }}-${{ env.CI_PACKAGE_FILE_SUFFIX }}-${{ matrix.artifact_name }}-debug.apk
+          fi
+
+      - name: 📦 Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: NAPR-QField-arm64-apk
+          path: |
+            /tmp/${{ env.CI_PACKAGE_NAME }}-${{ env.CI_PACKAGE_FILE_SUFFIX }}-${{ matrix.artifact_name }}.apk
+            /tmp/${{ env.CI_PACKAGE_NAME }}-${{ env.CI_PACKAGE_FILE_SUFFIX }}-${{ matrix.artifact_name }}-debug.apk
