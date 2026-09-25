@@ -211,7 +211,7 @@ index f41b4e8..240df55 100644
            settings.setValue("/QField/showMapCanvasGuide", true);
          } else {
 diff --git a/src/app/qml/QgisMobileapp.qml b/src/app/qml/QgisMobileapp.qml
-index 8b351c1..8b60469 100644
+index 8b351c1..26fa09d 100644
 --- a/src/app/qml/QgisMobileapp.qml
 +++ b/src/app/qml/QgisMobileapp.qml
 @@ -2277,6 +2277,31 @@ ApplicationWindow {
@@ -268,7 +268,35 @@ index 8b351c1..8b60469 100644
        QfToolButton {
          id: elevationProfileButton
          round: true
-@@ -5578,6 +5618,71 @@ ApplicationWindow {
+@@ -4794,6 +4834,12 @@ ApplicationWindow {
+     });
+   }
+ 
++  //! Georgia QField: opens a web page full screen inside the app (e.g. maps.gov.ge from a feature form).
++  function openInAppBrowser(url) {
++    inAppBrowser.url = url;
++    inAppBrowser.open();
++  }
++
+   function displayToast(message, type, action_text, action_function, stop_function, is_animation_enabled) {
+     toast.show(message, type, action_text, action_function, stop_function, is_animation_enabled);
+   }
+@@ -5243,6 +5289,14 @@ ApplicationWindow {
+       parent: Overlay.overlay
+     }
+ 
++    // Georgia QField: in-app browser for links opened from feature forms
++    QfBrowserPanel {
++      id: inAppBrowser
++      parent: Overlay.overlay
++      fullscreen: true
++      onCancel: close()
++    }
++
+     QfPopup {
+       id: loginDialogPopup
+       parent: Overlay.overlay
+@@ -5578,6 +5632,71 @@ ApplicationWindow {
      }
    }
  
@@ -364,6 +392,197 @@ index 59c94e3..d909f1b 100644
      positioning/qfudpreceiver.h
      positioning/qfgeofencer.h
      positioning/qfpositioninginformationmodel.h
+diff --git a/src/core/locator/qfactivelayerfeatureslocatorfilter.cpp b/src/core/locator/qfactivelayerfeatureslocatorfilter.cpp
+index 4d656ab..8752955 100644
+--- a/src/core/locator/qfactivelayerfeatureslocatorfilter.cpp
++++ b/src/core/locator/qfactivelayerfeatureslocatorfilter.cpp
+@@ -28,6 +28,21 @@
+ 
+ #include <math.h>
+ 
++namespace
++{
++  /**
++   * Georgia QField: WFS layers are searched only in the features already
++   * downloaded. A filtered request would make the WFS provider download from
++   * the server again, and on servers without stable feature ids (NAPR
++   * LR_PARCELS) that re-download adds the same features to the cache again,
++   * so they show up 2x, 3x, ... Searching locally also works offline.
++   */
++  bool searchLoadedFeaturesOnly( const QgsVectorLayer *layer )
++  {
++    return layer && layer->providerType().compare( QLatin1String( "WFS" ), Qt::CaseInsensitive ) == 0;
++  }
++} // namespace
++
+ 
+ QfActiveLayerFeaturesLocatorFilter::QfActiveLayerFeaturesLocatorFilter( QfLocatorModelSuperBridge *locatorBridge, QObject *parent )
+   : QgsLocatorFilter( parent )
+@@ -71,6 +86,7 @@ QStringList QfActiveLayerFeaturesLocatorFilter::prepare( const QString &string,
+   mDispExpression = QgsExpression( layer->displayExpression() );
+   mContext.appendScopes( QgsExpressionContextUtils::globalProjectLayerScopes( layer ) );
+   mDispExpression.prepare( &mContext );
++  mLocalFilter = searchLoadedFeaturesOnly( layer );
+ 
+   // determine if search is restricted to a specific field
+   QString searchString = string;
+@@ -90,9 +106,17 @@ QStringList QfActiveLayerFeaturesLocatorFilter::prepare( const QString &string,
+     }
+     QString enhancedSearch = searchString;
+     enhancedSearch.replace( ' ', '%' );
+-    req.setFilterExpression( QStringLiteral( "%1 ILIKE '%%2%'" )
+-                               .arg( layer->displayExpression(), enhancedSearch ) );
+-    req.setLimit( mMaxTotalResults );
++    const QString displayFilter = QStringLiteral( "%1 ILIKE '%%2%'" ).arg( layer->displayExpression(), enhancedSearch );
++    if ( mLocalFilter )
++    {
++      mDisplayTitleFilter = QgsExpression( displayFilter );
++      mDisplayTitleFilter.prepare( &mContext );
++    }
++    else
++    {
++      req.setFilterExpression( displayFilter );
++      req.setLimit( mMaxTotalResults );
++    }
+     mDisplayTitleIterator = layer->getFeatures( req );
+   }
+   else
+@@ -157,13 +181,20 @@ QStringList QfActiveLayerFeaturesLocatorFilter::prepare( const QString &string,
+   {
+     req.setFlags( Qgis::FeatureRequestFlag::NoGeometry );
+   }
+-  req.setFilterExpression( expression );
+   if ( isRestricting )
+   {
+     req.setSubsetOfAttributes( subsetOfAttributes );
+   }
+-
+-  req.setLimit( mMaxTotalResults );
++  if ( mLocalFilter )
++  {
++    mFieldFilter = QgsExpression( expression );
++    mFieldFilter.prepare( &mContext );
++  }
++  else
++  {
++    req.setFilterExpression( expression );
++    req.setLimit( mMaxTotalResults );
++  }
+   mFieldIterator = layer->getFeatures( req );
+ 
+   mLayerId = layer->id();
+@@ -210,6 +241,8 @@ void QfActiveLayerFeaturesLocatorFilter::fetchResults( const QString &string, co
+         return;
+ 
+       mContext.setFeature( f );
++      if ( mLocalFilter && !mDisplayTitleFilter.evaluate( &mContext ).toBool() )
++        continue;
+ 
+       QgsLocatorResult result;
+       result.displayString = mDispExpression.evaluate( &mContext ).toString();
+@@ -244,6 +277,8 @@ void QfActiveLayerFeaturesLocatorFilter::fetchResults( const QString &string, co
+     QgsLocatorResult result;
+ 
+     mContext.setFeature( f );
++    if ( mLocalFilter && !mFieldFilter.evaluate( &mContext ).toBool() )
++      continue;
+ 
+     // find matching field content
+     int idx = 0;
+diff --git a/src/core/locator/qfactivelayerfeatureslocatorfilter.h b/src/core/locator/qfactivelayerfeatureslocatorfilter.h
+index 403a07d..ff5cd27 100644
+--- a/src/core/locator/qfactivelayerfeatureslocatorfilter.h
++++ b/src/core/locator/qfactivelayerfeatureslocatorfilter.h
+@@ -72,6 +72,10 @@ class QfActiveLayerFeaturesLocatorFilter : public QgsLocatorFilter
+     QgsExpressionContext mContext;
+     QgsFeatureIterator mDisplayTitleIterator;
+     QgsFeatureIterator mFieldIterator;
++    //! Georgia QField: for WFS layers the filters are evaluated here instead of in the requests.
++    bool mLocalFilter = false;
++    QgsExpression mDisplayTitleFilter;
++    QgsExpression mFieldFilter;
+     QString mLayerId;
+     QString mLayerName;
+     bool mLayerIsSpatial = false;
+diff --git a/src/core/locator/qffeatureslocatorfilter.cpp b/src/core/locator/qffeatureslocatorfilter.cpp
+index 8f02871..980087c 100644
+--- a/src/core/locator/qffeatureslocatorfilter.cpp
++++ b/src/core/locator/qffeatureslocatorfilter.cpp
+@@ -28,6 +28,21 @@
+ 
+ #include <math.h>
+ 
++namespace
++{
++  /**
++   * Georgia QField: WFS layers are searched only in the features already
++   * downloaded. A filtered request would make the WFS provider download from
++   * the server again, and on servers without stable feature ids (NAPR
++   * LR_PARCELS) that re-download adds the same features to the cache again,
++   * so they show up 2x, 3x, ... Searching locally also works offline.
++   */
++  bool searchLoadedFeaturesOnly( const QgsVectorLayer *layer )
++  {
++    return layer && layer->providerType().compare( QLatin1String( "WFS" ), Qt::CaseInsensitive ) == 0;
++  }
++} // namespace
++
+ 
+ QfFeaturesLocatorFilter::QfFeaturesLocatorFilter( QfLocatorModelSuperBridge *locatorBridge, QObject *parent )
+   : QgsLocatorFilter( parent )
+@@ -69,10 +84,20 @@ QStringList QfFeaturesLocatorFilter::prepare( const QString &string, const QgsLo
+     }
+     QString enhancedSearch = string;
+     enhancedSearch.replace( " ", "%" );
+-    req.setFilterExpression( QStringLiteral( "%1 ILIKE '%%2%'" ).arg( layer->displayExpression(), enhancedSearch ) );
+-    req.setLimit( 30 );
++    const QString filterString = QStringLiteral( "%1 ILIKE '%%2%'" ).arg( layer->displayExpression(), enhancedSearch );
+ 
+     std::shared_ptr<PreparedLayer> preparedLayer( new PreparedLayer() );
++    if ( searchLoadedFeaturesOnly( layer ) )
++    {
++      preparedLayer->localFilter = true;
++      preparedLayer->filter = QgsExpression( filterString );
++      preparedLayer->filter.prepare( &expressionContext );
++    }
++    else
++    {
++      req.setFilterExpression( filterString );
++      req.setLimit( 30 );
++    }
+     preparedLayer->expression = expression;
+     preparedLayer->context = expressionContext;
+     preparedLayer->layerId = layer->id();
+@@ -103,11 +128,13 @@ void QfFeaturesLocatorFilter::fetchResults( const QString &string, const QgsLoca
+       if ( feedback->isCanceled() )
+         return;
+ 
++      preparedLayer->context.setFeature( f );
++      if ( preparedLayer->localFilter && !preparedLayer->filter.evaluate( &( preparedLayer->context ) ).toBool() )
++        continue;
++
+       QgsLocatorResult result;
+       result.group = preparedLayer->layerName;
+ 
+-      preparedLayer->context.setFeature( f );
+-
+       result.displayString = preparedLayer->expression.evaluate( &( preparedLayer->context ) ).toString();
+ 
+       result.setUserData( QVariantList() << f.id() << preparedLayer->layerId );
+diff --git a/src/core/locator/qffeatureslocatorfilter.h b/src/core/locator/qffeatureslocatorfilter.h
+index 056d0e1..5c7b828 100644
+--- a/src/core/locator/qffeatureslocatorfilter.h
++++ b/src/core/locator/qffeatureslocatorfilter.h
+@@ -51,6 +51,9 @@ class QfFeaturesLocatorFilter : public QgsLocatorFilter
+         QgsExpressionContext context;
+         std::unique_ptr<QgsVectorLayerFeatureSource> featureSource;
+         QgsFeatureRequest request;
++        //! When set, the search is evaluated here on already loaded features instead of in the request.
++        bool localFilter = false;
++        QgsExpression filter;
+         QString layerName;
+         QString layerId;
+         QIcon layerIcon;
 diff --git a/src/core/platforms/qfplatformutilities.cpp b/src/core/platforms/qfplatformutilities.cpp
 index c0402a9..f5785f9 100644
 --- a/src/core/platforms/qfplatformutilities.cpp
@@ -3155,6 +3374,27 @@ index 05cbb4b..bd2f498 100644
      QfDigitizingToolbar.qml
      QfDropShadow.qml
      QfEgenioussDeviceChooser.qml
+diff --git a/src/gui/qml/QfFeatureForm.qml b/src/gui/qml/QfFeatureForm.qml
+index 8d7b9f2..4c43dd7 100644
+--- a/src/gui/qml/QfFeatureForm.qml
++++ b/src/gui/qml/QfFeatureForm.qml
+@@ -517,7 +517,15 @@ Page {
+               height: 0;
+               opacity: 0;
+               anchors { top: parent.top; left: parent.left; right: parent.right; }
+-              onLoadingChanged: {
++              onLoadingChanged: loadRequest => {
++                // Georgia QField: a web link tapped inside an HTML widget opens in the
++                // in-app browser (full screen) instead of inside the small widget.
++                if (loadRequest.status === WebView.LoadStartedStatus && /^https?:/i.test(loadRequest.url.toString()) && typeof mainWindow.openInAppBrowser === "function") {
++                  stop();
++                  mainWindow.openInAppBrowser(loadRequest.url.toString());
++                  loadHtml(parent.parent.htmlCode);
++                  return;
++                }
+                 if (!loading) {
+                   runJavaScript("document.body.offsetHeight", function(result) {
+                     anchors.left = parent.left;
 diff --git a/src/gui/qml/ShapeDigitizingDialog.qml b/src/gui/qml/ShapeDigitizingDialog.qml
 new file mode 100644
 index 0000000..a0bb823
