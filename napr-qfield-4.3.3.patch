@@ -1,8 +1,8 @@
 diff --git a/images/images.qrc b/images/images.qrc
-index b8ec42e..27e76fa 100644
+index b8ec42e..d70329b 100644
 --- a/images/images.qrc
 +++ b/images/images.qrc
-@@ -138,6 +138,15 @@
+@@ -138,6 +138,16 @@
          <file>themes/qfield/nodpi/ic_temporal_green_24dp.svg</file>
          <file>themes/qfield/nodpi/ic_snapping_white_24dp.svg</file>
          <file>themes/qfield/nodpi/ic_topology_white_24dp.svg</file>
@@ -11,6 +11,7 @@ index b8ec42e..27e76fa 100644
 +        <file>themes/qfield/nodpi/ic_napr_villages_white_24dp.svg</file>
 +        <file>themes/qfield/nodpi/ic_napr_layers_white_24dp.svg</file>
 +        <file>napr/villages.json</file>
++        <file>napr/surveyors.json</file>
 +        <file>themes/qfield/nodpi/ic_napr_shape_rect_white_24dp.svg</file>
 +        <file>themes/qfield/nodpi/ic_napr_shape_rect3_white_24dp.svg</file>
 +        <file>themes/qfield/nodpi/ic_napr_shape_circle_white_24dp.svg</file>
@@ -18,6 +19,14 @@ index b8ec42e..27e76fa 100644
          <file>themes/qfield/nodpi/ic_freehand_white_24dp.svg</file>
          <file>themes/qfield/nodpi/ic_clear_black_18dp.svg</file>
          <file>themes/qfield/nodpi/ic_location_canvas_lock_white_24dp.svg</file>
+diff --git a/images/napr/surveyors.json b/images/napr/surveyors.json
+new file mode 100644
+index 0000000..15416a7
+--- /dev/null
++++ b/images/napr/surveyors.json
+@@ -0,0 +1 @@
++{"allowed":{"213792ba01a4ecff92f7d2edbc9ed2c015026507f8757267205005bec9c21303":"აკაკი ახალაია","2a4038b9f17b53187d9bbc29b19a10874db9844788f3fa81f0589f67772e2492":"აკაკი ბირთველიშვილი","71306999652bde84cd692e69d7b8bcb4704163df98504da958b70b0634567490":"ალექსანდრე შავიძე","ad3c9ed7836c05d253a3a5eb33d5da7da1e82ba847bc4ff2f0afc489c204a1d1":"ალექსანდრე ჩუხუა","a40dda57fff459081e8288994a3d1aeea0e20a8723c5c6950caeb36c399562aa":"ალექსი მასურაშვილი","4326f6e3a2342cc2f2319eb1dfb804d7fb43cc9c946a6d2ee471076b8a553555":"ალექსი ყეინაშვილი","7a5c0544b8b3c7d29f615306cc857c2f3d831f0acd644cfbcb99f58e9817b877":"ალიოშა ისაკაძე","795802b7466c57722bb5d93e06cbeb776c42705b308200239385b7b620dace97":"ამირან სირბილაძე","50a72691959b1462f951f286d10bbaa6fa15e2aed41d042f8bde2367cadcff2f":"ამირანი ქემაშვილი","833a2fd690bbe9afd12a4b0d8bd17b517e2ffbe64a18586103f3ae9059a54b1c":"ანა ჩიხლაძე","592eb30399a17f00f9f0a8084305178e6a1666b4d086c40cf02f37af8a54a270":"ანა წიქარიშვილი","8e89bdd1eca878042d5d2ef3fd9f597bb203579524c1e46059a8ebe703629a79":"აპოლონ ვართაგავა","27a77dd838fc8c4ff532ef934127dbdd99e293156b4ac3161849cc0c69adbb5b":"არჩილ მანია","81a6ecfcb9a32639905b13562690d2c4153639ccbd298b1800acea418e2895a8":"აჩიკო შავაძე","c3e56a15f2c476ef5309f1e69b0f255c48d132886cfd411bb04f62664696c445":"ბაჩანა მიქენაია","9e27cec5fa355d2bcc62d9d59a5ccf66121f0b4b0c294290ec46c47908489e29":"ბაჩანა შუბითიძე","d4b4faa25ff8cfaf031a7b72d5048ffa8372efca2665f6bdfcb9468d2e739941":"ბაჩუკი გაბედავა","b9fe05ba0787cfa8271f2770326a0d13d87157f9523a99790b2d01827d66e286":"ბერდია ჯოხაძე","1618c7a92fe18ef94d75b022f1a3d5a6bb76770cec6ef51674643e9cefd86c9c":"ბესარიონ ქუფარაშვილი","5995277ac6f679a08de4fb01ecab681279943622268f506defebcfc4c674a9fd":"ბექა ბაიდოშვილი","e72690bb4a775bb9f156d3fa0b0c77ea3ff0db86c852424e06643cddcf328a47":"ბექა ბარამიძე","48b7fbe7a07448385dfbab610d4dd9df5111ded186b2c68d78ad9e48058e8eca":"ბექა ბერიშვილი","b675366cc02b2a25b814b670221f2abfdd155f93da105b9b54b8caccc74277db":"ბექა კალმახელიძე","79944c826283dd1060d29277106d45ba1727fe9d0f68b417378202f7d24ec411":"ბექა ლობჟანიძე","c90ca475ef64323bdaf402cf272eeace750bb6491fbe638c10098e7308e0f5b9":"ბექა მაისურაძე","e9237dc7fea451f8da260d62a3e60d0a558e3983f6cd923c781f6aaa951f2e12":"ბექა ტაბატაძე","64b99b0a580a0b42f03918c4ccf86f7bd837dd771447963f71c8f65865933182":"გენადი მოლაშხია","2a947cd8587dc7d021852758f295c010f88bb69393ed83160d2e1bfab27c8029":"გია ბადრიაშვილი","41da1583b5ec2bffebeb6f7f23f5412f9746425803fe0716c5b7ad6d531a65cd":"გივი კაპანაძე","7028e9fb4d1efbbc21e61804e6ef38af38dbb9e162dd216b88b820be086b2516":"გივი ლემონჯავა","200c34148ce1480c267ca198a5a925a0095c17899e0eb552bf4f053c888f0701":"გივი ტაბატაძე","58d93958ee6e964fc6dd0abe3db431d35208f499afb99c6a0d5512ec4b3d807b":"გიორგი ალავიძე","cced19a963028cfb0eaed50a71a1ca904890edd581f147b6c6f00bb70ef00532":"გიორგი ბალიაშვილი","306b9d18f7b24e7b3cba1756ff4cce3454626f57a96a70c9623b00b590707c7f":"გიორგი ბექურიძე","051d631a9eee1068fb867b9b71ff41babd81229a216d9d22d32bb2fa7e948c5b":"გიორგი ბოგვერაძე","8215175443c97afc59a6bae1274b38ea5c9cdec9a6268661612a2db830f54fe9":"გიორგი ბოჭორიშვილი","aa69294995fbfe21f71774a01e5217ba438d668c5d69ce257de2b03892d8b212":"გიორგი გარსევნიშვილი","b576f65700821a2fa56235fb8893a9a9edba9d4b7f5f1fa484d00825f0b0f5d7":"გიორგი გასვიანი","7eb69032fc46edd199ee637dbcdff408c471a52df0e8556a894898f71534798c":"გიორგი გვაზავა","f62fd66c38798b9edadf36bed148d9ff1480dbb36c84ec21679e1544241f46a6":"გიორგი გოგობერიშვილი","75f05aac0c61505279899449dca1fc251e752cee238312849570f3528a3793b3":"გიორგი თათანაშვილი","3714e7e553a9f0253e13bf8253126d35dcb917d9ce0f8f1ea782f66b4749ccf3":"გიორგი კანაშვილი","845107edcad4445bb2e95993bf630af09fc5d3b500d66655c6e93dc020903b94":"გიორგი კიზირია","e8838e092c61e9cbbb4dcc974029f895a46ca9e7a0f77959f2ed7763eed5bab8":"გიორგი ლაცაბიძე","c92e96e3840543ce6f5dbb0c3949b0a5829fc3528d042e7e0a0eb0c8be82e9d0":"გიორგი მაზმიშვილი","e5f3918b1eb7bb94e1bf6bdaa201d6a8b8df7421165a39220280ce193633f947":"გიორგი მალანია","a584981c7db4f1cef6ce0f067450dbb02011b9758e4e8deca714660c75545b1d":"გიორგი მარჯანიძე","55563c97ec8ac1c1e62f503b5151fb3089693e7e52d191ada02a2c9bf6d88951":"გიორგი მაჭარაშვილი","0bf5b75c8cbf8bb031c33d8fe9d4fbd43147612998e59fc37b35dc2d49a48288":"გიორგი მახათაძე","12eee12e448447de5732e467aa7207a241fbf9d400b46afd090935928cd18b2d":"გიორგი ნემსაძე","f025965df362ab268494bc193c34c8a0895871fdc5e14e9a6a8d549a161a94f9":"გიორგი პაპიაშვილი","32ba20e4678dd07ba1b1534c68ee208a5b4e20633de82e8e7334a4f3373c165e":"გიორგი პატაშური","feb57c0b6200e734031daa432ca375bcbabca8764df538500b7613242c3f00d7":"გიორგი სამუშია","86a881292ae5748e2aa8aa260d3ca872d68081d438eb6986ad1ab65d040f8972":"გიორგი სოფრომაძე","e5ba879203741e1d71647e1f1e843768cd4f6169d06448a39f9c617a3e7bf3b1":"გიორგი ყველაშვილი","a6f21192ac9908c65d3d1b8c0cca57aaf700cb8211e163c1f477e096a5fbefd4":"გიორგი შაქარაშვილი","191b2769c79e2159bbf6362228638580f23df6c08d561359a2d756ceaffc2084":"გიორგი შუბითიძე","5e2287f0df1bad522fc3c7965e8e0798191b9822c5df8e714174a724a76c3607":"გიორგი ჩუხუა","1b1314dea2f30793a002dda9663375354db103781cf79990d340f1a37e7a1d00":"გიორგი ხმალაძე","58136d61215c03808f94e5f6674edfe8d0e2c9b3920ba4acb547d99d89eaad27":"გიორგი ხომერიკი","00cec6f8725039f5e253b3987321d7e0c1c2094b6d38b77fb22e1b8e5ceaf05f":"გიორგი ხურციძე","24acbd52054ba4a9ee1140c62110d9e4ff4d37d4fe21c90645c31e7a1b5f9dc3":"გიორგი ხუსკივაძე","7b307bf419ed91f6549893c85473570b83affeb9812802b80e11ac803582b004":"გიორგი ხუციშვილი","b92a3ff9fb0889eddce16c66a19f90d22f532ed9a810fa67ee6f6e17b3dcdd34":"გიორგი ჯინჭარაძე","609385fea664f0ba0f69908602331769cc1ac07d8c941a923c5cb88d645d778a":"გიორგი ჯოლბორდი","e7e0fa309ae0182bece7009cbcceee0bfe63ff84b143c83147c28771ec5f3401":"გოგა თოფურია","7d2692a625b1ee0ba75c5439c4bd6d23c4d232cd7d3a34d29ea36835b3606941":"გოგა ფიფია","c6194814c5c536280365ac43cba60fb21a89974844aaaa7ecf5639d2c9420131":"გოგი ჯალაღონია","6f46676ad06ca9f0d2390c9ea06b4e0d66aa5f87bed8e8917bae8169e1d9fb17":"გოდერძი მეხრიშვილი","5bfea937f7d16ae9de5c0acdd631bc16dc33cdcc13ac258571a0805535de6f80":"გოჩა ბარათელი","ae757822b67d137bcaec8c037295b23c05725ba7343a28ea7efd3e37bfb7b633":"გურამ საიქოძე","2a5770a85c961b13adfc64b5bab34f92a52f0e6e22805095942fcd2e1846a074":"გურამი ალხაზაშვილი","355320ed591f0c3dfddd7690879f7a580f80eba8102cbd51666ddbe3efd72b3d":"გურამი გიგოლაშვილი","d796e69403d680304b609522f12528299038c48a23d293c739419837593b34d5":"გურანდა გოროზია","f777842db479193b7477058f38ef5598d0be5978feb60a8704d5108f9bd5d50d":"დავით დარჩია","16c89a7c65a5e89bad3e3f5aba92e194083b48f06fbb1caa4c7468ed4dc237ab":"დავით ზურაბიშვილი","d097a06a6347413fe29c9cf7f03a19bfec3a62a59ac5aeb7e16fa2ab1d11d101":"დავით კვეტენაძე","35326161df704adb80b12cb28a470f59556c4b783aa63c65dc345039606e0266":"დავით მიროტაძე","d895f6b32ff084fa400a6c81af39436ecb87a1202ef96434e3f074a1499d8484":"დავით ფულარია","8f36e79b98c36c04ecf04b201ba863b99841d9c3163a06ab3cfe52e9111130f8":"დავით წილოსანი","0e3af99bb2144310c7c9415aaa961c0d5b1361f664016696aaf6aeec0187bd17":"დავით ჯაბანიშვილი","aa0b9bf7c8bdd44db2dffe214a73622e049e3b647eebf42e3dce0345da4a50d6":"დავითი შუბითიძე","590d8f3a6a4ebb14b3851745a4364d150479b36f59240997dee9081191e7cb81":"დავითი ძაბილაშვილი","0679eb7f2349c3226151a8999ebe2f48f09178d49924154883a2b74052630ae6":"დათა ნემსაძე","d148f5d4912ea87fdd26ef948fd856104cacc089959c7737f294e98e69e15af6":"დენის გერგედავა","35eaff4bda49053f42b323ccd06067cf4bfdfe19605fce1de38d047b25398d08":"დიმიტრი ლოთიშვილი","35d8ab99fef2dd4ba974d03496d93f998ecc2d217d4eb41f1ceca42cb0c55fe6":"დიტო დუმბაძე","04639ce3a6d5e5145850b7c067924bf1a05b64c4ce67d64d41e13536a3847455":"ეილიულ ქიოსე","2e567844426f3d8b777bd70a824bc568deffdb8fcee13b103c6d087063c0f690":"ეკატერინე ბურძენიძე","0dfda0bacf20b3096d44dffbf44fcb51d0dd7f9cfb24d84651248dbf25a1bd13":"ელენე ჯამატაშვილი","095cf920809903d072a4c9e214d9661510b805d58f887fc8441a413bdd992a15":"ემზარ თანდილაშვილი","2cd34d32abe6966f6eda4bf92834f6f9702df08c3bb98cb1b615c5cc8eb27d23":"ემილი ხარშილაძე","12a2a9af85a9f0a9f99859b33ba118be72a228a4732e9de0934ae5f4dede6b0c":"ერეკლე გამეზარდაშვილი","e60bee1471660a2b64c51e3f4bd8bc15de5b1fff04aae2d55f2d92a0501a8091":"ერეკლე იაკობიშვილი","9e578ed7498f2b8b899c9acdf8c9537e23486bbf8ba4d5ae7344e5f6d185fbdc":"ერეკლე კოსტავა","8824baf0875108ea507e590350f7aa57d5b17e73b805473f9e80a99d749b665b":"ვანო ბორაშვილი","2b5f4493b950705ae685fbfb8fe03a822b331135521cb16cae96708f734047a8":"ვასილ კასრაძე","9928ce7cb41b65b7cf9928c7411d6b27fb78f922de9a0edb8169cb40ab1441f9":"ვახტანგ მურმანიშვილი","fe59a193c5f0d97000cdf09664ddbc18d93cdfeff4906340274c43d1cccc1427":"ვახტანგი ბეჟანიშვილი","e7965528dffc77b093492b461f8aaf19cb1146298c9528fe424a18cc4c889476":"ვიკა მარხულია","4ac51073114f47fe2734667a66401d51fec602f823c9bdac80558047dea18b3c":"ვიქტორი ჩალაძე","ca3a135c9c45991cfc5369595ffefec87563ceadcc19fd7355a2bb9fe2bc0d47":"ვლადიმერ ჩანქსელიანი","88ea59614e7ef7c72b5d342d32d916e9d728f5cb838c6007a37542622a0c9b93":"ვლადიმერი ცქიფურიშვილი","3acd356cb6536118d7e071a4ccb61bc1148e7dea0166f667e98b7cf68e56b3e4":"ზაზა ორაგველიძე","02df71226f5307e5f4aabfdafac7718abcfff6cf48bcac85a78621570ca9c738":"ზაზა სანადირაძე","fe8c5024bcbf527060ec4d4b9054a5b58cf103b6f06000a05c8a41c27e75a113":"ზვიად ეცადაშვილი","42a35c7b2e6c40869c7bbfd12d9043abb2dd0d0127d1219675a9eccba0c5ca25":"ზვიადი აფციაური","aded44b997d7c5c8609ea9d751bf9baf13c8567dda2224266334454d84560b33":"ზურაბ შავაძე","dfb461a18cda5b8a06005633a2e18fd3bfcd3862ef3d2f6345fca8ccb8d7ed74":"ზურაბ ჭანტურია","5f0ec8b1cb15730ee3358a0de64a5e69a3d39810adc26f4cb5b1186dad406139":"ზურაბი მიხელიძე","80a74253484cf530390e0da484a81509947c513efc8d51e9849c7c3f2a5f6be0":"ზურაბი ჯიქია","eec4043fa741e909a4f38a3b6bc9f7a8db9197b21297be832cb3b96559cbbcf9":"ზურიკო მანაგაძე","887924ea62d88d36893ab158d758f1b7e7a662fcd0f90cbfbdc155864383a558":"თათია მურადაშვილი","a79a952b51b5127717a99074b61559dabcdd4e658fbbf609a531efd89da1739b":"თამარ კაპანაძე","200400942e8737ac13b1289d074ebc992d09648ff43b3962dcc7e096dfb075d3":"თამარი გათაშვილი","6e39366bfde01df8dcdbacb1075c5c0e9d2581ff9886be99b38ae90ab30f5345":"თედო ყველაშვილი","50b54771d98a1cd8a5e160a85d43e5d7b76a8b718ff0e6c6f1157baa9026aa80":"თეიმურაზ ივანიძე","98fa4647530b7e86c1d155683d82b39fa0dc23ebc775c2696bc2e3957c040f25":"თეიმურაზ რობაქიძე","814f488efa48ccdc3eef44351527711f9dc6cc958876da8dac31b5fbb390d998":"თეკლა პაპოშვილი","2f75e4d6167fa785ef13be8f1987d7d52f8aff1314a09651313b2bf97ff3e334":"თემურ მაჭარაშვილი","59055319248af4a7748fd8c3d45c42b178f1b1289acf342cdd323b42da41b211":"თემურ ჟვანია","dd2b1b28e1a17708fa195d2f74a6b6ad82da2c1f7fd900f0f6e773091aba212a":"თენგიზი შანშაშვილი","4b413f3447ec9383269cbd89dce3d85a29624eb52a0af8452cb48886e091fc3e":"თორნიკე მკალავიშვილი","be7057a50c46a2c0b78fae34ab1e032b4d29e7dc2bac15e9b67d7dc4b6ff3451":"თორნიკე ნოზაძე","33c34682ba61a754c468e38e442ed31f01bf145aab3a9e03cb1da97ecaaf3d3b":"თორნიკე ჭრელაშვილი","dbc3476e1f6790929afff18a8148f95b668102a1066d9604944404c853bdbc63":"თორნიკე ჭუმბურიძე","a015b6ddfa0ae503305349c4bb0fbcd83b9cf6d195ad34269e437e225e0bddd8":"თორნიკე ხითარიშვილი","edab6dce79c99fb777eeea18396865fe67f2bd79400f95745f8e8b44cc5af2d5":"თორნიკე ხინიზოვი","3dd602ee05f465db0851a8869c9688470937cd2252af93698eee7af5294a8b08":"თუში გაბინაშვილი","dd3d75351dd67d019008f6b73a034262020f5e800073c0d92993cae72bf6d294":"ივანე აფციაური","fcd6920bef5515044cd874835c481f247071a58fecba010c74bc7ec537b2c01d":"ილია მამიაშვილი","f19bc6d5748a8677052bc66f8a86a0f47452e5d847788898f6d36d6d72f9e9e4":"ინგა პაპიაშვილი","a8ae4409cdc107a86ad0ea8081c688c00088398c6ae37095af67beb43cb67d5a":"ინგა ქავთარაძე","4938b69031d40547872e18d7f3f4445cdb0d3f35da63aac992dabd504b568e0d":"იოსებ იორდანაშვილი","6c0673b9c23c4c7660eb723fa74803ae9178221ebeb5c08e6bc1576ea07deac0":"ირაკლი აფაქიძე","23885e9efed182c18944df2686dc36f5b5167d0c85cd0bd5f61d8abf650c1a90":"ირაკლი ბერიაშვილი","0ef27fa3c8a3dea22b0416011859d0c09a2154fa6a28e4553a7aa51e20e63b6a":"ირაკლი გოგოხია","10a2d32759845a910d36b93eeda7391faa1f8d8ddb5fdcd26a284a9a91a780b2":"ირაკლი ზურაბიანი","efb94ff5aa6d0fd4805338404f3e19935f4f93131c25ed3e5cac8647d62008b4":"ირაკლი ქიმაძე","ebe400d731bd26792b663a63a21b015794e35c4b41aea1592373b388c61ff7bc":"ირაკლი ქობალავა","f1e8112dc29c5fb0c860cce6612f358b687d6a0f8104b968e957fce3e65c0ab1":"ირაკლი შენგელია","74fd4f1ce596a5c0a8326d06d1c2468936f3c4c3ee4e792d4c53c500cc763032":"ირაკლი ჩიხრაძე","4b2504b3299038a6a91e445f8b446b967e0177b3b6963e4bbf655a8967b4f20a":"ირაკლი ციცქიშვილი","e3707bf8d414e0716decc0c5bbb7fdd1c8aedff91c47323ddb07551bcfe9ea90":"იური კალანდაძე","3753924d3df686fd5b6e069f24eb7f8c03862473227c373286f3573257fea10b":"კოკა კეკელიძე","253694530dcc1889bcbc208708b078040c25219574550fe9aef6c8879aca05aa":"კონსტანტინე ასპინძელაშვილი","cf130fa2a68e224162875181bf0ad50a5b5692e66fc79e735219d5522a84dd24":"კოტე ხიზანაშვილი","54f85fff732957565d18c93a60f0de9cbfce1494ca1089b52698e544c9fa3c3f":"ლადო გაბიჩვაძე","d95ef04a547bd8cc5f134541962e3e6f1e69e014f8b0b0f8f85e511ea137607f":"ლალი ჯოჯუა","47e3b5d2d1d5c4ae475276ee4f7a176f8c5922d822942b7b55cff222337ad6d8":"ლაშა გულბიანი","12b76d6febab7d310e3afe12e6049b44b5dd20af4767843e466e069b16647dbe":"ლაშა დარსალია","9e9255aedf996413319b2151d9ca38dea2602d876e6c9a26ddfaa81679f649d4":"ლაშა ჭოტორლიშვილი","c768bc2970a2469c89a50dae936a566866b57ad28c292e694ccfd22746e5e613":"ლაშა ჯოლბორდი","6c52779ba412d5ae1c81a6cec4c91a3cc3630ff0d69ab5f64528ddc31a0e3f3c":"ლევან აბესაძე","ff4aba60bab5745007eae8b5f2b3cc812b2c0625e1c68d86d6dfa6e75cf3c4fa":"ლევან ბერიძე","738d5c03287fc805c97d9e9e63dac77faf9593973da5a3a420dae454268a44ad":"ლევან კვარაცხელია","978cab0256ba8ce61642930f814923e411a1954e98450ee8bdda4d8ad0b8a382":"ლევან ქამუშაძე","8882bf3b66489e734795477610f1d2cd76bb2d63320ff861f2f1ebf5a076079c":"ლევან ჩადუნელი","c00eded52a5b00be0f73071353db50f0a908f142556354f307ac2c228cc31f0d":"ლევან ჩილინგარაშვილი","5730fef0840dc906e42ea7af4c3e0fdc13cdb9249486954d45bbbe67b8f5d697":"ლევანი გელაშვილი","3a2985bb3f956f91b300884391410dcc0ed00dd51dee6cb40ee47d5b4e37be6d":"ლევანი გურგენაძე","6d94fff5a9e11f18f829fd0b14ba2d3b0518ee75b73d19204d084533358101ab":"ლევანი დევნოზაშვილი","ea96de00214041bc5ee3c425346a7c4efb0206a204c2fa95110c5cccbb3df19b":"ლევანი ნიკოლეიშვილი","1d04e2de621fff9bb65d860709306da74121272732ed6926c7130348ec71cfa9":"ლელა ელისაშვილი","8dc956e517f83507870ccdff9ee6cd9ea0d480112b2a37d10260e7a977c9df3c":"ლექსო ტურაშვილი","adb33115e3cb63002191a6d044e7ba56ec45fd44688650316a9a9c8137515ffd":"ლექსო ტურაშვილი","e7c94c796b0b2b81cb0b0fb8dfdcbb1b7b3f96ba73e4205ba09e41fa4bab10ec":"ლექსო ტურაშვილი","313fab4615120de727b0ab5340de2b81d2e76d7a6b03f7aa958f2e67da93b8a9":"ლექსო შიშნიაშვილი","4f891b0b9010ad27572a620b598fe190f7b50db7914666169f2ec08bedf3c076":"ლიანა გოროზია","fcb320e22729aebee1c50dc98e0637a9fcfcd7e54b9f08a009047e0e4d61a53d":"ლიკა კოჩუაშვილი","f0d0eda1ed992d66ef827e3c0555061b657180dbcebc7cdc9a91273e20085570":"ლუკა გაბელაშვილი","47ac77fe40c022dcef0f02fc92d38b02cc1e162434925cecccc7b725143dfff1":"ლუკა ელანდიშვილი","0b7b0623cd5cbe87c74eb0a083691c6d5f36130d0ce34cac8ae26e41f99f9d9c":"ლუკა თაბუკაშვილი","45a7fac9da41a5359fdb876fb26afb687d081709f810ea2b21b202fab21fb7d1":"ლუკა კვეკვეცია","aa7c62ec8c4a22cb9a2648564b9808d640e91887f82ed82c615b897f59e01b8d":"ლუკა ლობჟანიძე","3663fc1504473001109f183700a948908dc1d20a80f9efb89f98252f5b7db034":"მანანა ფაცია","340be1fd571dc0af942f753bbf906f10f664238b743072d9f45f2b29e3873bb0":"მარგარიტა ჩანგელია","4fdf5eccb1c50661de3b0b8364023ae2b4b1a99542e572fc747ce91f1d73899d":"მარიამ გულაშვილი","21c7a7f83317764d4fb885e17e7f8d339be8878e499f2a75522a617f02265b04":"მარიამ ჩაფიძე","3aacab153777b15f23d8dd47c63981ea9ced348b62e9ed6f2f11380b7eaaf322":"მარიამ ჯავახიძე","5809d7725217c26d9c0f84aa6ebcbc1031115b828d3ca5db1b336eb574313f6a":"მარიამი ბაინდურაშვილი","0acc895d2649784a2cd1a606aa96979f4c6de05ef33492c2979eaaca0591d307":"მარიამი ნამიჭეიშვილი","ad872c740ffdcb8f205f41fc4e7021775dd7bd53abce0ac8c2a0f6ec73dfdc60":"მარიამი სამხარაძე","d80997c79fe51f7e0e7756dd15ca74d67d705d31729d05bbe060c346e13008cb":"მარიამი ქათამაძე","3cb430b43789a8423583dd2db21c11a7276e97b43884ae449f057a72fcc7db40":"მარინე გაგნიძე","4777ba97c996fb21621ac1f7b5e59bf56f1322715d808312d84f9d582a42e407":"მარინე გაგნიძე","2cc57f82a28b4259c5c8a8af01947530701f1d2f53cbc4fc2e6d5ac572c95096":"მარინე გაგნიძე","54a21371dd8ca02b0ae0dfae7c3f75dc0f91442cac28d42d1b13f4016fc18070":"მირიან ქრისტესიაშვილი","c6ae827bc133818769732a40e5489bd98c1d45641237658a2ea1ff2789a50705":"მიშიკო თოლორდავა","d0552cfb757ccb26797a6becfef07bbf0c3f7cef43094bbe4e5197520d714c4b":"მიხეილ კაპანაძე","e4687ce655759c761d029695c34a7e3ac431692dd458168f039c864e9b8fca12":"მიხეილ მეტრეველი","b6f5bb24c42f0878fd1273a9984bcdce34aded816d30f1935224850c69c20414":"მიხეილ სომხიშვილი","975e251b0da9c486bbf15ded2d0bc2036e35d69f3d6dfea8b374571839cfa392":"მიხეილ სტურუა","25836ce7415f11e5e4bf50b4ee701d27e6d0363a82a0af9485bbe67702d77b82":"მიხეილ ჯანიაშვილი","b8de26d4dde319a57551c5775361d4b380930811c7fed480782e8f48e22cd3df":"მიხეილი ბაინდურაშვილი","67396b7ec992864923bc5def4273a73772e6198872534c523adbff8282c0a833":"მიხეილი გეგელაშვილი","a3946bd8e6ab579d44372cf26c6ed3c6805b6cfd8dfb7740d08871000c2b9acf":"მიხეილი ივანეიშვილი","98a50bba1b267b6501d44c94e69b7a931ef041a13174422847c5d5bf1e3bc75b":"მიხეილი ქავთარაძე","c2695ffc59cccf1ef1fc7b62eccc019ebf107f5471f2b12dfac8697e478aa2a4":"მონიკა ჭითანავა","216b66e225b2661906981c0d64eeea8f5cb6fdaeaa03f33d3c7203b25415562b":"ნათია გოდელაშვილი","32ea310375d530a050c5d56c900c9725a32823ddba20725497a8bccb0be54f49":"ნანა ნიკოლაშვილი","49b099d3995768afe309a0214c4f0c85a0fd33d983e6fd7e5c0ce2d1cc9df105":"ნარეკ სარქისიანი","a4c1c59bb79fb7101c3daaf04e1997fce890a7613b30c82dbd91fcd0fb2228e0":"ნიკა ანასტასოვი","4fb41a3966b934886adb69a3343dca4613bade117e4863de32d1f501739b68ac":"ნიკა ანდიაშვილი","f9a8dfb549da902f612f5c14b81735f90895b3e557a2f8c15da2e68e5cfc75a0":"ნიკა აფციაური","ad96a341d949660e3501bcaf63a5ed9747ac7f8f09619fe6b554e3d46f93ebfd":"ნიკა აფხაზაშვილი","4b6bd364a13072b664ec4b55c260e334cec6d02c85807c548a5c9a2087541d69":"ნიკა ბანცაძე","50a256c519289628aacbfd7b871e5cfdaf856b396357e7c3122bcda18d560ac0":"ნიკა გელაშვილი","2d2181e0fd599eb873533c51364fdb791a1cdbcac82e9903263d62ec7de08db2":"ნიკა ივანაშვილი","86ce5a99e3b4d94caed1796a32a049b829814e46c316a18ab0297656f234d46b":"ნიკა კაპანაძე","0d6d3dd543f155b6f00b97f2f9ecaed59d7b8db609adbf01f087bc0bfaacc30b":"ნიკა კიკაძე","deef5384f8e8130270a0f43d872dd284343dc07245ab85df134576fd45afc942":"ნიკა მაზმიშვილი","b1246b5aa2073ed4153f201aa248fe0d096fe6dee96d45dd757b183795e1a1e0":"ნიკა სანთელაძე","d7bffc870df4ff3ec6256885a8c2edba410bca7badeccadd989471513a6dcbc1":"ნიკა ჯაყელი","077bb97ea728c9ff6a3cb705efb7420e96c7e31860e34a0f99e79eedee3a3860":"ნიკო ეფრემიძე","c54c4b4ae108728a02f4af87d43a429c44bd1fa2d8995449f5c9b654cc7ffad8":"ნიკო ომიაძე","8cee3f7faeb57fa6cce5afab0302e7b2b29d3f7ea8e3213c110a5bf4e6f5e40d":"ნიკოლოზ კუპატაძე","14d8be29a77652e1da0e4c7106fb784b8af5a3752d029612484239117887ef2a":"ნიკოლოზ ქევხიშვილი","553303cc728a1dfbc07c96556d946341f3e93ee412b7809c18731e6afc554e07":"ნიკოლოზ ღვინიაშვილი","08475fe8106b50938d731aa51d47ff42afc8ccc0948091659c8fcf3039a4e1ab":"ნიკოლოზ ხუროძე","1e02d9923a6c97f59d13a780cefc1025a69a38268087d519d2d14a8b47a6a0c9":"ნინო განაია","9eeaa4326ec6b814ec0b42bff5c7f199f0d3e94a1b49044a7362a82e057a56cc":"ნუკრი ხაბეიშვილი","3f0a43bc2b0c664d9dd8f206eb5d5eba91f05ec8175789935c7eb9ac03522afc":"ონისე თოლორდავა","e128a357f85cb4a579e18c00e0a7590f992ec8d46fff4a2e1982b54ddb134ee5":"პაატა ცომაია","a0f093899de8983b70b7f2b19c0ff7fa451fd3618679cfeb98550adb23f08022":"პავლე კვანტიძე","c0351ce5f81e7e663134a87d560394915f32c8bd6a983ebb6990de457c9a7483":"რაინდი ანთაძე","757d22e015517aec9d7ffab930be9b3fdba3d7577907021854ea5737cd92f356":"რატი თინიკაშვილი","8c45a2914342bb4fe545d742d33de26fb60d00b251e364f6af23d6145de61934":"რატი მღებრიშვილი","768288913ca5ae4b243a3451782ab49bee0d1e7e4c2effdfc8b611f5bad17394":"რევაზ გოგოლაძე","e4184243d8407e173d4e3a14013b9494c365ac31d0ad98b0d67630fa04aa3d4a":"რევაზი კაპანაძე","59aa5e539fbfc627046d655c672a6bcfa70f042412997063bb651e80a577fc8e":"რევაზი ჩუბინიძე","b82e6ba966b812db2bd2251b2785f9eda835cd0c182e482800abca9cb7a58ddf":"რეზო ხვედელიძე","c602faf2a81920fc1696eec27657c690a84845d5c4dc3f5172cba0a910d2916b":"რესან ხმალაძე","e5a3824c42709469b3b98ed5cf1799fbd0841ca02e3c254501a6d78eb04da44f":"რუსუდანი მაზიაშვილი","8a8a92bbbdb547d172431a3f17183f174af152d282c57b0007aed814e03aa2bf":"საბა იაკობიძე","84379e68d7d902bc8359fc0d085cfc66a39b3029a60915059457beda5cf5eac0":"საბა ივეჩიანი","fb08df8e12061ff04a22dd4b4c91e81c0bc83df6c3807debb9df7a67e104d09c":"საბა კახოიძე","3a10f92fcf31c0dbdac6958d2e8d36d6f12d97a7b11026d59e6954143094e4ef":"საბა კვესელავა","c5a92e0af809825219ebb8af871fc979ed085e32da05fac954ba384620f16b78":"საბა ჯიქური","1fa4dc9e0e0aa4cc0f261757b3c7e6e774801cfcec2e19f581b545251ffbd7d3":"სალომე დავითაშვილი","bcc5ad17f7aa2d2c57b134548dac5d19fbcc34c1b4fd1387303518aef89c3f48":"სანდრო ამყოლაძე","82f820830589f1a49d2847529c63bf8f974a877fa4b60134546cf8eeaa676bea":"სანდრო ლომკაცი","f2823f9582d7863b4e3df046abfe3bad2b847c229299ba38a7ec83850cecfa39":"ფრიდონ ჯანიაშვილი","247712bb8809d1613c6982280410c80dea8159197afe623ecd98d1832e5d6b05":"შოთა ტაბატაძე","dee31a00585edaae606ef81753380eae6907b61dd53d33d3c4192f419bedb7e8":"შოთიკო მაისურაძე","4d32f4bc58ccdfea315b23be1a718e6e680d3e8aaefae625507e92ae7a231b40":"ცოტნე კვესელავა","76182e4e9fc66084439c9c95f9c3714f1c6b3d288a8a1a1d4a734cfbec14ab2a":"ჭაბუკა ელიავა","be4616cd61e276f56786cd550a433e16d01675f530e3da7f5ae5cee83ed0a720":"ჯაბა ბენდელიანი","c4f6f1152a32e5de039e67a5bc13197f00151c18c7cd67a0db69960a000d6896":"ჯაბა კოპაძე","2c1bd9c1361fc2a2df76cc35316ff3271106f4b7728963774ab06568c9b6a31e":"ჯოკია ნემსაძე","7f2674218b530e88daf996167bedc09d85baa44f08b87fcf046acd688e232f20":"ჯონი მოსულიშვილი","174849ecee8052fbe7c4714ca2072b00f36ab32782ed3e70620acd15b4a3ea76":"ჯონი შავაძე","e8df05c53752efac0ff59501e260684d90a4962d810bafc9c1369d10de9a3f17":"ჯუმბერი ბუხრაშვილი"},"blocked":["76f3f8fdabf30326860deb1acfa251a1abc46f3aadfa8d9b8266f0db436b3599","900aefdd0f03742b8989b6a8ce835bd654f7fcc55717a59b078d9f4252af6e91","2d4dde0c6964f9d020cead66a0ec2c09c3ec699ca5f1c089f5fc388ef43ea147","f536d0f66db4c21634d1a22d6da146e3791c806908a9ffffece693119deaa4b2"]}
+\ No newline at end of file
 diff --git a/images/napr/villages.json b/images/napr/villages.json
 new file mode 100644
 index 0000000..57fcb25
@@ -421,10 +430,10 @@ index 8b351c1..06a2a25 100644
      id: aboutDialog
      anchors.fill: parent
 diff --git a/src/core/CMakeLists.txt b/src/core/CMakeLists.txt
-index 59c94e3..d05306f 100644
+index 59c94e3..9a1aa62 100644
 --- a/src/core/CMakeLists.txt
 +++ b/src/core/CMakeLists.txt
-@@ -40,6 +40,11 @@ set(QFIELD_CORE_SRCS
+@@ -40,6 +40,12 @@ set(QFIELD_CORE_SRCS
      positioning/qfegenioussreceiver.cpp
      positioning/qffilereceiver.cpp
      positioning/qftcpreceiver.cpp
@@ -433,10 +442,11 @@ index 59c94e3..d05306f 100644
 +    villageselectormodel.cpp
 +    layerstylemodel.cpp
 +    defaultvaluesmodel.cpp
++    surveyoraccess.cpp
      positioning/qfudpreceiver.cpp
      positioning/qfpositioning.cpp
      positioning/qfpositioningsource.cpp
-@@ -163,6 +168,11 @@ set(QFIELD_CORE_HDRS
+@@ -163,6 +169,12 @@ set(QFIELD_CORE_HDRS
      positioning/qfntripsettings.h
      positioning/qfntripsourcetablefetcher.h
      positioning/qftcpreceiver.h
@@ -445,17 +455,19 @@ index 59c94e3..d05306f 100644
 +    villageselectormodel.h
 +    layerstylemodel.h
 +    defaultvaluesmodel.h
++    surveyoraccess.h
      positioning/qfudpreceiver.h
      positioning/qfgeofencer.h
      positioning/qfpositioninginformationmodel.h
 diff --git a/src/core/defaultvaluesmodel.cpp b/src/core/defaultvaluesmodel.cpp
 new file mode 100644
-index 0000000..e18be30
+index 0000000..7070a4d
 --- /dev/null
 +++ b/src/core/defaultvaluesmodel.cpp
-@@ -0,0 +1,306 @@
+@@ -0,0 +1,351 @@
 +#include "defaultvaluesmodel.h"
 +#include "layerstylemodel.h"
++#include "surveyoraccess.h"
 +
 +#include <QJsonArray>
 +#include <QJsonDocument>
@@ -535,6 +547,11 @@ index 0000000..e18be30
 +  : QAbstractListModel( parent )
 +{
 +  connect( QgsProject::instance(), &QgsProject::readProject, this, &DefaultValuesModel::reload );
++  connect( SurveyorAccess::instance(), &SurveyorAccess::accessChanged, this, [this] {
++    if ( !mEntries.isEmpty() )
++      emit dataChanged( index( 0, 0 ), index( static_cast<int>( mEntries.size() ) - 1, 0 ) );
++    emit valuesChanged();
++  } );
 +  reload();
 +}
 +
@@ -660,6 +677,24 @@ index 0000000..e18be30
 +    }
 +  }
 +
++  // Panel layout: the antenna serial is not edited here, and the surveyor's
++  // personal number goes last under a clearer title.
++  static const QStringList hiddenVariables = { QStringLiteral( "antena" ) };
++  entries.erase( std::remove_if( entries.begin(), entries.end(), []( const Entry &entry ) {
++                   return hiddenVariables.contains( entry.variable, Qt::CaseInsensitive );
++                 } ),
++                 entries.end() );
++  for ( int i = 0; i < entries.size(); i++ )
++  {
++    if ( entries.at( i ).variable.compare( QStringLiteral( "amzomveli" ), Qt::CaseInsensitive ) == 0 )
++    {
++      Entry surveyor = entries.takeAt( i );
++      surveyor.title = QStringLiteral( "ამზომველის_პ/ნ" );
++      entries.append( surveyor );
++      break;
++    }
++  }
++
 +  beginResetModel();
 +  mEntries = entries;
 +  endResetModel();
@@ -709,6 +744,15 @@ index 0000000..e18be30
 +      return entry.options;
 +    case HasValueRole:
 +      return hasValue;
++    case StatusTextRole:
++    {
++      if ( entry.variable.compare( QStringLiteral( "amzomveli" ), Qt::CaseInsensitive ) != 0 )
++        return QString();
++      const QString name = SurveyorAccess::surveyorName( value );
++      return name.isEmpty() ? tr( "არ აქვს წვდომა პროგრამაზე" ) : name;
++    }
++    case StatusOkRole:
++      return entry.variable.compare( QStringLiteral( "amzomveli" ), Qt::CaseInsensitive ) == 0 && !SurveyorAccess::surveyorName( value ).isEmpty();
 +    default:
 +      return QVariant();
 +  }
@@ -725,6 +769,8 @@ index 0000000..e18be30
 +    { ValueLabelRole, "valueLabel" },
 +    { OptionsRole, "options" },
 +    { HasValueRole, "hasValue" },
++    { StatusTextRole, "statusText" },
++    { StatusOkRole, "statusOk" },
 +  };
 +}
 +
@@ -752,8 +798,18 @@ index 0000000..e18be30
 +    custom.insert( variable, value.toString().trimmed() );
 +  QgsApplication::setCustomVariables( custom );
 +
-+  emit dataChanged( index( row, 0 ), index( row, 0 ), { ValueRole, ValueLabelRole, HasValueRole } );
++  emit dataChanged( index( row, 0 ), index( row, 0 ), { ValueRole, ValueLabelRole, HasValueRole, StatusTextRole, StatusOkRole } );
 +  emit valuesChanged();
++}
++
++bool DefaultValuesModel::surveyorAuthorized() const
++{
++  return SurveyorAccess::isAuthorized();
++}
++
++QString DefaultValuesModel::surveyorName() const
++{
++  return SurveyorAccess::surveyorName( SurveyorAccess::currentPersonalNumber() );
 +}
 +
 +void DefaultValuesModel::clearValue( int row )
@@ -762,10 +818,10 @@ index 0000000..e18be30
 +}
 diff --git a/src/core/defaultvaluesmodel.h b/src/core/defaultvaluesmodel.h
 new file mode 100644
-index 0000000..f8773ec
+index 0000000..65d93e9
 --- /dev/null
 +++ b/src/core/defaultvaluesmodel.h
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,77 @@
 +#ifndef DEFAULTVALUESMODEL_H
 +#define DEFAULTVALUESMODEL_H
 +
@@ -789,6 +845,8 @@ index 0000000..f8773ec
 +    Q_OBJECT
 +
 +    Q_PROPERTY( int setCount READ setCount NOTIFY valuesChanged )
++    Q_PROPERTY( bool surveyorAuthorized READ surveyorAuthorized NOTIFY valuesChanged )
++    Q_PROPERTY( QString surveyorName READ surveyorName NOTIFY valuesChanged )
 +
 +  public:
 +    enum Roles
@@ -801,6 +859,8 @@ index 0000000..f8773ec
 +      ValueLabelRole,    //!< value map description of the current value
 +      OptionsRole,       //!< list of { value, label } (empty for free text)
 +      HasValueRole,
++      StatusTextRole, //!< for the surveyor number: surveyor name or "no access"
++      StatusOkRole,
 +    };
 +    Q_ENUM( Roles )
 +
@@ -811,6 +871,8 @@ index 0000000..f8773ec
 +    QHash<int, QByteArray> roleNames() const override;
 +
 +    int setCount() const;
++    bool surveyorAuthorized() const;
++    QString surveyorName() const;
 +
 +    //! Sets the value of the variable at \a row; an empty / NULL value removes it.
 +    Q_INVOKABLE void setValue( int row, const QVariant &value );
@@ -2690,6 +2752,289 @@ index 0000000..969d5aa
 +};
 +
 +#endif // SHAPEDIGITIZINGMODEL_H
+diff --git a/src/core/surveyoraccess.cpp b/src/core/surveyoraccess.cpp
+new file mode 100644
+index 0000000..7fa5c69
+--- /dev/null
++++ b/src/core/surveyoraccess.cpp
+@@ -0,0 +1,206 @@
++#include "surveyoraccess.h"
++
++#include <QCryptographicHash>
++#include <QCoreApplication>
++#include <QFile>
++#include <QHash>
++#include <QJsonArray>
++#include <QJsonDocument>
++#include <QJsonObject>
++#include <QRegularExpression>
++#include <QSet>
++#include <qgsapplication.h>
++#include <qgsdatasourceuri.h>
++#include <qgsproject.h>
++#include <qgsrasterlayer.h>
++#include <qgsvectorlayer.h>
++
++namespace
++{
++  const QString NAPR_HOST = QStringLiteral( "wblr.napr.gov.ge" );
++  const QString SERVER_USER = QStringLiteral( "wblr_user" );
++  const QString SERVER_PASSWORD = QStringLiteral( "WFS_editor" );
++  const QString SALT = QStringLiteral( "georgia-qfield/surveyors/v1:" );
++
++  struct SurveyorList
++  {
++      QHash<QString, QString> allowed; //!< hash → name
++      QSet<QString> blocked;           //!< hashes
++  };
++
++  const SurveyorList &surveyorList()
++  {
++    static SurveyorList sList = [] {
++      SurveyorList list;
++      QFile file( QStringLiteral( ":/napr/surveyors.json" ) );
++      if ( file.open( QIODevice::ReadOnly ) )
++      {
++        const QJsonObject root = QJsonDocument::fromJson( file.readAll() ).object();
++        const QJsonObject allowed = root.value( QStringLiteral( "allowed" ) ).toObject();
++        for ( auto it = allowed.constBegin(); it != allowed.constEnd(); ++it )
++          list.allowed.insert( it.key(), it.value().toString() );
++        const QJsonArray blocked = root.value( QStringLiteral( "blocked" ) ).toArray();
++        for ( const QJsonValue &value : blocked )
++          list.blocked.insert( value.toString() );
++      }
++      return list;
++    }();
++    return sList;
++  }
++
++  QString hashNumber( const QString &personalNumber )
++  {
++    return QString::fromLatin1( QCryptographicHash::hash( ( SALT + personalNumber ).toUtf8(), QCryptographicHash::Sha256 ).toHex() );
++  }
++
++  QString digitsOnly( const QString &value )
++  {
++    static const QRegularExpression nonDigits( QStringLiteral( "[^0-9]" ) );
++    return QString( value ).remove( nonDigits );
++  }
++} // namespace
++
++SurveyorAccess *SurveyorAccess::instance()
++{
++  static SurveyorAccess *sInstance = new SurveyorAccess( QCoreApplication::instance() );
++  return sInstance;
++}
++
++SurveyorAccess::SurveyorAccess( QObject *parent )
++  : QObject( parent )
++{
++  mLastNumber = currentPersonalNumber();
++  mLastAuthorized = isAuthorized();
++  connect( QgsApplication::instance(), &QgsApplication::customVariablesChanged, this, &SurveyorAccess::onVariablesChanged );
++}
++
++QString SurveyorAccess::currentPersonalNumber()
++{
++  return digitsOnly( QgsApplication::customVariables().value( QStringLiteral( "amzomveli" ) ).toString() );
++}
++
++QString SurveyorAccess::surveyorName( const QString &personalNumber )
++{
++  const QString number = digitsOnly( personalNumber );
++  if ( number.length() != 11 )
++    return QString();
++  const QString hash = hashNumber( number );
++  const SurveyorList &list = surveyorList();
++  if ( list.blocked.contains( hash ) )
++    return QString();
++  return list.allowed.value( hash );
++}
++
++bool SurveyorAccess::isAuthorized()
++{
++  return !surveyorName( currentPersonalNumber() ).isEmpty();
++}
++
++bool SurveyorAccess::isNaprSource( const QgsDataSourceUri &uri )
++{
++  const QString url = uri.param( QStringLiteral( "url" ) );
++  return url.contains( NAPR_HOST, Qt::CaseInsensitive );
++}
++
++bool SurveyorAccess::applyToUri( QgsDataSourceUri &uri )
++{
++  if ( !isNaprSource( uri ) )
++    return false;
++
++  const QString oldUser = uri.username();
++  const QString oldPassword = uri.password();
++  if ( isAuthorized() )
++  {
++    uri.setUsername( SERVER_USER );
++    uri.setPassword( SERVER_PASSWORD );
++  }
++  else
++  {
++    uri.setUsername( QString() );
++    uri.setPassword( QString() );
++  }
++  return uri.username() != oldUser || uri.password() != oldPassword;
++}
++
++QString SurveyorAccess::applyToEncodedSource( const QString &source )
++{
++  if ( !source.contains( NAPR_HOST, Qt::CaseInsensitive ) || !source.contains( QLatin1String( "url=" ) ) || source.contains( QLatin1String( "typename=" ), Qt::CaseInsensitive ) )
++    return source;
++
++  QgsDataSourceUri uri;
++  uri.setEncodedUri( source );
++  if ( !uri.param( QStringLiteral( "url" ) ).contains( NAPR_HOST, Qt::CaseInsensitive ) )
++    return source;
++
++  const QString oldUser = uri.param( QStringLiteral( "username" ) );
++  const QString oldPassword = uri.param( QStringLiteral( "password" ) );
++  uri.removeParam( QStringLiteral( "username" ) );
++  uri.removeParam( QStringLiteral( "password" ) );
++  QString user;
++  QString password;
++  if ( isAuthorized() )
++  {
++    user = SERVER_USER;
++    password = SERVER_PASSWORD;
++    uri.setParam( QStringLiteral( "username" ), user );
++    uri.setParam( QStringLiteral( "password" ), password );
++  }
++  if ( user == oldUser && password == oldPassword )
++    return source;
++  return QString::fromUtf8( uri.encodedUri() );
++}
++
++int SurveyorAccess::refreshLayers()
++{
++  int changed = 0;
++  QgsProject *project = QgsProject::instance();
++  const QMap<QString, QgsMapLayer *> layers = project->mapLayers();
++  for ( QgsMapLayer *layer : layers )
++  {
++    if ( QgsRasterLayer *rl = qobject_cast<QgsRasterLayer *>( layer ) )
++    {
++      if ( rl->providerType() != QLatin1String( "wms" ) )
++        continue;
++      const QString source = applyToEncodedSource( rl->source() );
++      if ( source == rl->source() )
++        continue;
++      QgsDataProvider::ProviderOptions options;
++      options.transformContext = project->transformContext();
++      rl->setDataSource( source, rl->name(), rl->providerType(), options, false );
++      rl->triggerRepaint();
++      ++changed;
++      continue;
++    }
++
++    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( layer );
++    if ( !vl || vl->providerType().compare( QLatin1String( "WFS" ), Qt::CaseInsensitive ) != 0 )
++      continue;
++
++    QgsDataSourceUri uri( vl->source() );
++    if ( !applyToUri( uri ) )
++      continue;
++
++    QgsDataProvider::ProviderOptions options;
++    options.transformContext = project->transformContext();
++    const bool readOnly = vl->readOnly();
++    vl->setDataSource( uri.uri( false ), vl->name(), QStringLiteral( "WFS" ), options, false );
++    vl->setReadOnly( readOnly );
++    vl->triggerRepaint();
++    ++changed;
++  }
++  return changed;
++}
++
++void SurveyorAccess::onVariablesChanged()
++{
++  const QString number = currentPersonalNumber();
++  const bool authorized = isAuthorized();
++  if ( number == mLastNumber && authorized == mLastAuthorized )
++    return;
++  mLastNumber = number;
++  const bool accessChangedNow = authorized != mLastAuthorized;
++  mLastAuthorized = authorized;
++  if ( accessChangedNow )
++    refreshLayers();
++  emit accessChanged();
++}
+diff --git a/src/core/surveyoraccess.h b/src/core/surveyoraccess.h
+new file mode 100644
+index 0000000..ba2c254
+--- /dev/null
++++ b/src/core/surveyoraccess.h
+@@ -0,0 +1,65 @@
++#ifndef SURVEYORACCESS_H
++#define SURVEYORACCESS_H
++
++#include <QObject>
++#include <QString>
++
++class QgsDataSourceUri;
++
++/**
++ * Georgia QField: access to the NAPR WFS server is tied to the surveyor.
++ *
++ * The surveyor's personal number is the @amzomveli variable. Only numbers in
++ * the embedded list (:/napr/surveyors.json, stored as salted hashes with the
++ * surveyor's name) get the server user / password added to the NAPR WFS
++ * layers; for anyone else the credentials are removed, so the layers stay
++ * unloaded. Blocked numbers never get access.
++ */
++class SurveyorAccess : public QObject
++{
++    Q_OBJECT
++
++  public:
++    //! Singleton; also keeps the layers in line when @amzomveli changes.
++    static SurveyorAccess *instance();
++
++    //! The current @amzomveli value (digits only).
++    static QString currentPersonalNumber();
++
++    //! Name of the surveyor with \a personalNumber, empty if not in the list or blocked.
++    static QString surveyorName( const QString &personalNumber );
++
++    //! True if the current @amzomveli has access.
++    static bool isAuthorized();
++
++    //! True if \a source points to the NAPR WFS server.
++    static bool isNaprSource( const QgsDataSourceUri &uri );
++
++    /**
++     * Adds the server credentials to \a uri when the current surveyor has access,
++     * removes them otherwise. Returns true if the URI changed.
++     */
++    static bool applyToUri( QgsDataSourceUri &uri );
++
++    /**
++     * Same for a raster (WMS) source written as an encoded URI
++     * ("...&url=https://wblr.napr.gov.ge/...&username=...&password=...").
++     * Returns the source unchanged when it is not a NAPR WMS source.
++     */
++    static QString applyToEncodedSource( const QString &source );
++
++    //! Re-applies the access rule to every NAPR WFS layer of the open project.
++    int refreshLayers();
++
++  signals:
++    void accessChanged();
++
++  private:
++    explicit SurveyorAccess( QObject *parent = nullptr );
++    void onVariablesChanged();
++
++    QString mLastNumber;
++    bool mLastAuthorized = false;
++};
++
++#endif // SURVEYORACCESS_H
 diff --git a/src/core/topologycheckermodel.cpp b/src/core/topologycheckermodel.cpp
 new file mode 100644
 index 0000000..55921fc
@@ -3734,11 +4079,12 @@ index 0000000..cc68a2a
 +#endif // TOPOLOGYCHECKERMODEL_H
 diff --git a/src/core/villageselectormodel.cpp b/src/core/villageselectormodel.cpp
 new file mode 100644
-index 0000000..ccc8e71
+index 0000000..8a380d2
 --- /dev/null
 +++ b/src/core/villageselectormodel.cpp
-@@ -0,0 +1,849 @@
+@@ -0,0 +1,952 @@
 +#include "villageselectormodel.h"
++#include "surveyoraccess.h"
 +
 +#include <QFile>
 +#include <QJsonArray>
@@ -3793,6 +4139,47 @@ index 0000000..ccc8e71
 +
 +  bool sPreprocessedOnRead = false;
 +
++  /**
++   * The NAPR field-work layers must always talk to the server as WFS 1.0.0:
++   * with "auto" / 2.0.0 QGIS 4 sends the edits in a form the server rejects.
++   * Matched by layer name (after loading) and by WFS type name (while reading).
++   */
++  const QStringList &fixedVersionLayerNames()
++  {
++    static const QStringList sNames = {
++      QStringLiteral( "წერტილი" ), QStringLiteral( "საზღვარი" ), QStringLiteral( "შენობა" ),
++      QStringLiteral( "ნაკვეთი" ), QStringLiteral( "ვალდებულება" ), QStringLiteral( "ტოპონიმიკა" ),
++    };
++    return sNames;
++  }
++
++  bool isFixedVersionTypeName( const QString &typeName )
++  {
++    static const QStringList sTypeNames = {
++      QStringLiteral( "GFLD_POINTS" ), QStringLiteral( "GFLD_TOPOLINES" ), QStringLiteral( "GFLD_BUILDINGS" ),
++      QStringLiteral( "GFLD_PARCELS" ), QStringLiteral( "GFLD_EASEMENTS" ), QStringLiteral( "test_poi" ),
++    };
++    const QString name = typeName.section( QLatin1Char( ':' ), -1 );
++    return sTypeNames.contains( name, Qt::CaseInsensitive );
++  }
++
++  const QString FIXED_WFS_VERSION = QStringLiteral( "1.0.0" );
++
++  //! Sets version='1.0.0' on the URI, keeping every other parameter. Returns true if it changed.
++  bool forceWfsVersion( QgsDataSourceUri &uri )
++  {
++    if ( uri.param( QStringLiteral( "version" ) ) == FIXED_WFS_VERSION )
++      return false;
++    uri.removeParam( QStringLiteral( "version" ) );
++    uri.setParam( QStringLiteral( "version" ), FIXED_WFS_VERSION );
++    return true;
++  }
++
++  bool needsFixedVersion( const QgsDataSourceUri &uri, const QString &layerName = QString() )
++  {
++    return fixedVersionLayerNames().contains( layerName ) || isFixedVersionTypeName( uri.param( QStringLiteral( "typename" ) ) );
++  }
++
 +  //! Sets the village filter on a WFS data source.
 +  void setVillageFilter( QgsDataSourceUri &uri, const QString &filter )
 +  {
@@ -3807,6 +4194,7 @@ index 0000000..ccc8e71
 +  loadData();
 +  loadSelection();
 +  mRows = buildRows();
++  SurveyorAccess::instance(); // keeps the NAPR layers in line with @amzomveli
 +
 +  // A different project may reuse layer ids; forget the stored original sources.
 +  connect( QgsProject::instance(), &QgsProject::cleared, this, [this] { mOriginalSources.clear(); } );
@@ -3819,8 +4207,22 @@ index 0000000..ccc8e71
 +  if ( !sPreprocessorRegistered )
 +  {
 +    sPreprocessorRegistered = true;
-+    QgsPathResolver::setPathPreprocessor( []( const QString &source ) -> QString {
-+      if ( !usesZoneVariables( source ) || !source.contains( QLatin1String( "typename=" ), Qt::CaseInsensitive ) )
++    QgsPathResolver::setPathPreprocessor( []( const QString &rawSource ) -> QString {
++      if ( !rawSource.contains( QLatin1String( "typename=" ), Qt::CaseInsensitive ) )
++        return SurveyorAccess::applyToEncodedSource( rawSource ); // NAPR WMS layers
++
++      // Field-work layers: always WFS 1.0.0, whatever else is in the link.
++      // NAPR server credentials only for surveyors on the access list.
++      QString source = rawSource;
++      {
++        QgsDataSourceUri versionUri( source );
++        bool changed = needsFixedVersion( versionUri ) && forceWfsVersion( versionUri );
++        changed = SurveyorAccess::applyToUri( versionUri ) || changed;
++        if ( changed )
++          source = versionUri.uri( false );
++      }
++
++      if ( !usesZoneVariables( source ) )
 +        return source;
 +
 +      QSettings settings;
@@ -4255,6 +4657,9 @@ index 0000000..ccc8e71
 +    QgsDataSourceUri uri( original );
 +    const QString filter = buildFilter( uri.param( QStringLiteral( "filter" ) ), codes );
 +    setVillageFilter( uri, filter );
++    if ( needsFixedVersion( uri, vl->name() ) )
++      forceWfsVersion( uri );
++    SurveyorAccess::applyToUri( uri );
 +
 +    QgsDataProvider::ProviderOptions options;
 +    options.transformContext = project->transformContext();
@@ -4273,10 +4678,51 @@ index 0000000..ccc8e71
 +  return QString();
 +}
 +
++int VillageSelectorModel::enforceLayerVersions()
++{
++  int changed = 0;
++  QgsProject *project = QgsProject::instance();
++  const QMap<QString, QgsMapLayer *> layers = project->mapLayers();
++  for ( QgsMapLayer *layer : layers )
++  {
++    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( layer );
++    if ( !vl || vl->providerType().compare( QLatin1String( "WFS" ), Qt::CaseInsensitive ) != 0 )
++      continue;
++
++    QgsDataSourceUri uri( vl->source() );
++    if ( !needsFixedVersion( uri, vl->name() ) || !forceWfsVersion( uri ) )
++      continue;
++    SurveyorAccess::applyToUri( uri );
++
++    // Keep the remembered original (village filter) source in line as well
++    const QString original = mOriginalSources.value( vl->id() );
++    if ( !original.isEmpty() )
++    {
++      QgsDataSourceUri originalUri( original );
++      forceWfsVersion( originalUri );
++      mOriginalSources.insert( vl->id(), originalUri.uri( false ) );
++    }
++
++    QgsDataProvider::ProviderOptions options;
++    options.transformContext = project->transformContext();
++    const bool readOnly = vl->readOnly();
++    vl->setDataSource( uri.uri( false ), vl->name(), QStringLiteral( "WFS" ), options, false );
++    vl->setReadOnly( readOnly );
++    vl->triggerRepaint();
++    ++changed;
++  }
++  return changed;
++}
++
 +bool VillageSelectorModel::applySaved()
 +{
 +  const bool preprocessed = sPreprocessedOnRead;
 +  sPreprocessedOnRead = false;
++
++  // Field-work layers matched by name (other projects / other type names)
++  enforceLayerVersions();
++  // NAPR WMS layers are not touched while reading: give / take their credentials now
++  SurveyorAccess::instance()->refreshLayers();
 +
 +  if ( offlineActive() && switchToOffline() )
 +    return true;
@@ -4366,6 +4812,8 @@ index 0000000..ccc8e71
 +    return tr( "შენახვა უკვე მიმდინარეობს" );
 +  if ( offlineActive() )
 +    return tr( "ჯერ დაბრუნდით ლაივ რეჟიმში" );
++  if ( !SurveyorAccess::isAuthorized() )
++    return tr( "ამზომველის პ/ნ-ს არ აქვს წვდომა პროგრამაზე" );
 +  const QStringList codes = sortedSelection();
 +  if ( codes.isEmpty() )
 +    return tr( "ჯერ აირჩიეთ და ჩატვირთეთ სოფლები" );
@@ -4589,10 +5037,10 @@ index 0000000..ccc8e71
 +}
 diff --git a/src/core/villageselectormodel.h b/src/core/villageselectormodel.h
 new file mode 100644
-index 0000000..f528fef
+index 0000000..89a8f6a
 --- /dev/null
 +++ b/src/core/villageselectormodel.h
-@@ -0,0 +1,169 @@
+@@ -0,0 +1,176 @@
 +#ifndef VILLAGESELECTORMODEL_H
 +#define VILLAGESELECTORMODEL_H
 +
@@ -4683,6 +5131,13 @@ index 0000000..f528fef
 +    Q_INVOKABLE QString apply();
 +    //! Re-applies the remembered selection (called after a project is opened).
 +    Q_INVOKABLE bool applySaved();
++
++    /**
++     * Makes the field-work layers (წერტილი, საზღვარი, შენობა, ნაკვეთი, ვალდებულება,
++     * ტოპონიმიკა) connect with WFS version 1.0.0, keeping all other link parameters.
++     * Returns the number of layers that were switched.
++     */
++    Q_INVOKABLE int enforceLayerVersions();
 +
 +    bool offlineActive() const;
 +    QString offlineInfo() const;
@@ -4946,10 +5401,10 @@ index 05cbb4b..33c132e 100644
      QfEgenioussDeviceChooser.qml
 diff --git a/src/gui/qml/LayerManagerDialog.qml b/src/gui/qml/LayerManagerDialog.qml
 new file mode 100644
-index 0000000..be4acb2
+index 0000000..f85ad3a
 --- /dev/null
 +++ b/src/gui/qml/LayerManagerDialog.qml
-@@ -0,0 +1,992 @@
+@@ -0,0 +1,1024 @@
 +import QtQuick
 +import QtQuick.Controls
 +import QtQuick.Controls.impl
@@ -4983,6 +5438,8 @@ index 0000000..be4acb2
 +  function applySaved() {
 +    styleModel.applySaved();
 +    defaultsModel.reload();
++    if (!defaultsModel.surveyorAuthorized)
++      root.toast(qsTr("ამზომველის პ/ნ-ს არ აქვს წვდომა პროგრამაზე — სერვერის ფენები არ ჩაიტვირთება"));
 +  }
 +
 +  function tint(c, a) {
@@ -5902,6 +6359,36 @@ index 0000000..be4acb2
 +                          anchors.fill: parent
 +                          onClicked: defaultsModel.setValue(defaultCard.row, modelData.value)
 +                        }
++                      }
++                    }
++                  }
++
++                  // surveyor number: who it is, or that there is no access
++                  Rectangle {
++                    Layout.fillWidth: true
++                    visible: model.statusText !== ""
++                    implicitHeight: statusRow.implicitHeight + 16
++                    radius: 8
++                    color: model.statusOk ? root.tint(QfTheme.goodColor, 0.14) : root.tint(QfTheme.errorColor, 0.12)
++
++                    RowLayout {
++                      id: statusRow
++                      anchors.fill: parent
++                      anchors.margins: 8
++                      spacing: 8
++
++                      IconImage {
++                        source: QfTheme.getThemeVectorIcon(model.statusOk ? "ic_check_white_24dp" : "ic_close_white_24dp")
++                        sourceSize: Qt.size(18, 18)
++                        color: model.statusOk ? QfTheme.goodColor : QfTheme.errorColor
++                      }
++
++                      Label {
++                        Layout.fillWidth: true
++                        text: model.statusText
++                        font: QfTheme.strongFont
++                        color: model.statusOk ? QfTheme.mainTextColor : QfTheme.errorColor
++                        wrapMode: Text.WordWrap
 +                      }
 +                    }
 +                  }
