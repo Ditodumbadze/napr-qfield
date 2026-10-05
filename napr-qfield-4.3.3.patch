@@ -9366,10 +9366,10 @@ index 0000000..d5ed827
 +}
 diff --git a/src/gui/qml/VillageSelectorDialog.qml b/src/gui/qml/VillageSelectorDialog.qml
 new file mode 100644
-index 0000000..1e95963
+index 0000000..77f7dc0
 --- /dev/null
 +++ b/src/gui/qml/VillageSelectorDialog.qml
-@@ -0,0 +1,524 @@
+@@ -0,0 +1,525 @@
 +import QtQuick
 +import QtQuick.Controls
 +import QtQuick.Controls.impl
@@ -9844,12 +9844,13 @@ index 0000000..1e95963
 +        }
 +      }
 +
-+      RowLayout {
++      // One under the other: side by side the labels do not fit on a phone
++      ColumnLayout {
 +        Layout.fillWidth: true
 +        Layout.leftMargin: 12
 +        Layout.rightMargin: 12
 +        Layout.bottomMargin: 12
-+        spacing: 8
++        spacing: 6
 +
 +        // Use the offline copy saved earlier again (works without internet)
 +        QfButton {
