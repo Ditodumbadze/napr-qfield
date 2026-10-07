@@ -193,4 +193,3 @@ jobs:
           path: |
             /tmp/${{ env.CI_PACKAGE_NAME }}-${{ env.CI_PACKAGE_FILE_SUFFIX }}-${{ matrix.artifact_name }}.apk
             /tmp/${{ env.CI_PACKAGE_NAME }}-${{ env.CI_PACKAGE_FILE_SUFFIX }}-${{ matrix.artifact_name }}-debug.apk
-
