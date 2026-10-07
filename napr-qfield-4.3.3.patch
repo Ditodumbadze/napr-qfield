@@ -1,8 +1,8 @@
 diff --git a/images/images.qrc b/images/images.qrc
-index b8ec42e..7ae2588 100644
+index b8ec42e..a638c6f 100644
 --- a/images/images.qrc
 +++ b/images/images.qrc
-@@ -138,6 +138,17 @@
+@@ -138,6 +138,18 @@
          <file>themes/qfield/nodpi/ic_temporal_green_24dp.svg</file>
          <file>themes/qfield/nodpi/ic_snapping_white_24dp.svg</file>
          <file>themes/qfield/nodpi/ic_topology_white_24dp.svg</file>
@@ -12,6 +12,7 @@ index b8ec42e..7ae2588 100644
 +        <file>themes/qfield/nodpi/ic_napr_layers_white_24dp.svg</file>
 +        <file>themes/qfield/nodpi/ic_napr_redi_white_24dp.svg</file>
 +        <file>napr/villages.json</file>
++        <file>napr/inv_prefixes.json</file>
 +        <file>napr/surveyors.json</file>
 +        <file>themes/qfield/nodpi/ic_napr_shape_rect_white_24dp.svg</file>
 +        <file>themes/qfield/nodpi/ic_napr_shape_rect3_white_24dp.svg</file>
@@ -20,6 +21,871 @@ index b8ec42e..7ae2588 100644
          <file>themes/qfield/nodpi/ic_freehand_white_24dp.svg</file>
          <file>themes/qfield/nodpi/ic_clear_black_18dp.svg</file>
          <file>themes/qfield/nodpi/ic_location_canvas_lock_white_24dp.svg</file>
+diff --git a/images/napr/inv_prefixes.json b/images/napr/inv_prefixes.json
+new file mode 100644
+index 0000000..6f13363
+--- /dev/null
++++ b/images/napr/inv_prefixes.json
+@@ -0,0 +1,858 @@
++{
++"01.14": [
++"8101",
++"8102"
++],
++"01.18": [
++"8101",
++"8102"
++],
++"01.20": [
++"8101",
++"8102"
++],
++"01.72": [
++"7214"
++],
++"01.81": [
++"8101",
++"8102"
++],
++"20.31": [
++"2001"
++],
++"20.32": [
++"2002"
++],
++"20.33": [
++"2003"
++],
++"20.34": [
++"2004"
++],
++"20.35": [
++"2005"
++],
++"20.36": [
++"2006"
++],
++"20.37": [
++"2007"
++],
++"20.38": [
++"2008"
++],
++"20.39": [
++"2009"
++],
++"20.40": [
++"2010"
++],
++"20.41": [
++"2011"
++],
++"20.42": [
++"2012"
++],
++"20.43": [
++"2013"
++],
++"20.44": [
++"2014"
++],
++"20.45": [
++"2015"
++],
++"20.46": [
++"2016"
++],
++"20.47": [
++"2017"
++],
++"20.48": [
++"2018"
++],
++"20.49": [
++"2019"
++],
++"20.50": [
++"2020"
++],
++"20.51": [
++"2021"
++],
++"20.52": [
++"2022"
++],
++"20.53": [
++"2023"
++],
++"20.54": [
++"2003"
++],
++"21.13": [
++"2101"
++],
++"22.21": [
++"2201"
++],
++"22.22": [
++"2202"
++],
++"22.23": [
++"2203"
++],
++"22.24": [
++"2204"
++],
++"22.26": [
++"2206"
++],
++"22.28": [
++"2208"
++],
++"22.29": [
++"2209"
++],
++"22.30": [
++"2210"
++],
++"22.31": [
++"2211"
++],
++"22.32": [
++"2212"
++],
++"22.33": [
++"2213"
++],
++"22.34": [
++"2214"
++],
++"22.35": [
++"2215"
++],
++"22.36": [
++"2216"
++],
++"23.15": [
++"2314"
++],
++"23.16": [
++"2314"
++],
++"26.01": [
++"2633"
++],
++"26.09": [
++"2629",
++"2630"
++],
++"26.29": [
++"2609",
++"2630"
++],
++"26.33": [
++"2632"
++],
++"26.36": [
++"2634"
++],
++"26.37": [
++"2632"
++],
++"27.45": [
++"2712"
++],
++"29.05": [
++"3706"
++],
++"30.03": [
++"3004"
++],
++"30.22": [
++"3010"
++],
++"31.01": [
++"3102",
++"3122"
++],
++"31.23": [
++"3103"
++],
++"34.12": [
++"3414"
++],
++"35.04": [
++"3505",
++"3514"
++],
++"35.05": [
++"3514"
++],
++"35.14": [
++"3505"
++],
++"42.01": [
++"42"
++],
++"42.02": [
++"42"
++],
++"42.03": [
++"42"
++],
++"42.04": [
++"42"
++],
++"42.05": [
++"42"
++],
++"42.06": [
++"42"
++],
++"42.07": [
++"42"
++],
++"42.08": [
++"42"
++],
++"42.09": [
++"42"
++],
++"42.10": [
++"42"
++],
++"42.11": [
++"42"
++],
++"42.12": [
++"42"
++],
++"42.13": [
++"42"
++],
++"42.14": [
++"42"
++],
++"42.15": [
++"42"
++],
++"42.16": [
++"42"
++],
++"42.17": [
++"42"
++],
++"50.27": [
++"5261",
++"5262",
++"5263"
++],
++"50.29": [
++"5261",
++"5262",
++"5263"
++],
++"51.23": [
++"5111"
++],
++"51.32": [
++"5102"
++],
++"51.33": [
++"5106"
++],
++"51.34": [
++"5109"
++],
++"51.35": [
++"5118"
++],
++"51.36": [
++"5118"
++],
++"51.37": [
++"5118"
++],
++"51.38": [
++"5118"
++],
++"53.20": [
++"5317"
++],
++"53.21": [
++"5314"
++],
++"53.22": [
++"5304"
++],
++"53.25": [
++"5302"
++],
++"53.26": [
++"5315"
++],
++"53.28": [
++"5316"
++],
++"55.13": [
++"55"
++],
++"55.15": [
++"55"
++],
++"55.22": [
++"5504"
++],
++"57.36": [
++"5314"
++],
++"57.99": [
++"5314"
++],
++"61.10": [
++"6109"
++],
++"61.12": [
++"6119"
++],
++"61.19": [
++"6112"
++],
++"61.21": [
++"6101"
++],
++"61.22": [
++"6125"
++],
++"61.23": [
++"6125"
++],
++"61.24": [
++"6102"
++],
++"61.25": [
++"6109",
++"6110"
++],
++"61.26": [
++"6112",
++"6119"
++],
++"61.27": [
++"6109",
++"6110"
++],
++"64.21": [
++"6401"
++],
++"64.22": [
++"6402"
++],
++"64.23": [
++"6403"
++],
++"64.24": [
++"6404"
++],
++"64.25": [
++"6405"
++],
++"64.26": [
++"6406"
++],
++"64.27": [
++"6414"
++],
++"64.28": [
++"6408"
++],
++"64.29": [
++"6409"
++],
++"64.30": [
++"6410"
++],
++"64.31": [
++"6411"
++],
++"64.32": [
++"6412"
++],
++"64.33": [
++"6413"
++],
++"64.34": [
++"6415"
++],
++"66.41": [
++"6601"
++],
++"66.42": [
++"6602"
++],
++"66.43": [
++"6603"
++],
++"66.44": [
++"6604"
++],
++"66.45": [
++"6605",
++"6615"
++],
++"66.46": [
++"6606"
++],
++"66.47": [
++"6607"
++],
++"66.48": [
++"6608"
++],
++"66.49": [
++"6609"
++],
++"66.50": [
++"6610"
++],
++"66.51": [
++"6611"
++],
++"66.52": [
++"6612"
++],
++"66.53": [
++"6613"
++],
++"66.54": [
++"6614"
++],
++"66.55": [
++"6615"
++],
++"66.56": [
++"6616"
++],
++"66.57": [
++"6617"
++],
++"66.58": [
++"6618"
++],
++"66.59": [
++"6619"
++],
++"66.60": [
++"6620"
++],
++"66.61": [
++"6621"
++],
++"66.62": [
++"6622"
++],
++"66.63": [
++"6623"
++],
++"67.06": [
++"6703"
++],
++"67.17": [
++"6723"
++],
++"68.18": [
++"6840"
++],
++"69.04": [
++"6905"
++],
++"71.51": [
++"71"
++],
++"71.52": [
++"71"
++],
++"71.53": [
++"71"
++],
++"71.54": [
++"71"
++],
++"71.55": [
++"71"
++],
++"71.56": [
++"71"
++],
++"71.57": [
++"71"
++],
++"71.58": [
++"71"
++],
++"71.59": [
++"71"
++],
++"71.60": [
++"71"
++],
++"71.61": [
++"71"
++],
++"71.62": [
++"71"
++],
++"71.63": [
++"71"
++],
++"71.64": [
++"71"
++],
++"71.65": [
++"71"
++],
++"71.66": [
++"71"
++],
++"71.67": [
++"71"
++],
++"72.18": [
++"7210"
++],
++"72.21": [
++"7209"
++],
++"72.22": [
++"7201"
++],
++"72.23": [
++"7202"
++],
++"72.24": [
++"7203"
++],
++"72.25": [
++"7203"
++],
++"72.26": [
++"7203"
++],
++"72.27": [
++"7204"
++],
++"72.28": [
++"7204"
++],
++"73.01": [
++"73"
++],
++"73.02": [
++"73"
++],
++"73.03": [
++"73"
++],
++"73.04": [
++"73"
++],
++"73.05": [
++"73"
++],
++"73.06": [
++"73"
++],
++"73.07": [
++"73"
++],
++"73.08": [
++"73"
++],
++"73.09": [
++"73"
++],
++"73.10": [
++"73"
++],
++"73.11": [
++"73"
++],
++"73.12": [
++"73"
++],
++"74.01": [
++"74"
++],
++"74.02": [
++"74"
++],
++"74.03": [
++"74"
++],
++"74.04": [
++"74"
++],
++"74.05": [
++"74"
++],
++"74.06": [
++"74"
++],
++"81.01": [
++"8102"
++],
++"81.02": [
++"8101"
++],
++"81.26": [
++"8106"
++],
++"81.27": [
++"8106"
++],
++"82.07": [
++"8217"
++],
++"82.16": [
++"8217"
++],
++"82.17": [
++"8216"
++],
++"82.18": [
++"8216",
++"8217"
++],
++"83.19": [
++"8318",
++"8320",
++"8321",
++"8322",
++"8323"
++],
++"83.20": [
++"8318",
++"8319",
++"8321",
++"8322",
++"8323"
++],
++"83.21": [
++"8318",
++"8319",
++"8320",
++"8322",
++"8323"
++],
++"83.22": [
++"8318",
++"8319",
++"8320",
++"8321",
++"8323"
++],
++"83.23": [
++"8318",
++"8319",
++"8320",
++"8321",
++"8322"
++],
++"86.02": [
++"8601"
++],
++"86.03": [
++"8601"
++],
++"86.04": [
++"8601"
++],
++"86.05": [
++"8601"
++],
++"86.06": [
++"8601"
++],
++"86.07": [
++"8601"
++],
++"86.08": [
++"8601"
++],
++"86.09": [
++"8601"
++],
++"86.10": [
++"8601"
++],
++"86.11": [
++"8601"
++],
++"86.12": [
++"8601"
++],
++"86.13": [
++"8601"
++],
++"86.14": [
++"8601"
++],
++"86.15": [
++"8601"
++],
++"86.16": [
++"8601"
++],
++"86.17": [
++"8601"
++],
++"86.18": [
++"8601"
++],
++"86.19": [
++"8601"
++],
++"87.01": [
++"87"
++],
++"87.02": [
++"87"
++],
++"87.03": [
++"87"
++],
++"87.04": [
++"87"
++],
++"87.05": [
++"87"
++],
++"87.06": [
++"87"
++],
++"87.07": [
++"87"
++],
++"87.08": [
++"87"
++],
++"88.01": [
++"88"
++],
++"88.02": [
++"88"
++],
++"88.03": [
++"88"
++],
++"88.04": [
++"88"
++],
++"88.05": [
++"88"
++],
++"88.06": [
++"88"
++],
++"88.07": [
++"88"
++],
++"88.08": [
++"88"
++],
++"88.09": [
++"88"
++],
++"88.10": [
++"88"
++],
++"88.11": [
++"88"
++],
++"88.12": [
++"88"
++],
++"88.13": [
++"88"
++],
++"88.14": [
++"88"
++],
++"88.15": [
++"88"
++],
++"88.16": [
++"88"
++],
++"88.17": [
++"88"
++],
++"88.18": [
++"88"
++],
++"88.21": [
++"88"
++],
++"89.01": [
++"89"
++],
++"89.02": [
++"89"
++],
++"89.03": [
++"89"
++],
++"89.04": [
++"89"
++],
++"89.05": [
++"89"
++],
++"89.06": [
++"89"
++],
++"89.07": [
++"89"
++],
++"89.08": [
++"89"
++],
++"89.09": [
++"89"
++],
++"89.10": [
++"89"
++],
++"89.11": [
++"89"
++],
++"89.12": [
++"89"
++],
++"89.13": [
++"89"
++],
++"89.14": [
++"89"
++],
++"89.15": [
++"89"
++],
++"89.16": [
++"89"
++],
++"89.17": [
++"89"
++],
++"89.18": [
++"89"
++],
++"89.19": [
++"89"
++],
++"89.20": [
++"89"
++]
++}
+\ No newline at end of file
 diff --git a/images/napr/surveyors.json b/images/napr/surveyors.json
 new file mode 100644
 index 0000000..15416a7
@@ -2612,10 +3478,10 @@ index f2aa766..7cbd6a7 100644
    if ( first == 0 )
 diff --git a/src/core/rediimportmodel.cpp b/src/core/rediimportmodel.cpp
 new file mode 100644
-index 0000000..5598419
+index 0000000..eafe02d
 --- /dev/null
 +++ b/src/core/rediimportmodel.cpp
-@@ -0,0 +1,509 @@
+@@ -0,0 +1,529 @@
 +#include "rediimportmodel.h"
 +#include "surveyoraccess.h"
 +#include "villageselectormodel.h"
@@ -2674,6 +3540,10 @@ index 0000000..5598419
 +RediImportModel::RediImportModel( QObject *parent )
 +  : QAbstractListModel( parent )
 +{
++  mCtrlRefreshTimer.setSingleShot( true );
++  mCtrlRefreshTimer.setInterval( 700 );
++  connect( &mCtrlRefreshTimer, &QTimer::timeout, this, &RediImportModel::refreshCtrlLayer );
++
 +  // A new project: the outlines belong to the previous one (the layer went with it)
 +  connect( QgsProject::instance(), &QgsProject::cleared, this, [this] {
 +    beginResetModel();
@@ -2725,8 +3595,24 @@ index 0000000..5598419
 +{
 +  if ( mMapSettings == mapSettings )
 +    return;
++  if ( mMapSettings )
++    disconnect( mMapSettings, nullptr, &mCtrlRefreshTimer, nullptr );
 +  mMapSettings = mapSettings;
++  // The 112 layer is re-read for the new view once the map stops moving
++  if ( mMapSettings )
++    connect( mMapSettings, SIGNAL( extentChanged() ), &mCtrlRefreshTimer, SLOT( start() ) );
 +  emit mapSettingsChanged();
++}
++
++void RediImportModel::refreshCtrlLayer()
++{
++  // The server gives LR_CTRL_AREAS features a new id on every request, so the
++  // WFS cache cannot tell a feature it already has from a new one and each pan
++  // added the same areas again. Dropping the cache keeps only the current view.
++  if ( !ctrlAreasVisible() || !mCtrlLayer->isValid() )
++    return;
++  mCtrlLayer->reload();
++  mCtrlLayer->triggerRepaint();
 +}
 +
 +QStringList RediImportModel::extractWkts( const QString &text )
@@ -3127,16 +4013,17 @@ index 0000000..5598419
 +}
 diff --git a/src/core/rediimportmodel.h b/src/core/rediimportmodel.h
 new file mode 100644
-index 0000000..88e6ae3
+index 0000000..7865a80
 --- /dev/null
 +++ b/src/core/rediimportmodel.h
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,103 @@
 +#ifndef REDIIMPORTMODEL_H
 +#define REDIIMPORTMODEL_H
 +
 +#include <QAbstractListModel>
 +#include <QPointer>
 +#include <QStringList>
++#include <QTimer>
 +
 +class QgsVectorLayer;
 +
@@ -3224,6 +4111,8 @@ index 0000000..88e6ae3
 +    QPointer<QgsVectorLayer> mCtrlLayer;
 +
 +    QgsVectorLayer *existingCtrlLayer() const;
++    void refreshCtrlLayer();
++    QTimer mCtrlRefreshTimer;
 +    QString createCtrlLayer();
 +    bool mCtrlLoading = false;
 +    void enableSnapping( QgsVectorLayer *layer ) const;
@@ -5254,10 +6143,10 @@ index 0000000..cc68a2a
 +#endif // TOPOLOGYCHECKERMODEL_H
 diff --git a/src/core/villageselectormodel.cpp b/src/core/villageselectormodel.cpp
 new file mode 100644
-index 0000000..0949296
+index 0000000..0095fa0
 --- /dev/null
 +++ b/src/core/villageselectormodel.cpp
-@@ -0,0 +1,1325 @@
+@@ -0,0 +1,1376 @@
 +#include "villageselectormodel.h"
 +#include "surveyoraccess.h"
 +
@@ -5918,6 +6807,39 @@ index 0000000..0949296
 +  return count;
 +}
 +
++namespace
++{
++  /**
++   * INV_ALL (the inventory) numbers some villages differently from the cadastre:
++   * Kobuleti 20.34 is "2004" there, Khelvachauri 22.28 is "2208", Gori 66.49 is
++   * "6609", Ambrolauri and Mestia use one code for the whole municipality, ...
++   * The codes NAPR's own village projects (922 of them) use for INV_ALL are kept
++   * in :/napr/inv_prefixes.json ("20.34": ["2004"]); a village not listed there
++   * uses its own code only.
++   */
++  const QHash<QString, QStringList> &inventoryPrefixes()
++  {
++    static const QHash<QString, QStringList> sPrefixes = [] {
++      QHash<QString, QStringList> prefixes;
++      QFile file( QStringLiteral( ":/napr/inv_prefixes.json" ) );
++      if ( file.open( QIODevice::ReadOnly ) )
++      {
++        const QJsonObject root = QJsonDocument::fromJson( file.readAll() ).object();
++        for ( auto it = root.constBegin(); it != root.constEnd(); ++it )
++        {
++          QStringList list;
++          const QJsonArray values = it.value().toArray();
++          for ( const QJsonValue &value : values )
++            list << value.toString();
++          prefixes.insert( it.key(), list );
++        }
++      }
++      return prefixes;
++    }();
++    return sPrefixes;
++  }
++} // namespace
++
 +QString VillageSelectorModel::buildFilter( const QString &originalFilter, const QStringList &codes )
 +{
 +  // Each kind of NAPR filter is rebuilt as a plain OR list (one term per
@@ -5930,6 +6852,7 @@ index 0000000..0949296
 +
 +  QStringList parts;
 +  QStringList zonesDone;
++  QStringList prefixesDone; // INV_ALL: villages may share a code (Ambrolauri: 8601)
 +  for ( const QString &c : codes )
 +  {
 +    const QString zone = c.section( QLatin1Char( '.' ), 0, 0 );
@@ -5940,7 +6863,24 @@ index 0000000..0949296
 +        // USAIDCODE is stored as '<8812...>' in most municipalities, but as plain
 +        // digits ('8118...') in 61, 62, 64, 66, 68, 81 and 84 (all 922 village
 +        // projects compared): both forms are asked for. PNEWCODE is plain.
-+        parts << QStringLiteral( "( \"USAIDCODE\" LIKE '<%1%2%>' OR \"USAIDCODE\" LIKE '%1%2%' OR \"PNEWCODE\" LIKE '%1%2%' )" ).arg( zone, sector );
++      {
++        QStringList prefixes( zone + sector );
++        for ( const QString &prefix : inventoryPrefixes().value( c ) )
++        {
++          if ( !prefixes.contains( prefix ) )
++            prefixes << prefix;
++        }
++        QStringList terms;
++        for ( const QString &prefix : std::as_const( prefixes ) )
++        {
++          if ( prefixesDone.contains( prefix ) )
++            continue;
++          prefixesDone << prefix;
++          terms << QStringLiteral( "\"USAIDCODE\" LIKE '<%1%>' OR \"USAIDCODE\" LIKE '%1%' OR \"PNEWCODE\" LIKE '%1%'" ).arg( prefix );
++        }
++        if ( !terms.isEmpty() )
++          parts << QStringLiteral( "( %1 )" ).arg( terms.join( QStringLiteral( " OR " ) ) );
++      }
 +        break;
 +      case FilterKind::CadastralCode:
 +        parts << QStringLiteral( "\"CADCODE\" LIKE '%1.%2%'" ).arg( zone, sector );
