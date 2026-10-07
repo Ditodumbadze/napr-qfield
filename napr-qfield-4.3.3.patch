@@ -398,7 +398,7 @@ index f41b4e8..240df55 100644
            settings.setValue("/QField/showMapCanvasGuide", true);
          } else {
 diff --git a/src/app/qml/QgisMobileapp.qml b/src/app/qml/QgisMobileapp.qml
-index 8b351c1..f2f3989 100644
+index 8b351c1..3b8be7d 100644
 --- a/src/app/qml/QgisMobileapp.qml
 +++ b/src/app/qml/QgisMobileapp.qml
 @@ -2277,6 +2277,55 @@ ApplicationWindow {
@@ -516,7 +516,7 @@ index 8b351c1..f2f3989 100644
      QfPopup {
        id: loginDialogPopup
        parent: Overlay.overlay
-@@ -5578,6 +5658,232 @@ ApplicationWindow {
+@@ -5578,6 +5658,196 @@ ApplicationWindow {
      }
    }
  
@@ -615,47 +615,11 @@ index 8b351c1..f2f3989 100644
 +    function onServerChecked(reachable) {
 +      const purpose = naprServerWatch.purpose;
 +      naprServerWatch.purpose = "";
-+      if (purpose === "draw") {
-+        if (!offlineDrawingGuard.active) {
-+          return;
-+        }
-+        if (reachable) {
-+          const serverLayer = NaprAccess.serverLayerFor(dashBoard.activeLayer);
-+          if (!serverLayer || !serverLayer.isValid) {
-+            // Opened without internet: the server layer has to be loaded first,
-+            // the offline copy stays on the map meanwhile
-+            stateMachine.state = "browse";
-+            offerProjectReload(qsTr("ინტერნეტი ხელმისაწვდომია — დასახაზად განაახლეთ პროექტი სერვერის ფენების ჩასატვირთად"));
-+            return;
-+          }
-+          // Internet is there: drawing goes to the server layer, leave offline mode
-+          dashBoard.activeLayer = serverLayer;
-+          villageSelectorDialog.goLive();
-+          displayToast(qsTr("ინტერნეტი ხელმისაწვდომია — ლაივ რეჟიმი, შეგიძლიათ დახაზოთ"));
-+        } else {
-+          // Nothing is drawn (and nothing saved) without the server
-+          stateMachine.state = "browse";
-+          displayToast(NaprAccess.internetRequiredMessage(), 'warning');
-+        }
-+      } else if (purpose === "return") {
++      if (purpose === "return") {
 +        if (reachable && NaprAccess.hasUnavailableLayers()) {
 +          naprServerWatch.offered = true;
 +          offerProjectReload(qsTr("ინტერნეტი აღდგა — განაახლეთ პროექტი სერვერის ფენების ჩასატვირთად"));
 +        }
-+      }
-+    }
-+  }
-+
-+  // Georgia QField: drawing on an offline copy (or on a hidden server layer in
-+  // offline mode) needs the server. Checked as soon as the edit mode is switched on.
-+  Item {
-+    id: offlineDrawingGuard
-+    readonly property bool active: stateMachine.state === "digitize" && !!dashBoard.activeLayer && (NaprAccess.isOfflineCopy(dashBoard.activeLayer) || (villageSelectorDialog.offlineActive && NaprAccess.isNaprLayer(dashBoard.activeLayer)))
-+    onActiveChanged: {
-+      if (active) {
-+        displayToast(qsTr("ოფლაინ რეჟიმი — ინტერნეტის შემოწმება..."));
-+        naprServerWatch.purpose = "draw";
-+        NaprAccess.checkServer();
 +      }
 +    }
 +  }
@@ -2620,13 +2584,40 @@ index 65f7f13..888fc60 100644
    if ( !mLayer->startEditing() )
    {
      QgsMessageLog::logMessage( tr( "Cannot start editing" ), QStringLiteral( "QField" ), Qgis::Warning );
+diff --git a/src/core/qflayertreemodel.cpp b/src/core/qflayertreemodel.cpp
+index f2aa766..7cbd6a7 100644
+--- a/src/core/qflayertreemodel.cpp
++++ b/src/core/qflayertreemodel.cpp
+@@ -307,12 +307,15 @@ void QfFlatLayerTreeModelBase::removeFromMap( const QModelIndex &parent, int fir
+   if ( mFrozen )
+     return;
+ 
+-  if ( mProjectLayersChanged )
+-  {
+-    mProjectLayersChanged = false;
+-    buildMap( mLayerTreeModel );
+-    return;
+-  }
++  // Georgia QField: always rebuild. The in-place update below works out the
++  // removed row from the previous sibling; next to a categorized layer that is
++  // a legend row, so a layer removed at runtime (offline copies) left entries
++  // pointing at deleted nodes and the legend crashed when opened. QGIS sends the
++  // QStringList layersWillBeRemoved first, so mProjectLayersChanged was still
++  // false here. The layer tree is small: a full rebuild costs nothing.
++  mProjectLayersChanged = false;
++  buildMap( mLayerTreeModel );
++  return;
+ 
+   int removedAt = -1;
+   if ( first == 0 )
 diff --git a/src/core/rediimportmodel.cpp b/src/core/rediimportmodel.cpp
 new file mode 100644
-index 0000000..f347b42
+index 0000000..5598419
 --- /dev/null
 +++ b/src/core/rediimportmodel.cpp
-@@ -0,0 +1,380 @@
+@@ -0,0 +1,509 @@
 +#include "rediimportmodel.h"
++#include "surveyoraccess.h"
 +#include "villageselectormodel.h"
 +
 +#include <QCryptographicHash>
@@ -2634,8 +2625,10 @@ index 0000000..f347b42
 +#include <QRegularExpression>
 +#include <QSettings>
 +#include <cmath>
++#include <memory>
 +#include <qgscoordinatereferencesystem.h>
 +#include <qgscoordinatetransform.h>
++#include <qgsdatasourceuri.h>
 +#include <qgsexception.h>
 +#include <qgsfeature.h>
 +#include <qgsfillsymbol.h>
@@ -2643,6 +2636,7 @@ index 0000000..f347b42
 +#include <qgsgeometry.h>
 +#include <qgslayertree.h>
 +#include <qgslinesymbollayer.h>
++#include <qgssymbol.h>
 +#include <qgsmarkersymbol.h>
 +#include <qgsmarkersymbollayer.h>
 +#include <qgspallabeling.h>
@@ -2660,6 +2654,10 @@ index 0000000..f347b42
 +  const QString REDI_CRS = QStringLiteral( "EPSG:32638" );
 +  const QString LAYER_NAME = QStringLiteral( "REDI მოხაზულობები" );
 +  const QString LAYER_PROPERTY = QStringLiteral( "georgiaqfield/redi" );
++
++  const QString CTRL_LAYER_NAME = QStringLiteral( "112 ფენები" );
++  const QString CTRL_LAYER_PROPERTY = QStringLiteral( "georgiaqfield/ctrl112" );
++  const QString CTRL_SETTINGS_KEY = QStringLiteral( "georgiaqfield/ctrl112/visible" );
 +
 +  QString settingsKey()
 +  {
@@ -2837,6 +2835,135 @@ index 0000000..f347b42
 +  endResetModel();
 +  emit countChanged();
 +  rebuildLayer();
++
++  // The 112 layer stays on from one project to the next (until switched off);
++  // without internet / access it just stays off for now.
++  mCtrlLayer = existingCtrlLayer();
++  if ( settings.value( CTRL_SETTINGS_KEY, false ).toBool() && !mCtrlLayer )
++    setCtrlAreasVisible( true );
++  emit ctrlAreasVisibleChanged();
++}
++
++QgsVectorLayer *RediImportModel::existingCtrlLayer() const
++{
++  const QMap<QString, QgsMapLayer *> layers = QgsProject::instance()->mapLayers();
++  for ( QgsMapLayer *layer : layers )
++  {
++    if ( layer->customProperty( CTRL_LAYER_PROPERTY ).toBool() )
++      return qobject_cast<QgsVectorLayer *>( layer );
++  }
++  return nullptr;
++}
++
++bool RediImportModel::ctrlAreasVisible() const
++{
++  return mCtrlLayer && QgsProject::instance()->mapLayer( mCtrlLayer->id() );
++}
++
++void RediImportModel::enableSnapping( QgsVectorLayer *layer ) const
++{
++  // With "all layers" the layer is snapped to already; with an advanced
++  // configuration it has to be switched on for this layer.
++  QgsProject *project = QgsProject::instance();
++  QgsSnappingConfig config = project->snappingConfig();
++  if ( config.mode() == Qgis::SnappingMode::AdvancedConfiguration )
++  {
++    config.setIndividualLayerSettings( layer, QgsSnappingConfig::IndividualLayerSettings( true, Qgis::SnappingType::Vertex | Qgis::SnappingType::Segment, config.tolerance(), config.units() ) );
++    project->setSnappingConfig( config );
++  }
++}
++
++QString RediImportModel::setCtrlAreasVisible( bool visible )
++{
++  QgsProject *project = QgsProject::instance();
++
++  if ( !visible )
++  {
++    QSettings().setValue( CTRL_SETTINGS_KEY, false );
++    if ( QgsVectorLayer *layer = existingCtrlLayer() )
++      project->removeMapLayer( layer->id() );
++    mCtrlLayer = nullptr;
++    emit ctrlAreasVisibleChanged();
++    return QString();
++  }
++
++  if ( ctrlAreasVisible() || mCtrlLoading )
++    return QString();
++  if ( !SurveyorAccess::isAuthorized() )
++    return tr( "ამზომველის პ/ნ-ს არ აქვს წვდომა პროგრამაზე" );
++
++  // Opening a WFS layer waits for the server: ask first (in the background) so
++  // the app never hangs without internet, then open it only for this project.
++  mCtrlLoading = true;
++  const QString projectFile = project->fileName();
++  auto connection = std::make_shared<QMetaObject::Connection>();
++  *connection = connect( SurveyorAccess::instance(), &SurveyorAccess::serverChecked, this, [this, connection, projectFile]( bool reachable ) {
++    disconnect( *connection );
++    mCtrlLoading = false;
++    if ( QgsProject::instance()->fileName() != projectFile || ctrlAreasVisible() )
++      return;
++    const QString error = reachable ? createCtrlLayer() : tr( "112 ფენები ვერ ჩაიტვირთა — საჭიროა ინტერნეტი" );
++    emit ctrlAreasMessage( error.isEmpty() ? tr( "112 ფენები ჩართულია — გაადიდეთ რუკა, რომ გამოჩნდეს" ) : error );
++    emit ctrlAreasVisibleChanged();
++  } );
++  SurveyorAccess::instance()->checkServer();
++  return QString();
++}
++
++QString RediImportModel::createCtrlLayer()
++{
++  QgsProject *project = QgsProject::instance();
++  QgsDataSourceUri uri;
++  uri.setParam( QStringLiteral( "url" ), QStringLiteral( "https://wblr.napr.gov.ge/data/SLRWFS/ows" ) );
++  uri.setParam( QStringLiteral( "typename" ), QStringLiteral( "SLRWFS:LR_CTRL_AREAS" ) );
++  uri.setParam( QStringLiteral( "version" ), QStringLiteral( "1.0.0" ) );
++  // Only what is on the screen is asked from the server (the layer is huge)
++  uri.setParam( QStringLiteral( "restrictToRequestBBOX" ), QStringLiteral( "1" ) );
++  SurveyorAccess::applyToUri( uri );
++
++  QgsVectorLayer::LayerOptions options( project->transformContext() );
++  options.loadDefaultStyle = false;
++  auto *layer = new QgsVectorLayer( uri.uri( false ), CTRL_LAYER_NAME, QStringLiteral( "WFS" ), options );
++  if ( !layer->isValid() )
++  {
++    delete layer;
++    SurveyorAccess::log( QStringLiteral( "ctrl112: server layer could not be opened" ) );
++    return tr( "112 ფენები ვერ ჩაიტვირთა — საჭიროა ინტერნეტი" );
++  }
++  layer->setCustomProperty( CTRL_LAYER_PROPERTY, true );
++  layer->setReadOnly( true );
++  // Drawn (and so requested) only when zoomed in
++  layer->setScaleBasedVisibility( true );
++  layer->setMinimumScale( CTRL_AREAS_MAX_SCALE );
++  layer->setMaximumScale( 0 );
++
++  // Orange-red, well apart from the parcels (yellow) and REDI (magenta)
++  const QColor color( 255, 87, 34 );
++  QgsSymbol *symbol = QgsSymbol::defaultSymbol( layer->geometryType() );
++  if ( symbol )
++  {
++    if ( layer->geometryType() == Qgis::GeometryType::Polygon )
++    {
++      delete symbol;
++      auto *fill = new QgsSimpleFillSymbolLayer( QColor( 255, 87, 34, 45 ), Qt::BDiagPattern, color, Qt::SolidLine, 0.6 );
++      auto *outline = new QgsSimpleLineSymbolLayer( color, 0.6 );
++      symbol = new QgsFillSymbol( QgsSymbolLayerList() << fill << outline );
++    }
++    else
++    {
++      symbol->setColor( color );
++    }
++    layer->setRenderer( new QgsSingleSymbolRenderer( symbol ) );
++  }
++
++  project->addMapLayer( layer, false );
++  project->layerTreeRoot()->insertLayer( 0, layer );
++  enableSnapping( layer );
++  SurveyorAccess::log( QStringLiteral( "ctrl112: shown" ) );
++
++  mCtrlLayer = layer;
++  QSettings().setValue( CTRL_SETTINGS_KEY, true );
++  return QString();
 +}
 +
 +void RediImportModel::save() const
@@ -2903,15 +3030,7 @@ index 0000000..f347b42
 +  QgsProject *project = QgsProject::instance();
 +  project->addMapLayer( layer, false );
 +  project->layerTreeRoot()->insertLayer( 0, layer );
-+
-+  // Snapping: with "all layers" the outline is snapped to already; with an
-+  // advanced configuration it has to be switched on for this layer.
-+  QgsSnappingConfig config = project->snappingConfig();
-+  if ( config.mode() == Qgis::SnappingMode::AdvancedConfiguration )
-+  {
-+    config.setIndividualLayerSettings( layer, QgsSnappingConfig::IndividualLayerSettings( true, Qgis::SnappingType::Vertex | Qgis::SnappingType::Segment, config.tolerance(), config.units() ) );
-+    project->setSnappingConfig( config );
-+  }
++  enableSnapping( layer );
 +
 +  mLayer = layer;
 +  return mLayer;
@@ -3008,10 +3127,10 @@ index 0000000..f347b42
 +}
 diff --git a/src/core/rediimportmodel.h b/src/core/rediimportmodel.h
 new file mode 100644
-index 0000000..5889587
+index 0000000..88e6ae3
 --- /dev/null
 +++ b/src/core/rediimportmodel.h
-@@ -0,0 +1,77 @@
+@@ -0,0 +1,100 @@
 +#ifndef REDIIMPORTMODEL_H
 +#define REDIIMPORTMODEL_H
 +
@@ -3036,6 +3155,8 @@ index 0000000..5889587
 +
 +    Q_PROPERTY( QObject *mapSettings READ mapSettings WRITE setMapSettings NOTIFY mapSettingsChanged )
 +    Q_PROPERTY( int count READ count NOTIFY countChanged )
++    //! The NAPR "112" control areas (LR_CTRL_AREAS) shown live from the server
++    Q_PROPERTY( bool ctrlAreasVisible READ ctrlAreasVisible NOTIFY ctrlAreasVisibleChanged )
 +
 +  public:
 +    enum Roles
@@ -3070,12 +3191,27 @@ index 0000000..5889587
 +    //! Restores the outlines remembered for the project (call after a project was opened).
 +    Q_INVOKABLE void restore();
 +
++    bool ctrlAreasVisible() const;
++
++    /**
++     * Shows or removes the "112 ფენები" layer: SLRWFS:LR_CTRL_AREAS read live from
++     * the NAPR server, only for the area on screen and only when zoomed in
++     * (about 800 000 features in all), snappable. Returns an error message or "".
++     */
++    Q_INVOKABLE QString setCtrlAreasVisible( bool visible );
++
++    //! Scale (1:N) from which the 112 layer is drawn (and requested).
++    static constexpr double CTRL_AREAS_MAX_SCALE = 10000;
++
 +    //! Splits \a text into the WKT geometries it contains (exposed for testing).
 +    static QStringList extractWkts( const QString &text );
 +
 +  signals:
 +    void mapSettingsChanged();
 +    void countChanged();
++    void ctrlAreasVisibleChanged();
++    //! Result of switching the 112 layer on (it is opened after a server check)
++    void ctrlAreasMessage( const QString &message );
 +
 +  private:
 +    QgsVectorLayer *ensureLayer();
@@ -3085,6 +3221,12 @@ index 0000000..5889587
 +
 +    QStringList mWkts;
 +    QPointer<QgsVectorLayer> mLayer;
++    QPointer<QgsVectorLayer> mCtrlLayer;
++
++    QgsVectorLayer *existingCtrlLayer() const;
++    QString createCtrlLayer();
++    bool mCtrlLoading = false;
++    void enableSnapping( QgsVectorLayer *layer ) const;
 +    QPointer<QObject> mMapSettings;
 +};
 +
@@ -4058,10 +4200,10 @@ index 0000000..bcd46fc
 +#endif // SURVEYORACCESS_H
 diff --git a/src/core/topologycheckermodel.cpp b/src/core/topologycheckermodel.cpp
 new file mode 100644
-index 0000000..68e9107
+index 0000000..b1f2534
 --- /dev/null
 +++ b/src/core/topologycheckermodel.cpp
-@@ -0,0 +1,831 @@
+@@ -0,0 +1,834 @@
 +#include "topologycheckermodel.h"
 +
 +#include <QPointF>
@@ -4340,28 +4482,31 @@ index 0000000..68e9107
 +{
 +  if ( name.isEmpty() ) return nullptr;
 +  const QMap<QString, QgsMapLayer *> layers = QgsProject::instance()->mapLayers();
-+  // Prefer an exact (case-insensitive) name match. In offline mode its saved
-+  // copy is what is shown on the map (the server layer is hidden): check that.
++  // Prefer an exact (case-insensitive) name match: the live layer, or - when it
++  // could not load (no internet) - its saved offline copy.
 +  for ( QgsMapLayer *ml : layers )
 +  {
 +    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( ml );
 +    if ( !vl || vl->name().compare( name, Qt::CaseInsensitive ) != 0 )
 +      continue;
++    if ( vl->isValid() )
++      return vl;
 +    for ( QgsMapLayer *other : layers )
 +    {
 +      QgsVectorLayer *copy = qobject_cast<QgsVectorLayer *>( other );
 +      if ( copy && copy->isValid() && copy->customProperty( QStringLiteral( "georgiaqfield/offlineOf" ) ).toString() == vl->id() )
 +        return copy;
 +    }
-+    if ( vl->isValid() )
-+      return vl;
 +  }
-+  // Fall back to a substring match (handles "ნაკვეთი (axmeta)" etc.).
-+  for ( QgsMapLayer *ml : layers )
++  // Fall back to a substring match (handles "ნაკვეთი (axmeta)" etc.), live layers first.
++  for ( const bool copies : { false, true } )
 +  {
-+    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( ml );
-+    if ( vl && vl->isValid() && vl->name().contains( name, Qt::CaseInsensitive ) )
-+      return vl;
++    for ( QgsMapLayer *ml : layers )
++    {
++      QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( ml );
++      if ( vl && vl->isValid() && vl->name().contains( name, Qt::CaseInsensitive ) && vl->customProperty( QStringLiteral( "georgiaqfield/offlineOf" ) ).isValid() == copies )
++        return vl;
++    }
 +  }
 +  return nullptr;
 +}
@@ -5109,10 +5254,10 @@ index 0000000..cc68a2a
 +#endif // TOPOLOGYCHECKERMODEL_H
 diff --git a/src/core/villageselectormodel.cpp b/src/core/villageselectormodel.cpp
 new file mode 100644
-index 0000000..85605c4
+index 0000000..0949296
 --- /dev/null
 +++ b/src/core/villageselectormodel.cpp
-@@ -0,0 +1,1287 @@
+@@ -0,0 +1,1325 @@
 +#include "villageselectormodel.h"
 +#include "surveyoraccess.h"
 +
@@ -5135,6 +5280,7 @@ index 0000000..85605c4
 +#include <qgsexpressioncontextutils.h>
 +#include <qgseditorwidgetsetup.h>
 +#include <qgsfeedback.h>
++#include <qgsfieldconstraints.h>
 +#include <qgslayertree.h>
 +#include <qgslayertreegroup.h>
 +#include <qgslayertreelayer.h>
@@ -5791,9 +5937,10 @@ index 0000000..85605c4
 +    switch ( kind )
 +    {
 +      case FilterKind::InventoryCodes:
-+        // USAIDCODE is matched with the angle brackets kept ('<8812%>'), exactly as the
-+        // original replace(@myzone, '.', '') produced; PNEWCODE without them.
-+        parts << QStringLiteral( "( \"USAIDCODE\" LIKE '<%1%2%>' OR \"PNEWCODE\" LIKE '%1%2%' )" ).arg( zone, sector );
++        // USAIDCODE is stored as '<8812...>' in most municipalities, but as plain
++        // digits ('8118...') in 61, 62, 64, 66, 68, 81 and 84 (all 922 village
++        // projects compared): both forms are asked for. PNEWCODE is plain.
++        parts << QStringLiteral( "( \"USAIDCODE\" LIKE '<%1%2%>' OR \"USAIDCODE\" LIKE '%1%2%' OR \"PNEWCODE\" LIKE '%1%2%' )" ).arg( zone, sector );
 +        break;
 +      case FilterKind::CadastralCode:
 +        parts << QStringLiteral( "\"CADCODE\" LIKE '%1.%2%'" ).arg( zone, sector );
@@ -5862,7 +6009,9 @@ index 0000000..85605c4
 +    return targetLayerCount() > 0 ? tr( "სერვერის ფენები ჩატვირთული არ არის — შეამოწმეთ ინტერნეტი და განაახლეთ პროექტი" ) : tr( "პროექტში ვერ მოიძებნა სოფლების მიხედვით ფილტრირებული ფენა" );
 +
 +  // New villages: the offline copy (other villages) no longer matches
-+  if ( offlineActive() )
++  QStringList offlineCodes = projectSetting( QStringLiteral( "offline/villages" ), OFFLINE_VILLAGES_KEY ).toStringList();
++  offlineCodes.sort();
++  if ( offlineActive() && !mKeepOffline && offlineCodes != codes )
 +  {
 +    removeOfflineLayers();
 +    clearOfflineState();
@@ -5906,6 +6055,41 @@ index 0000000..85605c4
 +  return QString();
 +}
 +
++int VillageSelectorModel::relaxParcelConstraints()
++{
++  // The parcel layer's "Not null" / "Unique" field constraints (set in the
++  // desktop project) are not checked in the app: a unique check asks the WFS
++  // server for every value typed and held up saving the parcel.
++  int removed = 0;
++  const QMap<QString, QgsMapLayer *> layers = QgsProject::instance()->mapLayers();
++  for ( QgsMapLayer *layer : layers )
++  {
++    QgsVectorLayer *vl = qobject_cast<QgsVectorLayer *>( layer );
++    if ( !vl || isOfflineCopyLayer( vl ) )
++      continue;
++    const bool parcels = vl->name() == QStringLiteral( "ნაკვეთი" )
++                         || QgsDataSourceUri( vl->source() ).param( QStringLiteral( "typename" ) ).section( QLatin1Char( ':' ), -1 ).compare( QLatin1String( "GFLD_PARCELS" ), Qt::CaseInsensitive ) == 0;
++    if ( !parcels )
++      continue;
++    const QgsFields fields = vl->fields();
++    for ( int i = 0; i < fields.count(); ++i )
++    {
++      const QgsFieldConstraints::Constraints constraints = fields.at( i ).constraints().constraints();
++      if ( !( constraints & ( QgsFieldConstraints::ConstraintNotNull | QgsFieldConstraints::ConstraintUnique ) ) )
++        continue;
++      vl->removeFieldConstraint( i, QgsFieldConstraints::ConstraintNotNull );
++      vl->removeFieldConstraint( i, QgsFieldConstraints::ConstraintUnique );
++      // A "not null" from the server's own schema cannot be removed: never block on it
++      if ( vl->fields().at( i ).constraints().constraints() & QgsFieldConstraints::ConstraintNotNull )
++        vl->setFieldConstraint( i, QgsFieldConstraints::ConstraintNotNull, QgsFieldConstraints::ConstraintStrengthSoft );
++      ++removed;
++    }
++  }
++  if ( removed > 0 )
++    SurveyorAccess::log( QStringLiteral( "constraints: removed on %1 parcel fields" ).arg( removed ) );
++  return removed;
++}
++
 +int VillageSelectorModel::enforceLayerVersions()
 +{
 +  int changed = 0;
@@ -5942,26 +6126,27 @@ index 0000000..85605c4
 +
 +  // Field-work layers matched by name (other projects / other type names)
 +  enforceLayerVersions();
++  relaxParcelConstraints();
 +  // NAPR WMS layers are not touched while reading: give / take their credentials now
 +  SurveyorAccess::instance()->refreshLayers();
 +
-+  // Offline mode: show the saved copies next to the (hidden) server layers, and
-+  // the villages of that copy in the list (the shared selection is not changed)
-+  if ( offlineActive() && addOfflineLayers() )
++  // Live layers hidden by the earlier version of the offline mode: show again
++  const QMap<QString, QgsMapLayer *> projectLayers = QgsProject::instance()->mapLayers();
++  for ( QgsMapLayer *layer : projectLayers )
 +  {
-+    const QStringList offlineCodes = projectSetting( QStringLiteral( "offline/villages" ), OFFLINE_VILLAGES_KEY ).toStringList();
-+    if ( !offlineCodes.isEmpty() )
-+    {
-+      mSelected = QSet<QString>( offlineCodes.begin(), offlineCodes.end() );
-+      rebuild();
-+      emit selectionChanged();
-+    }
-+    setVillageVariables( sortedSelection() );
-+    return true;
++    if ( !layer->customProperty( HIDDEN_FOR_OFFLINE_PROPERTY, false ).toBool() )
++      continue;
++    layer->removeCustomProperty( HIDDEN_FOR_OFFLINE_PROPERTY );
++    if ( QgsLayerTreeLayer *node = QgsProject::instance()->layerTreeRoot()->findLayer( layer->id() ) )
++      node->setItemVisibilityChecked( true );
 +  }
 +
++  // Offline mode: the saved copies are shown under the server layers, which
++  // stay exactly as they are (with internet they keep working as usual)
++  const bool offline = offlineActive() && addOfflineLayers();
++
 +  if ( mSelected.isEmpty() || targetLayerCount() == 0 )
-+    return false;
++    return offline;
 +
 +  if ( preprocessed )
 +  {
@@ -5971,7 +6156,11 @@ index 0000000..85605c4
 +    return true;
 +  }
 +
-+  return apply().isEmpty();
++  // Only the server filters: the offline copy just added stays
++  mKeepOffline = true;
++  const bool ok = apply().isEmpty();
++  mKeepOffline = false;
++  return ok || offline;
 +}
 +
 +// ---------------------------------------------------------------------------
@@ -6064,8 +6253,6 @@ index 0000000..85605c4
 +{
 +  if ( mBusy )
 +    return tr( "შენახვა უკვე მიმდინარეობს" );
-+  if ( offlineActive() )
-+    return tr( "ჯერ დაბრუნდით ლაივ რეჟიმში" );
 +  if ( !SurveyorAccess::isAuthorized() )
 +    return tr( "ამზომველის პ/ნ-ს არ აქვს წვდომა პროგრამაზე" );
 +  // The offline copy holds the villages that are loaded on the map
@@ -6153,6 +6340,18 @@ index 0000000..85605c4
 +        failed << results.at( i );
 +    }
 +
++    // A copy saved earlier is only replaced by a complete one (patchy signal)
++    const QString previousFile = resolveOfflineFile( projectSetting( QStringLiteral( "offline/file" ), OFFLINE_FILE_KEY ).toString() );
++    const bool hasPrevious = !previousFile.isEmpty() && QFileInfo::exists( previousFile );
++    if ( !canceled && succeeded > 0 && !failed.isEmpty() && hasPrevious )
++    {
++      QFile::remove( path );
++      setBusy( false );
++      setProgressText( QString() );
++      emit offlineFinished( false, tr( "ვერ შეინახა: %1 — წინა ოფლაინ ასლი დარჩა" ).arg( failed.join( QStringLiteral( "; " ) ) ) );
++      return;
++    }
++
 +    if ( canceled || succeeded == 0 )
 +    {
 +      QFile::remove( path );
@@ -6175,10 +6374,13 @@ index 0000000..85605c4
 +    setProjectSetting( QStringLiteral( "offline/date" ), QDateTime::currentDateTime() );
 +    setProjectSetting( QStringLiteral( "offline/villages" ), codes );
 +    setProjectSetting( QStringLiteral( "offline/active" ), true );
++    // The new copy replaces the one on the map (nothing may keep the old file open)
++    removeOfflineLayers();
 +    if ( !previous.isEmpty() && previous != path )
 +    {
-+      removeOfflineLayers(); // nothing may keep the old file open
 +      QFile::remove( previous );
++      QFile::remove( previous + QStringLiteral( "-wal" ) );
++      QFile::remove( previous + QStringLiteral( "-shm" ) );
 +    }
 +
 +    // Show the copies right away (added as extra layers, nothing is re-opened)
@@ -6252,26 +6454,8 @@ index 0000000..85605c4
 +  SurveyorAccess::log( QStringLiteral( "goLive" ) );
 +  // Remove the offline copies and show the server layers again: nothing is
 +  // re-opened and no layer changes its data provider.
-+  const QStringList offlineCodes = sortedSelection();
 +  removeOfflineLayers();
 +  clearOfflineState();
-+
-+  // The server layers were opened with the shared selection: when the copy held
-+  // other villages, the server shows those same villages from now on.
-+  QStringList shared = QSettings().value( SETTINGS_KEY ).toStringList();
-+  shared.sort();
-+  if ( !offlineCodes.isEmpty() && offlineCodes != shared )
-+  {
-+    const QString error = apply();
-+    if ( !error.isEmpty() )
-+    {
-+      SurveyorAccess::log( QStringLiteral( "goLive: %1" ).arg( error ) );
-+      loadSelection();
-+      rebuild();
-+      emit selectionChanged();
-+      setVillageVariables( sortedSelection() );
-+    }
-+  }
 +  return QString();
 +}
 +
@@ -6343,6 +6527,13 @@ index 0000000..85605c4
 +        copy->setFieldAlias( i, serverFields.at( serverIndex ).alias() );
 +      copy->setEditorWidgetSetup( i, server->editorWidgetSetup( serverIndex ) );
 +    }
++    if ( server->isValid() )
++    {
++      // The live layer works and draws on top: the copy only stands in for it,
++      // without a second set of labels or identify results
++      copy->setLabelsEnabled( false );
++      copy->setFlags( copy->flags() & ~QgsMapLayer::Identifiable );
++    }
 +    copy->setReadOnly( true );
 +    copy->setCustomProperty( OFFLINE_COPY_PROPERTY, true );
 +    copy->setCustomProperty( OFFLINE_OF_PROPERTY, server->id() );
@@ -6350,20 +6541,12 @@ index 0000000..85605c4
 +    project->addMapLayer( copy, false );
 +    QgsLayerTreeLayer *serverNode = root->findLayer( server->id() );
 +    QgsLayerTreeGroup *parent = serverNode ? qobject_cast<QgsLayerTreeGroup *>( serverNode->parent() ) : nullptr;
++    // Right under its server layer: the live layer is not touched and draws on
++    // top; without internet (empty live layer) the copy shows through.
 +    if ( parent )
-+    {
-+      parent->insertLayer( static_cast<int>( parent->children().indexOf( serverNode ) ), copy );
-+      // The server layer stays in the project (drawing goes there), hidden meanwhile
-+      if ( serverNode->itemVisibilityChecked() )
-+      {
-+        server->setCustomProperty( HIDDEN_FOR_OFFLINE_PROPERTY, true );
-+        serverNode->setItemVisibilityChecked( false );
-+      }
-+    }
++      parent->insertLayer( static_cast<int>( parent->children().indexOf( serverNode ) ) + 1, copy );
 +    else
-+    {
 +      root->insertLayer( 0, copy );
-+    }
 +    ++added;
 +  }
 +  SurveyorAccess::log( QStringLiteral( "addOfflineLayers: %1 added" ).arg( added ) );
@@ -6402,10 +6585,10 @@ index 0000000..85605c4
 +
 diff --git a/src/core/villageselectormodel.h b/src/core/villageselectormodel.h
 new file mode 100644
-index 0000000..5a6c66e
+index 0000000..53b7836
 --- /dev/null
 +++ b/src/core/villageselectormodel.h
-@@ -0,0 +1,196 @@
+@@ -0,0 +1,200 @@
 +#ifndef VILLAGESELECTORMODEL_H
 +#define VILLAGESELECTORMODEL_H
 +
@@ -6512,6 +6695,9 @@ index 0000000..5a6c66e
 +     */
 +    Q_INVOKABLE int enforceLayerVersions();
 +
++    //! Drops the "Not null" / "Unique" field constraints of the parcel layer (see applySaved()).
++    int relaxParcelConstraints();
++
 +    bool offlineActive() const;
 +    bool canResumeOffline() const;
 +    //! Switches back to the offline copy saved earlier (re-opens the project).
@@ -6580,6 +6766,7 @@ index 0000000..5a6c66e
 +    QVector<Municipality> mMunicipalities;
 +    QVector<Row> mRows;
 +    QSet<QString> mSelected; // "ZZ.SS"
++    bool mKeepOffline = false; //!< apply() from applySaved(): the offline copy stays
 +    QSet<QString> mExpanded; // zone ids
 +    QString mSearchText;
 +    int mVillageCount = 0;
@@ -7848,10 +8035,10 @@ index 8d7b9f2..4c43dd7 100644
                      anchors.left = parent.left;
 diff --git a/src/gui/qml/RediImportDialog.qml b/src/gui/qml/RediImportDialog.qml
 new file mode 100644
-index 0000000..c26254e
+index 0000000..df785b9
 --- /dev/null
 +++ b/src/gui/qml/RediImportDialog.qml
-@@ -0,0 +1,328 @@
+@@ -0,0 +1,394 @@
 +import QtQuick
 +import QtQuick.Controls
 +import QtQuick.Controls.impl
@@ -7889,6 +8076,7 @@ index 0000000..c26254e
 +
 +  RediImportModel {
 +    id: rediModel
++    onCtrlAreasMessage: message => root.toast(message)
 +  }
 +
 +  onIsOpenChanged: {
@@ -7968,6 +8156,71 @@ index 0000000..c26254e
 +          id: content
 +          width: flick.width
 +          spacing: 10
++
++          // ---- NAPR "112" control areas, live from the server ----
++          Rectangle {
++            Layout.fillWidth: true
++            Layout.leftMargin: 12
++            Layout.rightMargin: 12
++            Layout.topMargin: 4
++            implicitHeight: ctrlRow.implicitHeight + 12
++            radius: 12
++            color: QfTheme.groupBoxBackgroundColor
++
++            RowLayout {
++              id: ctrlRow
++              anchors.fill: parent
++              anchors.leftMargin: 12
++              anchors.rightMargin: 4
++              anchors.topMargin: 6
++              anchors.bottomMargin: 6
++              spacing: 10
++
++              Rectangle {
++                Layout.preferredWidth: 16
++                Layout.preferredHeight: 16
++                radius: 4
++                color: "#40ff5722"
++                border.color: "#ff5722"
++                border.width: 2
++              }
++
++              ColumnLayout {
++                Layout.fillWidth: true
++                spacing: 0
++                Label {
++                  Layout.fillWidth: true
++                  text: qsTr("112 ფენები")
++                  font: QfTheme.strongFont
++                  color: QfTheme.mainTextColor
++                  elide: Text.ElideRight
++                }
++                Label {
++                  Layout.fillWidth: true
++                  text: qsTr("ლაივ, სერვერიდან · ჩანს 1:%1-ზე ახლოს").arg(Number(10000).toLocaleString(Qt.locale(), 'f', 0))
++                  font: QfTheme.tipFont
++                  color: QfTheme.secondaryTextColor
++                  wrapMode: Text.WordWrap
++                }
++              }
++
++              QfSwitch {
++                id: ctrlSwitch
++                checked: rediModel.ctrlAreasVisible
++                onClicked: {
++                  var err = rediModel.setCtrlAreasVisible(checked);
++                  if (err !== "") {
++                    root.toast(err);
++                  } else if (checked) {
++                    root.toast(qsTr("112 ფენები იტვირთება..."));
++                  }
++                  checked = Qt.binding(function () {
++                    return rediModel.ctrlAreasVisible;
++                  });
++                }
++              }
++            }
++          }
 +
 +          // ---- How to (shown until something is pasted) ----
 +          Rectangle {
@@ -9366,10 +9619,10 @@ index 0000000..d5ed827
 +}
 diff --git a/src/gui/qml/VillageSelectorDialog.qml b/src/gui/qml/VillageSelectorDialog.qml
 new file mode 100644
-index 0000000..77f7dc0
+index 0000000..5709ecc
 --- /dev/null
 +++ b/src/gui/qml/VillageSelectorDialog.qml
-@@ -0,0 +1,525 @@
+@@ -0,0 +1,524 @@
 +import QtQuick
 +import QtQuick.Controls
 +import QtQuick.Controls.impl
@@ -9407,13 +9660,13 @@ index 0000000..77f7dc0
 +
 +  function resumeOffline() {
 +    var err = villageModel.resumeOffline();
-+    root.toast(err === "" ? qsTr("ოფლაინ რეჟიმი — ნაჩვენებია შენახული ასლი") : err);
++    root.toast(err === "" ? qsTr("ოფლაინ ასლი ჩართულია — ჩანს ინტერნეტის გარეშეც") : err);
 +  }
 +
 +  function applySaved() {
 +    if (villageModel.applySaved()) {
 +      if (villageModel.offlineActive)
-+        root.toast(qsTr("ოფლაინ რეჟიმი · %1").arg(villageModel.offlineInfo));
++        root.toast(qsTr("ოფლაინ ასლი ჩართულია · %1").arg(villageModel.offlineInfo));
 +      else
 +        root.toast(qsTr("ჩაიტვირთა არჩეული სოფლები (%1)").arg(villageModel.selectedCount));
 +    }
@@ -9441,9 +9694,9 @@ index 0000000..77f7dc0
 +    if (err !== "") {
 +      root.toast(err);
 +    } else if (NaprAccess.hasUnavailableLayers()) {
-+      root.reloadSuggested(qsTr("ლაივ რეჟიმი — სერვერის ფენები ჯერ არ ჩატვირთულა, განაახლეთ პროექტი"));
++      root.reloadSuggested(qsTr("ოფლაინ ასლი გამორთულია — სერვერის ფენები ჯერ არ ჩატვირთულა, განაახლეთ პროექტი"));
 +    } else {
-+      root.toast(qsTr("ლაივ რეჟიმი — მონაცემები სერვერიდან"));
++      root.toast(qsTr("ოფლაინ ასლი გამორთულია"));
 +    }
 +  }
 +
@@ -9795,7 +10048,7 @@ index 0000000..77f7dc0
 +            spacing: 0
 +            Label {
 +              Layout.fillWidth: true
-+              text: villageModel.busy ? qsTr("ოფლაინ შენახვა...") : qsTr("ოფლაინ რეჟიმი")
++              text: villageModel.busy ? qsTr("ოფლაინ შენახვა...") : qsTr("ოფლაინ ასლი ჩართულია")
 +              font: QfTheme.strongTipFont
 +              color: QfTheme.mainTextColor
 +              elide: Text.ElideRight
@@ -9856,7 +10109,7 @@ index 0000000..77f7dc0
 +        QfButton {
 +          Layout.fillWidth: true
 +          visible: !villageModel.offlineActive && villageModel.canResumeOffline
-+          text: qsTr("შენახული ოფლაინ ასლი")
++          text: qsTr("ოფლაინ ასლის ჩართვა")
 +          icon.source: QfTheme.getThemeVectorIcon("ic_cloud_off_24dp")
 +          bgcolor: "transparent"
 +          color: QfTheme.warningColor
@@ -9867,7 +10120,6 @@ index 0000000..77f7dc0
 +        // Save the loaded villages for use without internet
 +        QfButton {
 +          Layout.fillWidth: true
-+          visible: !villageModel.offlineActive
 +          text: qsTr("ოფლაინ შენახვა")
 +          icon.source: QfTheme.getThemeVectorIcon("ic_cloud_download_24dp")
 +          bgcolor: "transparent"
@@ -9884,7 +10136,7 @@ index 0000000..77f7dc0
 +        QfButton {
 +          Layout.fillWidth: true
 +          visible: villageModel.offlineActive
-+          text: qsTr("ლაივში დაბრუნება")
++          text: qsTr("ოფლაინ ასლის გამორთვა")
 +          icon.source: QfTheme.getThemeVectorIcon("ic_cloud_synchronize_24dp")
 +          bgcolor: "transparent"
 +          color: QfTheme.mainColor
