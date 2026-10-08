@@ -65,6 +65,19 @@ jobs:
       - name: ♻️ Check disk space
         run: df . -h
 
+      # The runner image no longer always ships NDK 28.2: install it when missing
+      - name: 📱 Install Android NDK
+        run: |
+          NDK_VERSION=28.2.13676358
+          SDK_ROOT="${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}"
+          if [ ! -f "${SDK_ROOT}/ndk/${NDK_VERSION}/build/cmake/android.toolchain.cmake" ]; then
+            SDKMANAGER="${SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+            printf 'y\ny\ny\n' | "${SDKMANAGER}" --sdk_root="${SDK_ROOT}" --install "ndk;${NDK_VERSION}" > /dev/null || \
+              printf 'y\ny\ny\n' | sudo -E "${SDKMANAGER}" --sdk_root="${SDK_ROOT}" --install "ndk;${NDK_VERSION}" > /dev/null
+          fi
+          ls "${SDK_ROOT}/ndk"
+          test -f "${SDK_ROOT}/ndk/${NDK_VERSION}/build/cmake/android.toolchain.cmake"
+
       - name: 🌾 Prepare variables
         id: vars
         shell: bash
@@ -112,7 +125,7 @@ jobs:
       - name: 🔨 Prepare build env
         run: |
           sudo apt-get update
-          sudo apt-get install -y gperf autopoint '^libxcb.*-dev' libxrandr-dev libx11-xcb-dev libsm-dev libegl1-mesa-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev autoconf-archive libgstreamer-gl1.0-0 libgstreamer-plugins-base1.0-0 libfuse2 libcups2-dev nasm libltdl-dev
+          sudo apt-get install -y ninja-build gperf autopoint '^libxcb.*-dev' libxrandr-dev libx11-xcb-dev libsm-dev libegl1-mesa-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev autoconf-archive libgstreamer-gl1.0-0 libgstreamer-plugins-base1.0-0 libfuse2 libcups2-dev nasm libltdl-dev
           wget https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.sh -O /tmp/cmakeinstall.sh
           chmod +x /tmp/cmakeinstall.sh
           sudo /tmp/cmakeinstall.sh --prefix=/usr/local --exclude-subdir
